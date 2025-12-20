@@ -7,6 +7,7 @@ import json
 import datetime
 import cloudinary
 import cloudinary.uploader
+import textwrap  # <--- NEW IMPORT TO FIX THE HTML BUG
 
 # -----------------------------------------------------------------------------
 # 1. SETUP & CONFIG
@@ -320,32 +321,32 @@ if submitted and user_input:
     except Exception as e:
         st.error(f"Save Failed: {e}")
 
-    # RESULT CARD (FIXED INDENTATION)
-    # The HTML block is intentionally un-indented to prevent Markdown from interpreting it as code.
-    html_block = f"""
-<div class="character-card">
-    <div class="card-header">
-        <div class="card-name">{char_data['Name']}</div>
-        <div class="card-class">{char_data['Class']}</div>
-    </div>
-    
-    <div class="img-container">
-        <a href="{image_url}" target="_blank">
-            <img src="{image_url}" title="Click to Expand">
-        </a>
-    </div>
-    <div class="visual-caption">"{char_data['Visual_Desc']}"</div>
-    
-    <div class="voice-section">
-        <div class="voice-quote">{char_data['Greeting']}</div>
-    </div>
-    
-    <div class="lore-section">
-        <span class="lore-label">Archive Record</span>
-        {char_data['Lore']}
-    </div>
-</div>
-"""
+    # RESULT CARD (FIXED INDENTATION WITH TEXTWRAP)
+    # textwrap.dedent removes common leading whitespace, preventing code block rendering
+    html_block = textwrap.dedent(f"""
+        <div class="character-card">
+            <div class="card-header">
+                <div class="card-name">{char_data['Name']}</div>
+                <div class="card-class">{char_data['Class']}</div>
+            </div>
+            
+            <div class="img-container">
+                <a href="{image_url}" target="_blank">
+                    <img src="{image_url}" title="Click to Expand">
+                </a>
+            </div>
+            <div class="visual-caption">"{char_data['Visual_Desc']}"</div>
+            
+            <div class="voice-section">
+                <div class="voice-quote">{char_data['Greeting']}</div>
+            </div>
+            
+            <div class="lore-section">
+                <span class="lore-label">Archive Record</span>
+                {char_data['Lore']}
+            </div>
+        </div>
+    """)
     st.markdown(html_block, unsafe_allow_html=True)
 
 # FOOTER
