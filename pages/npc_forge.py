@@ -73,16 +73,16 @@ st.markdown("""
     /* --- THE ANVIL CONTAINER (The Form) --- */
     [data-testid="stForm"] {
         background: var(--iron-gradient);
-        /* We remove padding-bottom so the button hits the floor */
+        /* Remove bottom padding so button hits the floor */
         padding: 3rem 2rem 0rem 2rem; 
         border: none;
         
-        /* A THICKER ANVIL SHAPE */
+        /* THE SHAPE: Much tighter waist now (15% indentation) */
         clip-path: polygon(
             0% 0%, 100% 0%,      /* Top Face */
-            90% 25%, 90% 75%,    /* Right Neck (Less pinched) */
+            85% 25%, 85% 75%,    /* Right Neck (Pinched in 15%) */
             100% 100%, 0% 100%,  /* Base (Full Width) */
-            10% 75%, 10% 25%     /* Left Neck (Less pinched) */
+            15% 75%, 15% 25%     /* Left Neck (Pinched in 15%) */
         );
         
         filter: drop-shadow(0 0 30px rgba(0,0,0,0.9));
@@ -92,7 +92,7 @@ st.markdown("""
     .stTextInput > div > div > input {
         background-color: #080808 !important; 
         border: 1px solid #333 !important;
-        border-top: 4px solid #000 !important; /* Deep "slot" look */
+        border-top: 4px solid #000 !important;
         color: #e0e0e0 !important;
         font-family: 'Lato', sans-serif;
         font-size: 1.1rem;
@@ -106,22 +106,23 @@ st.markdown("""
     .stTextInput label { display: none; }
     [data-testid="InputInstructions"] { display: none !important; }
 
-    /* --- THE BLACK FORGE BUTTON (NUCLEAR FIX) --- */
+    /* --- THE BLACK FORGE BUTTON (Aggressive Override) --- */
     
-    /* 1. Target the CONTAINER of the button to force full width */
-    .stButton {
+    /* 1. Target the button inside the form specifically */
+    div[data-testid="stForm"] .stButton {
         width: 100% !important;
         margin-top: 0rem !important;
+        padding: 0 !important;
     }
 
     /* 2. Target the BUTTON ITSELF */
-    .stButton > button {
-        width: 100% !important;  /* FILL THE BASE */
-        background-color: #000 !important; /* JET BLACK */
+    div[data-testid="stForm"] .stButton > button {
+        width: 100% !important;  
+        background-color: #000 !important; 
         color: #666 !important;
         border: none !important;
         border-top: 1px solid #333 !important;
-        border-radius: 0px !important; /* NO ROUND CORNERS */
+        border-radius: 0px !important; /* Sharp corners */
         padding: 1.5rem !important;
         font-family: 'Cinzel', serif !important;
         font-weight: 900 !important;
@@ -132,22 +133,15 @@ st.markdown("""
     }
 
     /* 3. HOVER STATE - EMERALD IGNITION */
-    .stButton > button:hover {
+    div[data-testid="stForm"] .stButton > button:hover {
         color: #fff !important;
-        background-color: #051a10 !important; /* Deep Green */
-        box-shadow: inset 0 0 30px var(--emerald-glow) !important; /* Inner Glow */
+        background-color: #051a10 !important; 
+        box-shadow: inset 0 0 50px var(--emerald-glow) !important; 
         text-shadow: 0 0 10px var(--emerald-glow) !important;
     }
     
-    .stButton > button:active {
+    div[data-testid="stForm"] .stButton > button:active {
         background-color: #000 !important;
-    }
-    
-    /* Add a divider line between input and button */
-    .stButton > button::before {
-        content: "";
-        display: block;
-        width: 100%;
     }
 
     /* --- RESULT CARD --- */
