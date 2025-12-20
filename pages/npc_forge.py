@@ -27,7 +27,7 @@ st.markdown("""
         --stone-dark: #0e0e0e;
         --emerald-glow: #50c878;
         --emerald-dim: #2e5a44;
-        --iron-gradient: linear-gradient(180deg, #333 0%, #1a1a1a 100%);
+        --iron-gradient: linear-gradient(180deg, #2b2b2b 0%, #1a1a1a 40%, #000 100%);
     }
 
     /* --- BACKGROUND --- */
@@ -73,32 +73,33 @@ st.markdown("""
     /* --- THE ANVIL CONTAINER (The Form) --- */
     [data-testid="stForm"] {
         background: var(--iron-gradient);
-        /* Remove bottom padding so button hits the floor */
-        padding: 3rem 2rem 0rem 2rem; 
+        /* No bottom padding allows button to hit the floor */
+        padding: 4rem 2rem 0rem 2rem; 
         border: none;
         
-        /* THE SHAPE: Much tighter waist now (15% indentation) */
+        /* THE REAL ANVIL SHAPE */
         clip-path: polygon(
-            0% 0%, 100% 0%,      /* Top Face */
-            85% 25%, 85% 75%,    /* Right Neck (Pinched in 15%) */
-            100% 100%, 0% 100%,  /* Base (Full Width) */
-            15% 75%, 15% 25%     /* Left Neck (Pinched in 15%) */
+            0% 0%, 100% 0%,      /* Top Face (Wide) */
+            90% 35%, 90% 65%,    /* Right Waist (Deep pinch) */
+            100% 100%, 0% 100%,  /* Base (Wide) */
+            10% 65%, 10% 35%     /* Left Waist (Deep pinch) */
         );
         
         filter: drop-shadow(0 0 30px rgba(0,0,0,0.9));
+        margin-bottom: 2rem;
     }
 
     /* --- INPUT FIELD --- */
     .stTextInput > div > div > input {
         background-color: #080808 !important; 
         border: 1px solid #333 !important;
-        border-top: 4px solid #000 !important;
+        border-top: 4px solid #000 !important; /* Deep Slot */
         color: #e0e0e0 !important;
         font-family: 'Lato', sans-serif;
-        font-size: 1.1rem;
-        padding: 1rem;
+        font-size: 1.2rem;
+        padding: 1.5rem;
         text-align: center;
-        margin-bottom: 2rem;
+        margin-bottom: 3rem; /* Space between input and bottom button */
     }
     .stTextInput > div > div > input:focus {
         border-color: var(--emerald-dim) !important;
@@ -106,28 +107,29 @@ st.markdown("""
     .stTextInput label { display: none; }
     [data-testid="InputInstructions"] { display: none !important; }
 
-    /* --- THE BLACK FORGE BUTTON (Aggressive Override) --- */
+    /* --- THE BUTTON (NUCLEAR OVERRIDE) --- */
     
-    /* 1. Target the button inside the form specifically */
+    /* 1. Target the CONTAINER of the button inside the form */
     div[data-testid="stForm"] .stButton {
         width: 100% !important;
-        margin-top: 0rem !important;
+        margin: 0 !important;
         padding: 0 !important;
     }
 
-    /* 2. Target the BUTTON ITSELF */
+    /* 2. Target the BUTTON ELEMENT ITSELF */
     div[data-testid="stForm"] .stButton > button {
-        width: 100% !important;  
+        width: 100% !important;
+        min-width: 100% !important;
         background-color: #000 !important; 
         color: #666 !important;
         border: none !important;
-        border-top: 1px solid #333 !important;
-        border-radius: 0px !important; /* Sharp corners */
-        padding: 1.5rem !important;
+        border-top: 2px solid #333 !important; /* Top edge of the base */
+        border-radius: 0px !important;
+        padding: 2rem !important; /* Tall, heavy base */
         font-family: 'Cinzel', serif !important;
         font-weight: 900 !important;
-        letter-spacing: 4px !important;
-        font-size: 1.3rem !important;
+        letter-spacing: 8px !important;
+        font-size: 1.5rem !important;
         text-transform: uppercase !important;
         transition: all 0.3s ease !important;
     }
@@ -136,12 +138,20 @@ st.markdown("""
     div[data-testid="stForm"] .stButton > button:hover {
         color: #fff !important;
         background-color: #051a10 !important; 
-        box-shadow: inset 0 0 50px var(--emerald-glow) !important; 
-        text-shadow: 0 0 10px var(--emerald-glow) !important;
+        box-shadow: inset 0 0 80px var(--emerald-glow) !important; 
+        text-shadow: 0 0 15px var(--emerald-glow) !important;
+        border-top: 2px solid var(--emerald-glow) !important;
     }
     
     div[data-testid="stForm"] .stButton > button:active {
         background-color: #000 !important;
+        transform: translateY(2px);
+    }
+    
+    /* Decoration on the button */
+    div[data-testid="stForm"] .stButton > button p {
+        position: relative;
+        top: 2px;
     }
 
     /* --- RESULT CARD --- */
