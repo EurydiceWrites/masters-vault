@@ -14,7 +14,7 @@ import cloudinary.uploader
 st.set_page_config(page_title="The NPC Forge", layout="centered", page_icon="⚒️")
 
 # -----------------------------------------------------------------------------
-# 2. THE VISUAL ENGINE (The Norse Anvil)
+# 2. THE VISUAL ENGINE (The Obsidian Slab)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -27,14 +27,15 @@ st.markdown("""
         --stone-dark: #0e0e0e;
         --emerald-glow: #50c878;
         --emerald-dim: #2e5a44;
-        --iron-gradient: linear-gradient(180deg, #2b2b2b 0%, #1a1a1a 40%, #000 100%);
+        --text-main: #d0d0d0;
     }
 
     /* --- BACKGROUND --- */
     .stApp {
         background-color: var(--stone-dark);
-        background-image: radial-gradient(circle at 50% 10%, #252b27 0%, #000 90%);
-        color: #d0d0d0;
+        /* Deep vignette to focus center */
+        background-image: radial-gradient(circle at 50% 30%, #222 0%, #000 90%);
+        color: var(--text-main);
         font-family: 'Lato', sans-serif;
     }
 
@@ -42,12 +43,11 @@ st.markdown("""
     h1 {
         font-family: 'Cinzel', serif !important;
         text-transform: uppercase;
-        letter-spacing: 10px;
+        letter-spacing: 8px;
         font-size: 3rem !important;
         color: var(--emerald-glow) !important;
-        text-shadow: 0 0 25px rgba(80, 200, 120, 0.3);
+        text-shadow: 0 0 20px rgba(80, 200, 120, 0.4);
         text-align: center;
-        margin-top: -10px;
         margin-bottom: 0 !important;
     }
 
@@ -56,7 +56,7 @@ st.markdown("""
         font-family: 'Cormorant Garamond', serif;
         font-size: 1.2rem;
         font-style: italic;
-        color: #888;
+        color: #666;
         letter-spacing: 2px;
         margin-bottom: 3rem; 
     }
@@ -67,134 +67,147 @@ st.markdown("""
         border: none !important;
         padding: 0 !important;
     }
-    a[data-testid="stPageLink-NavLink"] p { color: #666; font-family: 'Cinzel', serif; font-size: 0.9rem; }
+    a[data-testid="stPageLink-NavLink"] p { color: #555; font-family: 'Cinzel', serif; font-size: 0.9rem; transition: color 0.3s;}
     a[data-testid="stPageLink-NavLink"]:hover p { color: var(--emerald-glow); }
 
-    /* --- THE ANVIL CONTAINER (The Form) --- */
+    /* --- THE OBSIDIAN SLAB (The Form Container) --- */
     [data-testid="stForm"] {
-        background: var(--iron-gradient);
-        /* We keep padding on top/sides for the Input, but 0 on bottom for the button */
-        padding: 3rem 2rem 0rem 2rem; 
-        border: none;
+        background-color: #1a1a1a;
+        /* Subtle grit texture */
+        background-image: 
+            linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), 
+            linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+        background-size: 20px 20px;
         
-        /* THE SHAPE: Wide Top, Narrow Waist, Wide Base */
-        clip-path: polygon(
-            0% 0%, 100% 0%,      /* Top Face */
-            90% 35%, 90% 65%,    /* Right Waist */
-            100% 100%, 0% 100%,  /* Base */
-            10% 65%, 10% 35%     /* Left Waist */
-        );
+        /* The "Heavy Stone" Double Border */
+        border: 2px solid #333;
+        box-shadow: 
+            0 0 0 6px #0e0e0e,           /* Outer black ring */
+            0 0 30px rgba(0,0,0,0.8);    /* Deep drop shadow */
         
-        filter: drop-shadow(0 0 30px rgba(0,0,0,0.9));
-        margin-bottom: 2rem;
+        border-radius: 4px; /* Slight rounding, not sharp */
+        padding: 3rem 2.5rem !important; /* Luxury spacing */
     }
 
-    /* --- INPUT FIELD --- */
+    /* --- INPUT FIELD (The Carved Inscription) --- */
     .stTextInput > div > div > input {
-        background-color: #080808 !important; 
-        border: 1px solid #333 !important;
-        border-top: 4px solid #000 !important;
+        background-color: #0b0b0b !important; 
+        border: 1px solid #2a2a2a !important;
+        border-top: 1px solid #000 !important; /* Deepen top edge */
+        border-bottom: 1px solid #333 !important; /* Highlight bottom edge */
+        
+        /* INSET SHADOW makes it look carved into the stone */
+        box-shadow: inset 0 4px 8px rgba(0,0,0,0.8) !important;
+        
         color: #e0e0e0 !important;
-        font-family: 'Lato', sans-serif;
-        font-size: 1.2rem;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.3rem;
         padding: 1.5rem;
         text-align: center;
-        margin-bottom: 2rem; /* Push button down */
+        border-radius: 2px;
     }
     .stTextInput > div > div > input:focus {
         border-color: var(--emerald-dim) !important;
+        color: var(--emerald-glow) !important;
+        box-shadow: inset 0 4px 12px rgba(0,0,0,1), 0 0 10px rgba(80,200,120,0.1) !important;
     }
-    .stTextInput label { display: none; }
+    .stTextInput label { display: none; } /* Hide default label */
     [data-testid="InputInstructions"] { display: none !important; }
 
-    /* --- THE BUTTON (THE BASE) --- */
-    /* This negative margin pulls the button OUT to the edges of the form */
+    /* --- THE BUTTON (The Rune Activation) --- */
+    /* Resetting the Anvil margins - we want a standard block now */
     .stButton {
-        width: calc(100% + 4rem) !important; /* Widen to counter padding */
-        margin-left: -2rem !important; /* Pull Left */
-        margin-right: -2rem !important; /* Pull Right */
-        margin-bottom: 0 !important;
+        width: 100% !important;
+        margin-top: 2rem !important;
     }
 
     .stButton > button {
         width: 100% !important;
-        border-radius: 0px !important;
-        background-color: #000 !important; 
-        color: #555 !important;
-        border: none !important;
-        border-top: 2px solid #333 !important; /* The visual "ridge" */
-        padding: 2.5rem !important; /* Tall, heavy base */
+        background: linear-gradient(180deg, #2a2a2a 0%, #151515 100%) !important;
+        border: 1px solid #444 !important;
+        border-bottom: 3px solid #000 !important; /* Heavy bottom for 3D feel */
+        color: #888 !important;
+        
         font-family: 'Cinzel', serif !important;
-        font-weight: 900 !important;
-        letter-spacing: 8px !important;
-        font-size: 1.5rem !important;
+        font-weight: 700 !important;
+        letter-spacing: 4px !important;
+        font-size: 1.1rem !important;
+        padding: 1rem !important;
         text-transform: uppercase !important;
         transition: all 0.3s ease !important;
     }
 
+    /* HOVER: The Rune Glows */
     .stButton > button:hover {
-        color: #fff !important;
-        background-color: #0a1f14 !important; 
-        text-shadow: 0 0 15px var(--emerald-glow) !important;
-        border-top: 2px solid var(--emerald-glow) !important;
-        box-shadow: inset 0 0 50px var(--emerald-glow) !important;
+        background: linear-gradient(180deg, #1f2e25 0%, #0e1a14 100%) !important;
+        border-color: var(--emerald-dim) !important;
+        color: var(--emerald-glow) !important;
+        text-shadow: 0 0 10px var(--emerald-glow) !important;
+        box-shadow: 0 0 15px rgba(80, 200, 120, 0.2) !important;
+        transform: translateY(-1px);
     }
     
     .stButton > button:active {
-        background-color: #000 !important;
         transform: translateY(2px);
+        border-bottom: 1px solid #000 !important;
     }
 
     /* --- RESULT CARD --- */
     .character-card {
-        background: #0a0a0a;
-        border: 1px solid #222;
+        background: #111;
+        border: 1px solid #333;
+        border-top: 3px solid var(--emerald-dim); /* Color accent on top only */
         margin-top: 4rem;
-        box-shadow: 0 0 50px #000;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.8);
         animation: fadein 1s;
+        position: relative;
     }
-    @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadein { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
     .card-name {
         font-family: 'Cinzel', serif;
-        font-size: 2rem;
+        font-size: 2.2rem;
         color: #fff;
         text-align: center;
-        padding: 1.5rem;
-        border-bottom: 1px solid #222;
-        letter-spacing: 3px;
+        padding: 2rem 1rem 1rem 1rem;
+        letter-spacing: 4px;
+        text-shadow: 0 4px 10px #000;
     }
     .visual-block {
         background-color: #080808;
-        border-left: 2px solid var(--emerald-dim);
+        border-top: 1px solid #222;
+        border-bottom: 1px solid #222;
         padding: 1.5rem;
+        text-align: center;
         font-style: italic;
-        color: #ccc;
-        margin: 1.5rem;
+        color: #666;
         font-family: 'Cormorant Garamond', serif;
+        font-size: 1.1rem;
     }
     .lore-section {
-        padding: 0 1.5rem 1.5rem 1.5rem;
-        color: #888;
-        line-height: 1.6;
+        padding: 2rem;
+        color: #999;
+        line-height: 1.8;
+        font-size: 1.05rem;
     }
 
     /* --- FOOTER RUNES --- */
     .footer-container {
         display: flex;
         justify-content: center;
-        gap: 1.5rem;
-        margin-top: 5rem;
+        gap: 2rem;
+        margin-top: 6rem;
+        padding-bottom: 2rem;
     }
     .rune-span {
         font-size: 1.5rem;
-        color: var(--emerald-dim);
-        opacity: 0.3;
-        animation: rune-glow 4s infinite ease-in-out;
+        color: #333;
+        cursor: default;
+        transition: color 0.5s;
     }
-    @keyframes rune-glow {
-        0%, 100% { color: var(--emerald-dim); opacity: 0.3; text-shadow: none; }
-        50% { color: var(--emerald-glow); opacity: 0.8; text-shadow: 0 0 10px var(--emerald-dim); }
+    .rune-span:hover {
+        color: var(--emerald-glow);
+        text-shadow: 0 0 10px var(--emerald-glow);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -228,14 +241,14 @@ st.page_link("home.py", label="< RETURN TO VAULT", use_container_width=False)
 st.markdown("<h1>THE NPC FORGE</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtext'>Inscribe the soul. Strike the iron.</div>", unsafe_allow_html=True)
 
-# THE ANVIL CONTAINER
+# THE OBSIDIAN SLAB CONTAINER
 with st.form("forge_form"):
-    st.markdown("<p style='font-family: Cinzel; color: #444; text-align: center; font-size: 0.8rem; margin-bottom: 5px; opacity: 0.5;'>INSCRIPTION SURFACE</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-family: Cinzel; color: #555; text-align: center; font-size: 0.9rem; margin-bottom: 1rem; letter-spacing: 2px;'>INSCRIPTION SURFACE</p>", unsafe_allow_html=True)
     
-    # Input Area
+    # Input Area (Now visually 'Carved' into the slab)
     user_input = st.text_input("Concept", placeholder="e.g. A weary executioner who collects butterflies...")
     
-    # The Black Button (Base of Anvil)
+    # The Rune Button
     submitted = st.form_submit_button("STRIKE THE ANVIL")
 
 # -----------------------------------------------------------------------------
@@ -296,24 +309,25 @@ if submitted and user_input:
     except Exception as e:
         st.error(f"Save Failed: {e}")
 
+    # RESULT CARD (Updated to match Slab Design)
     st.markdown(f"""
     <div class="character-card">
         <div class="card-name">{char_data['Name']}</div>
         <img src="{image_url}" style="width: 100%; display: block; border-bottom: 1px solid #222;">
         <div class="visual-block">"{char_data['Visual_Desc']}"</div>
         <div class="lore-section">
-            <strong style="color: #50c878; font-family: Cinzel;">CLASS:</strong> {char_data['Class']}<br><br>
-            <strong style="color: #50c878; font-family: Cinzel;">GREETING:</strong> "{char_data['Greeting']}"<br><br>
-            <strong style="color: #50c878; font-family: Cinzel;">LORE:</strong><br>
+            <strong style="color: #50c878; font-family: Cinzel; letter-spacing: 1px;">CLASS:</strong> <span style="color: #ccc;">{char_data['Class']}</span><br><br>
+            <strong style="color: #50c878; font-family: Cinzel; letter-spacing: 1px;">GREETING:</strong> <span style="color: #ccc;">"{char_data['Greeting']}"</span><br><br>
+            <strong style="color: #50c878; font-family: Cinzel; letter-spacing: 1px;">LORE:</strong><br>
             {char_data['Lore']}
         </div>
     </div>
     """, unsafe_allow_html=True)
 
+# FOOTER
 runes = ["ᚦ", "ᚱ", "ᛁ", "ᛉ", "ᛉ", "ᚨ", "ᚱ"]
 rune_html = "<div class='footer-container'>"
 for i, rune in enumerate(runes):
-    delay = i * 0.3
-    rune_html += f"<span class='rune-span' style='animation-delay: {delay}s'>{rune}</span>"
+    rune_html += f"<span class='rune-span'>{rune}</span>"
 rune_html += "</div>"
 st.markdown(rune_html, unsafe_allow_html=True)
