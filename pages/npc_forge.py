@@ -27,7 +27,7 @@ st.markdown("""
         --stone-dark: #0e0e0e;
         --emerald-glow: #50c878;
         --emerald-dim: #2e5a44;
-        --iron-gradient: linear-gradient(135deg, #2a2a2a 0%, #151515 50%, #0a0a0a 100%);
+        --iron-gradient: linear-gradient(180deg, #333 0%, #1a1a1a 100%);
     }
 
     /* --- BACKGROUND --- */
@@ -73,80 +73,81 @@ st.markdown("""
     /* --- THE ANVIL CONTAINER (The Form) --- */
     [data-testid="stForm"] {
         background: var(--iron-gradient);
-        padding: 3rem 2rem 1rem 2rem;
+        /* We remove padding-bottom so the button hits the floor */
+        padding: 3rem 2rem 0rem 2rem; 
         border: none;
         
-        /* THE SHAPE */
+        /* A THICKER ANVIL SHAPE */
         clip-path: polygon(
             0% 0%, 100% 0%,      /* Top Face */
-            95% 30%, 95% 70%,    /* Right Side Waist */
-            100% 100%, 0% 100%,  /* Base */
-            5% 70%, 5% 30%       /* Left Side Waist */
+            90% 25%, 90% 75%,    /* Right Neck (Less pinched) */
+            100% 100%, 0% 100%,  /* Base (Full Width) */
+            10% 75%, 10% 25%     /* Left Neck (Less pinched) */
         );
-        filter: drop-shadow(0 0 20px rgba(0,0,0,0.8));
+        
+        filter: drop-shadow(0 0 30px rgba(0,0,0,0.9));
     }
 
     /* --- INPUT FIELD --- */
     .stTextInput > div > div > input {
         background-color: #080808 !important; 
         border: 1px solid #333 !important;
-        border-top: 2px solid #000 !important;
+        border-top: 4px solid #000 !important; /* Deep "slot" look */
         color: #e0e0e0 !important;
         font-family: 'Lato', sans-serif;
         font-size: 1.1rem;
         padding: 1rem;
         text-align: center;
-        margin-bottom: 1rem;
+        margin-bottom: 2rem;
     }
     .stTextInput > div > div > input:focus {
         border-color: var(--emerald-dim) !important;
     }
     .stTextInput label { display: none; }
-    
-    /* --- HIDE INSTRUCTIONS --- */
     [data-testid="InputInstructions"] { display: none !important; }
 
-    /* --- THE BLACK FORGE BUTTON (FIXED ALIGNMENT) --- */
+    /* --- THE BLACK FORGE BUTTON (NUCLEAR FIX) --- */
     
-    /* 1. Force the container to fill width */
+    /* 1. Target the CONTAINER of the button to force full width */
     .stButton {
         width: 100% !important;
-        margin-top: 1rem;
-        display: flex;
-        justify-content: center;
+        margin-top: 0rem !important;
     }
 
-    /* 2. Style the Button Element */
+    /* 2. Target the BUTTON ITSELF */
     .stButton > button {
-        width: 100% !important; /* Full width of the anvil base */
-        background-color: #000 !important;
-        color: #666;
-        border: 1px solid #222;
-        padding: 1.2rem;
-        font-family: 'Cinzel', serif;
-        font-weight: 900;
-        letter-spacing: 4px;
-        font-size: 1.2rem;
-        text-transform: uppercase;
-        transition: all 0.3s ease;
-        position: relative;
-        z-index: 10;
+        width: 100% !important;  /* FILL THE BASE */
+        background-color: #000 !important; /* JET BLACK */
+        color: #666 !important;
+        border: none !important;
+        border-top: 1px solid #333 !important;
+        border-radius: 0px !important; /* NO ROUND CORNERS */
+        padding: 1.5rem !important;
+        font-family: 'Cinzel', serif !important;
+        font-weight: 900 !important;
+        letter-spacing: 4px !important;
+        font-size: 1.3rem !important;
+        text-transform: uppercase !important;
+        transition: all 0.3s ease !important;
     }
 
-    /* 3. THE GLOWING HOVER STATE */
+    /* 3. HOVER STATE - EMERALD IGNITION */
     .stButton > button:hover {
-        color: #fff;
-        border-color: var(--emerald-glow);
-        background-color: #051a10 !important; /* Very dark green bg */
-        box-shadow: 0 0 20px rgba(80, 200, 120, 0.4); /* The Green Glow */
-        text-shadow: 0 0 10px var(--emerald-glow);
-        transform: translateY(-2px);
+        color: #fff !important;
+        background-color: #051a10 !important; /* Deep Green */
+        box-shadow: inset 0 0 30px var(--emerald-glow) !important; /* Inner Glow */
+        text-shadow: 0 0 10px var(--emerald-glow) !important;
     }
     
     .stButton > button:active {
         background-color: #000 !important;
-        transform: translateY(2px);
-        box-shadow: none;
+    }
+    
+    /* Add a divider line between input and button */
+    .stButton > button::before {
+        content: "";
+        display: block;
+        width: 100%;
     }
 
     /* --- RESULT CARD --- */
@@ -155,7 +156,10 @@ st.markdown("""
         border: 1px solid #222;
         margin-top: 4rem;
         box-shadow: 0 0 50px #000;
+        animation: fadein 1s;
     }
+    @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+
     .card-name {
         font-family: 'Cinzel', serif;
         font-size: 2rem;
@@ -236,7 +240,7 @@ with st.form("forge_form"):
     # Input Area
     user_input = st.text_input("Concept", placeholder="e.g. A weary executioner who collects butterflies...")
     
-    # The Black Button (Now Full Width & Centered)
+    # The Black Button (Base of Anvil)
     submitted = st.form_submit_button("FORGE")
 
 # -----------------------------------------------------------------------------
