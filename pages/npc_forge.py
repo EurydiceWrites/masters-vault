@@ -73,38 +73,23 @@ st.markdown("""
     /* --- THE ANVIL CONTAINER (The Form) --- */
     [data-testid="stForm"] {
         background: var(--iron-gradient);
+        /* Standard padding to keep the INPUT contained */
+        padding: 3rem 2rem 0rem 2rem; 
         border: none;
         
-        /* The Outer Shape */
+        /* THE SHAPE */
         clip-path: polygon(
             0% 0%, 100% 0%,      /* Top Face */
-            90% 30%, 90% 60%,    /* Right Waist */
+            90% 35%, 90% 65%,    /* Right Waist */
             100% 100%, 0% 100%,  /* Base */
-            10% 60%, 10% 30%     /* Left Waist */
+            10% 65%, 10% 35%     /* Left Waist */
         );
         
         filter: drop-shadow(0 0 30px rgba(0,0,0,0.9));
         margin-bottom: 2rem;
-        
-        /* Step 1: Remove Outer Padding */
-        padding: 0px !important;
-    }
-
-    /* --- THE GHOST PADDING FIX (The Secret Wrapper) --- */
-    /* This targets the invisible div inside the form that holds the content */
-    [data-testid="stForm"] > div:first-child {
-        padding: 4rem 2rem 0rem 2rem !important; /* Top/Side padding YES, Bottom NO */
-        gap: 0px !important; /* Remove gaps between input and button */
     }
 
     /* --- INPUT FIELD --- */
-    /* Center it inside the anvil waist */
-    .stTextInput {
-        width: 80% !important;
-        margin: 0 auto !important;
-        margin-bottom: 3rem !important; /* Push the button down to the base */
-    }
-
     .stTextInput > div > div > input {
         background-color: #080808 !important; 
         border: 1px solid #333 !important;
@@ -114,6 +99,7 @@ st.markdown("""
         font-size: 1.2rem;
         padding: 1.5rem;
         text-align: center;
+        margin-bottom: 2rem;
     }
     .stTextInput > div > div > input:focus {
         border-color: var(--emerald-dim) !important;
@@ -121,24 +107,23 @@ st.markdown("""
     .stTextInput label { display: none; }
     [data-testid="InputInstructions"] { display: none !important; }
 
-    /* --- THE BUTTON (THE ANVIL BASE) --- */
+    /* --- THE NEGATIVE MARGIN HACK (The Fix) --- */
     
-    /* 1. The Container */
+    /* This pulls the button OUTSIDE the form padding to touch the edges */
     .stButton {
-        width: 100% !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        border: none !important;
+        width: calc(100% + 4rem) !important; /* Wider than container */
+        margin-left: -2rem !important; /* Pull left */
+        margin-right: -2rem !important; /* Pull right */
+        margin-bottom: 0rem !important;
     }
 
-    /* 2. The Button Element */
     .stButton > button {
-        width: 100% !important; /* Fill the full width of the container */
-        border-radius: 0px !important; /* Sharp corners */
+        width: 100% !important;
+        border-radius: 0px !important;
         background-color: #000 !important; 
         color: #555 !important;
         border: none !important;
-        border-top: 2px solid #333 !important; /* The ridge of the base */
+        border-top: 2px solid #333 !important;
         padding: 2.5rem !important; /* Tall, heavy base */
         font-family: 'Cinzel', serif !important;
         font-weight: 900 !important;
@@ -146,12 +131,8 @@ st.markdown("""
         font-size: 1.5rem !important;
         text-transform: uppercase !important;
         transition: all 0.3s ease !important;
-        
-        /* Force block display to kill left-align */
-        display: block !important; 
     }
 
-    /* 3. Hover Effects */
     .stButton > button:hover {
         color: #fff !important;
         background-color: #0a1f14 !important; 
@@ -163,14 +144,6 @@ st.markdown("""
     .stButton > button:active {
         background-color: #000 !important;
         transform: translateY(2px);
-    }
-    
-    /* Decoration: A thin line separating input area from base */
-    .stButton > button::before {
-        content: "";
-        display: block;
-        width: 100%;
-        height: 1px;
     }
 
     /* --- RESULT CARD --- */
