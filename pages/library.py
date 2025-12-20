@@ -1,60 +1,91 @@
 import streamlit as st
+from google.oauth2 import service_account
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+import pandas as pd
 
-# --- CONFIG ---
+# --- PAGE CONFIG ---
 st.set_page_config(page_title="The Library", page_icon="📚", layout="wide")
-st.markdown("""<style>.stApp { background-color: #0E1117; color: #FAFAFA; } .stContainer { background-color: #262730; border: 1px solid #444; border-radius: 10px; padding: 10px; }</style>""", unsafe_allow_html=True)
+st.title("📚 The Master's Library")
+st.caption("The archives of the Masters_Vault_Db")
 
-# --- CONNECT ---
-SHEET_ID = "1mhKTWKjRfYIKEV9uyAIkHy6HYdqbBxsCsiGHODs1C0w"
+# --- AUTHENTICATION ---
+# (We reuse the exact same auth block that works in the Forge)
+try:
+    SCOPES = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive"
+    ]
 
-@st.cache_data(ttl=10) # Updates every 10s
-def get_library():
-    try:
-        SCOPE = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
-        creds = ServiceAccountCredentials.from_json_keyfile_name('service_account.json', SCOPE)
-        client = gspread.authorize(creds)
-        sheet = client.open_by_key(SHEET_ID).sheet1
+    if "gcp_service_account" in st.secrets:
+        service_account_info = st.secrets["gcp_service_account"]
+        creds = service_account.Credentials.from_service_account_info(
+            service_account_info,
+            scopes=SCOPES
+        )
+        gc = gspread.authorize(creds)
+    else:
+        # Local fallback
+        creds = service_account.Credentials.from_service_account_file(
+            "service_account.json",
+            scopes=SCOPES
+        )
+        gc = gspread.authorize(creds)
         
-        # This function relies on Row 1 being HEADERS
-        return sheet.get_all_records() 
-    except Exception as e:
-        return []
-
-# --- UI ---
-st.title("📚 The Masters Vault")
-
-# 1. Get Data
-data = get_library()
-
-if not data:
-    st.warning("The Library is empty! (Or connection failed). Make sure Row 1 of your Sheet has headers: Name, Class, Lore, Greeting, Visual, Image_URL")
+except Exception as e:
+    st.error(f"🚨 Connection Error: {e}")
     st.stop()
 
-# 2. Search
-search = st.text_input("🔍 Search...", placeholder="Find a character...").lower()
-if search:
-    data = [d for d in data if search in str(d).lower()]
+# --- FETCH DATA ---
+try:
+    sh = gc.open("Masters_Vault_Db")
+    worksheet = sh.get_worksheet(0)
+    
+    # Get all records as a list of dictionaries
+    data = worksheet.get_all_records()
+    
+    # Convert to Pandas DataFrame for easier handling
+    df = pd.DataFrame(data)
 
-# 3. Grid Display
-cols = st.columns(3) # 3 columns wide
+    if df.empty:
+        st.info("The Library is empty. Go to the Forge to summon new souls.")
+        st.stop()
 
-for i, npc in enumerate(data):
-    with cols[i % 3]: # Cycles 0, 1, 2, 0, 1, 2...
-        with st.container(border=True):
-            # Image (We look for the key 'Image_URL' - MAKE SURE YOUR HEADER MATCHES THIS)
-            # If you named your header "Link" or "Url", change this word below!
-            img_link = npc.get('Image_URL') or npc.get('image_url') or npc.get('Link')
-            
-            if img_link and str(img_link).startswith("http"):
-                st.image(img_link, use_container_width=True)
+except Exception as e:
+    st.error(f"Could not read from Vault: {e}")
+    st.stop()
+
+# --- DISPLAY OPTIONS ---
+# Allow filtering by Class
+all_classes = ["All"] + list(df['Class'].unique())
+selected_class = st.selectbox("Filter by Class:", all_classes)
+
+if selected_class != "All":
+    df = df[df['Class'] == selected_class]
+
+st.markdown("---")
+
+# --- DISPLAY CARDS ---
+# We iterate through the rows and display them
+for index, row in df.iterrows():
+    with st.container():
+        col1, col2 = st.columns([1, 3])
+        
+        # COLUMN 1: IMAGE
+        with col1:
+            if row['Image_URL'] and str(row['Image_URL']).startswith("http"):
+                st.image(row['Image_URL'], use_container_width=True)
             else:
-                st.warning("No Image")
+                st.info("No Image")
+                
+        # COLUMN 2: STATS & LORE
+        with col2:
+            st.subheader(row['Name'])
+            st.caption(f"**Class:** {row['Class']} | **Summoned:** {row['Timestamp']}")
             
-            st.subheader(npc.get('Name', 'Unknown'))
-            st.caption(f"**Class:** {npc.get('Class', '?')}")
-            with st.expander("Read Lore"):
-                st.write(npc.get('Lore', '...'))
-            with st.expander("Greeting"):
-                st.info(f"\"{npc.get('Greeting', '...')}\"")
+            st.markdown(f"**🗣️ Greeting:** *\"{row['Greeting']}\"*")
+            
+            with st.expander("Read Full Lore"):
+                st.write(row['Lore'])
+                st.markdown(f"**Visual Notes:** {row['Visual_Desc']}")
+                
+        st.markdown("---")
