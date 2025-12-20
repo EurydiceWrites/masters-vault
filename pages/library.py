@@ -3,13 +3,154 @@ from google.oauth2 import service_account
 import gspread
 import pandas as pd
 
-# --- PAGE CONFIG ---
-st.set_page_config(page_title="The Library", page_icon="📚", layout="wide")
-st.title("📚 The Master's Library")
-st.caption("The archives of the Masters_Vault_Db")
+# -----------------------------------------------------------------------------
+# 1. PAGE CONFIG
+# -----------------------------------------------------------------------------
+st.set_page_config(page_title="The Hall of Souls", page_icon="📚", layout="wide")
 
-# --- AUTHENTICATION ---
-# (We reuse the exact same auth block that works in the Forge)
+# -----------------------------------------------------------------------------
+# 2. THE VISUAL ENGINE (CSS)
+# -----------------------------------------------------------------------------
+st.markdown("""
+<style>
+    /* --- FONTS --- */
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Lato:wght@400;700&display=swap');
+
+    /* --- VARIABLES --- */
+    :root {
+        --stone-bg: #111;
+        --emerald-glow: #50c878;
+        --emerald-bright: #66ff99;
+        --emerald-dim: #1e3a2a;
+    }
+
+    /* --- GLOBAL --- */
+    ::selection { background: var(--emerald-dim); color: var(--emerald-bright); }
+    .stApp {
+        background-color: #050505;
+        background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #000 80%);
+    }
+
+    /* --- HEADER --- */
+    h1 {
+        font-family: 'Cinzel', serif !important;
+        text-transform: uppercase;
+        letter-spacing: 12px;
+        font-size: 3rem !important;
+        color: var(--emerald-bright) !important;
+        text-shadow: 0 0 30px rgba(102, 255, 153, 0.4);
+        margin-bottom: 0 !important;
+        text-align: center;
+    }
+    .subtext {
+        text-align: center;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.2rem;
+        color: #888;
+        font-style: italic;
+        margin-bottom: 3rem;
+    }
+
+    /* --- SEARCH BAR (The Seeker) --- */
+    .stTextInput > div > div > input {
+        background-color: #0a0a0a !important;
+        border: 1px solid #333 !important;
+        border-bottom: 2px solid var(--emerald-dim) !important;
+        color: #e0e0e0 !important;
+        font-family: 'Cinzel', serif;
+        font-size: 1.2rem;
+        text-align: center;
+        padding: 1.5rem;
+        letter-spacing: 2px;
+    }
+    .stTextInput input::placeholder { color: #444 !important; font-style: italic; }
+    .stTextInput:hover input { border-color: var(--emerald-glow) !important; }
+    .stTextInput label { display: none; }
+
+    /* --- ARCHIVE CARD DESIGN --- */
+    .archive-card {
+        background: #0e0e0e;
+        border: 1px solid #222;
+        border-top: 2px solid var(--emerald-dim);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        margin-bottom: 2rem;
+        transition: transform 0.3s ease;
+        height: 600px; /* Fixed height for grid alignment */
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    .archive-card:hover {
+        transform: translateY(-5px);
+        border-top: 2px solid var(--emerald-bright);
+        box-shadow: 0 15px 40px rgba(0,0,0,1);
+    }
+
+    /* Card Components */
+    .card-header { background: #111; padding: 1rem; text-align: center; border-bottom: 1px solid #222; }
+    .card-name { font-family: 'Cinzel', serif; font-size: 1.4rem; color: #fff; letter-spacing: 2px; }
+    .card-class { font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--emerald-bright); letter-spacing: 1px; text-transform: uppercase; }
+
+    .img-frame { 
+        width: 100%; 
+        height: 200px; /* Fixed height for images */
+        overflow: hidden; 
+        border-bottom: 1px solid #222;
+        position: relative;
+    }
+    .img-frame img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: opacity 0.5s; }
+    .img-frame:hover img { opacity: 1; transform: scale(1.05); }
+
+    .voice-snippet {
+        padding: 1rem;
+        background: radial-gradient(circle at 50% 50%, #151515 0%, #0e0e0e 100%);
+        text-align: center;
+        border-bottom: 1px solid #222;
+    }
+    .quote-text {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.1rem;
+        color: #ccc;
+        font-style: italic;
+        line-height: 1.3;
+    }
+
+    .lore-scroll {
+        padding: 1rem;
+        color: #999;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1rem;
+        line-height: 1.6;
+        overflow-y: auto; /* SCROLLABLE LORE */
+        flex-grow: 1;
+        text-align: justify;
+    }
+    /* Custom Scrollbar for Lore */
+    .lore-scroll::-webkit-scrollbar { width: 6px; }
+    .lore-scroll::-webkit-scrollbar-track { background: #0e0e0e; }
+    .lore-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+    .lore-scroll::-webkit-scrollbar-thumb:hover { background: var(--emerald-dim); }
+
+    .footer-meta {
+        padding: 0.5rem;
+        background: #050505;
+        text-align: center;
+        font-family: 'Lato', sans-serif;
+        font-size: 0.7rem;
+        color: #444;
+        border-top: 1px solid #222;
+    }
+
+    /* Footer Runes */
+    .footer-container { opacity: 0.3; text-align: center; margin-top: 4rem; padding-bottom: 2rem;}
+    .rune-span { margin: 0 10px; font-size: 1.2rem; color: #444; cursor: default; }
+
+</style>
+""", unsafe_allow_html=True)
+
+# -----------------------------------------------------------------------------
+# 3. AUTHENTICATION (YOUR ARCHITECTURE)
+# -----------------------------------------------------------------------------
 try:
     SCOPES = [
         "https://www.googleapis.com/auth/spreadsheets",
@@ -35,15 +176,14 @@ except Exception as e:
     st.error(f"🚨 Connection Error: {e}")
     st.stop()
 
-# --- FETCH DATA ---
+# -----------------------------------------------------------------------------
+# 4. FETCH DATA
+# -----------------------------------------------------------------------------
 try:
     sh = gc.open("Masters_Vault_Db")
     worksheet = sh.get_worksheet(0)
     
-    # Get all records as a list of dictionaries
     data = worksheet.get_all_records()
-    
-    # Convert to Pandas DataFrame for easier handling
     df = pd.DataFrame(data)
 
     if df.empty:
@@ -54,38 +194,80 @@ except Exception as e:
     st.error(f"Could not read from Vault: {e}")
     st.stop()
 
-# --- DISPLAY OPTIONS ---
-# Allow filtering by Class
-all_classes = ["All"] + list(df['Class'].unique())
-selected_class = st.selectbox("Filter by Class:", all_classes)
+# -----------------------------------------------------------------------------
+# 5. LAYOUT & GRID DISPLAY
+# -----------------------------------------------------------------------------
+st.page_link("home.py", label="< RETURN TO HALL", use_container_width=False)
 
-if selected_class != "All":
-    df = df[df['Class'] == selected_class]
+st.markdown("<h1>THE ARCHIVES OF THE LOST</h1>", unsafe_allow_html=True)
+st.markdown("<div class='subtext'>That which is remembered, lives forever.</div>", unsafe_allow_html=True)
 
-st.markdown("---")
+# --- SEARCH RUNE ---
+search_query = st.text_input("Search the Archives", placeholder="Speak the name, class, or secret...")
 
-# --- DISPLAY CARDS ---
-# We iterate through the rows and display them
-for index, row in df.iterrows():
-    with st.container():
-        col1, col2 = st.columns([1, 3])
+# --- FILTER LOGIC ---
+if search_query:
+    mask = (
+        df['Name'].astype(str).str.contains(search_query, case=False) |
+        df['Class'].astype(str).str.contains(search_query, case=False) |
+        df['Lore'].astype(str).str.contains(search_query, case=False)
+    )
+    filtered_df = df[mask]
+else:
+    filtered_df = df
+
+# --- THE GRID OF SOULS ---
+if not filtered_df.empty:
+    cols = st.columns(3)
+    
+    # Reverse order to show newest characters first
+    for index, row in filtered_df.iloc[::-1].iterrows():
+        col_index = index % 3
         
-        # COLUMN 1: IMAGE
-        with col1:
-            if row['Image_URL'] and str(row['Image_URL']).startswith("http"):
-                st.image(row['Image_URL'], use_container_width=True)
-            else:
-                st.info("No Image")
-                
-        # COLUMN 2: STATS & LORE
-        with col2:
-            st.subheader(row['Name'])
-            st.caption(f"**Class:** {row['Class']} | **Summoned:** {row['Timestamp']}")
+        # Safe Image Handling
+        img_src = row.get('Image_URL', '')
+        if not str(img_src).startswith("http"):
+            # Placeholder if image is missing/broken
+            img_src = "https://via.placeholder.com/400x200?text=No+Visage"
+
+        # Construct Card HTML
+        card_html = f"""
+        <div class="archive-card">
+            <div class="card-header">
+                <div class="card-name">{row['Name']}</div>
+                <div class="card-class">{row['Class']}</div>
+            </div>
             
-            st.markdown(f"**🗣️ Greeting:** *\"{row['Greeting']}\"*")
+            <div class="img-frame">
+                <a href="{img_src}" target="_blank">
+                    <img src="{img_src}" loading="lazy">
+                </a>
+            </div>
             
-            with st.expander("Read Full Lore"):
-                st.write(row['Lore'])
-                st.markdown(f"**Visual Notes:** {row['Visual_Desc']}")
-                
-        st.markdown("---")
+            <div class="voice-snippet">
+                <div class="quote-text">“{row['Greeting']}”</div>
+            </div>
+            
+            <div class="lore-scroll">
+                {row['Lore']}
+            </div>
+            
+            <div class="footer-meta">
+                ACCESSION: {row.get('Timestamp', 'Unknown')}
+            </div>
+        </div>
+        """
+        
+        with cols[col_index]:
+            st.markdown(card_html, unsafe_allow_html=True)
+
+else:
+    st.markdown("<p style='text-align:center; color:#666;'>No souls answer to that name.</p>", unsafe_allow_html=True)
+
+# FOOTER
+runes = ["ᚦ", "ᚱ", "ᛁ", "ᛉ", "ᛉ", "ᚨ", "ᚱ"]
+rune_html = "<div class='footer-container'>"
+for i, rune in enumerate(runes):
+    rune_html += f"<span class='rune-span'>{rune}</span>"
+rune_html += "</div>"
+st.markdown(rune_html, unsafe_allow_html=True)
