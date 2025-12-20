@@ -67,61 +67,57 @@ st.markdown("""
     .stTextInput:hover input { border-color: var(--emerald-glow) !important; }
     .stTextInput label { display: none; }
 
-    /* --- ARCHIVE CARD DESIGN --- */
+    /* --- ARCHIVE CARD (PREVIEW) --- */
+    /* This wraps the HTML part of the card (Image + Title) */
     .archive-card {
         background: #0e0e0e;
         border: 1px solid #222;
+        border-bottom: none; /* Button creates the bottom border */
         border-top: 4px solid var(--emerald-dim);
         box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        margin-bottom: 2rem;
         transition: transform 0.3s ease;
         display: flex;
         flex-direction: column;
-        /* FIXED HEIGHT ensures all cards are same size */
-        height: 800px; 
+        height: 600px; /* Fixed height for alignment */
+        margin-bottom: 0px !important; /* Touch the button below */
+        border-radius: 4px 4px 0 0;
     }
     .archive-card:hover {
-        transform: translateY(-5px);
         border-top: 4px solid var(--emerald-bright);
         box-shadow: 0 15px 50px rgba(0,0,0,1);
     }
 
-    /* 1. IMAGE (Fixed Height) */
+    /* 1. IMAGE */
     .img-frame { 
         width: 100%; 
         height: 400px; 
         overflow: hidden; 
         border-bottom: 1px solid #222;
         position: relative;
-        flex-shrink: 0; /* Never shrink */
+        flex-shrink: 0;
     }
     .img-frame img { width: 100%; height: 100%; object-fit: cover; object-position: top; opacity: 0.95; transition: opacity 0.5s; }
     .img-frame:hover img { opacity: 1; transform: scale(1.02); }
 
-    /* 2. IDENTITY (Flexible Middle) */
+    /* 2. IDENTITY */
     .card-identity {
-        padding: 1rem 1.5rem;
+        padding: 1rem;
         text-align: center;
         background: linear-gradient(180deg, #111 0%, #0e0e0e 100%);
-        
-        /* THIS FIXES THE ALIGNMENT: */
-        flex-grow: 1; /* Grow to fill all empty space */
+        flex-grow: 1;
         display: flex;
         flex-direction: column;
-        justify-content: center; /* Center text vertically in this space */
+        justify-content: center;
     }
-    
     .card-name { 
         font-family: 'Cinzel', serif; 
-        /* SMALLER FONT to prevent breaking words */
-        font-size: 1.5rem; 
+        font-size: 1.5rem; /* Reduced to prevent breaking */
         color: #fff; 
-        /* TIGHTER SPACING to keep words together */
         letter-spacing: 1px; 
         margin-bottom: 0.5rem;
         text-shadow: 0 4px 10px #000;
-        line-height: 1.3;
-        word-wrap: break-word; /* Prevents "Unboun-d" */
+        line-height: 1.2;
+        word-wrap: break-word;
     }
     .card-class { 
         font-family: 'Cinzel', serif; 
@@ -132,91 +128,62 @@ st.markdown("""
         opacity: 0.9;
     }
 
-    /* 3. THE TOGGLE (Sticks to Bottom) */
-    details {
-        background: #080808;
-        border-top: 1px solid #222;
-        /* No margin-top: auto needed because card-identity grows */
-        flex-shrink: 0; /* Never shrink */
-    }
-    
-    summary {
-        padding: 1.5rem;
-        text-align: center;
+    /* --- THE INSPECT BUTTON (Seamless Integration) --- */
+    /* We style the Streamlit button to look like the card footer */
+    div.stButton > button {
+        width: 100%;
+        background-color: #080808;
+        color: #666;
+        border: 1px solid #222;
+        border-top: none;
+        border-radius: 0 0 4px 4px;
         font-family: 'Cinzel', serif;
-        font-size: 0.9rem;
         letter-spacing: 3px;
-        color: #555;
-        list-style: none;
-        cursor: pointer;
+        font-size: 0.9rem;
+        padding: 1rem;
+        margin-top: 0px;
         transition: all 0.3s;
     }
-    summary::-webkit-details-marker { display: none; } 
-    
-    summary:hover { 
-        color: var(--emerald-bright); 
-        background: #151515;
-        text-shadow: 0 0 10px var(--emerald-dim);
-    }
-    
-    /* --- RUNE INDICATORS --- */
-    summary::after { 
-        content: "ᛦ"; /* Yr (Roots/Closed) */
-        display: block; 
-        font-size: 1.5rem; 
-        margin-top: 0.5rem;
-        color: #444;
-        transition: color 0.3s;
-    }
-    
-    summary:hover::after { color: var(--emerald-glow); }
-
-    details[open] summary::after { 
-        content: "ᛐ"; /* Tyr (Spear/Open) */
+    div.stButton > button:hover {
         color: var(--emerald-bright);
-        text-shadow: 0 0 10px var(--emerald-bright);
+        background-color: #151515;
+        border-color: #333;
+        box-shadow: 0 5px 15px rgba(80, 200, 120, 0.1);
+        text-shadow: 0 0 8px var(--emerald-dim);
     }
+    div.stButton > button:focus {
+        border-color: var(--emerald-glow);
+        color: var(--emerald-glow);
+    }
+
+    /* --- DIALOG / MODAL STYLING --- */
+    /* Styling the content INSIDE the pop-up */
+    .modal-header { text-align: center; border-bottom: 1px solid #333; padding-bottom: 1rem; margin-bottom: 1rem; }
+    .modal-name { font-family: 'Cinzel', serif; font-size: 2.5rem; color: var(--emerald-bright); margin: 0; }
+    .modal-class { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: #888; font-style: italic; }
     
-    details[open] summary { border-bottom: 1px solid #222; color: var(--emerald-bright); }
-
-    /* The Hidden Content (Overlays image if needed, or scrolls) */
-    .hidden-content {
-        padding: 0 1.5rem 1.5rem 1.5rem;
-        background: #0a0a0a;
-        animation: fadeIn 0.5s;
-        max-height: 350px; /* Limits height so card doesn't explode */
-        overflow-y: auto;
-    }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    .voice-snippet {
-        padding: 1.5rem 0;
-        text-align: center;
-        border-bottom: 1px solid #222;
-        margin-bottom: 1rem;
-    }
-    .quote-text {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 1.3rem;
-        color: #d0d0d0;
+    .modal-voice { 
+        font-family: 'Cormorant Garamond', serif; 
+        font-size: 1.4rem; 
+        color: #e0e0e0; 
+        text-align: center; 
+        padding: 2rem; 
+        border-left: 2px solid var(--emerald-dim);
+        background: #111;
+        margin: 1.5rem 0;
         font-style: italic;
     }
-    .lore-text {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 1.1rem;
-        color: #999;
-        line-height: 1.6;
-        text-align: left;
+    
+    .modal-lore { 
+        font-family: 'Cormorant Garamond', serif; 
+        font-size: 1.2rem; 
+        color: #bbb; 
+        line-height: 1.8; 
+        text-align: left; 
+        padding: 1rem;
     }
-    .footer-meta {
-        font-family: 'Lato', sans-serif;
-        font-size: 0.7rem;
-        color: #444;
-        text-align: center;
-        margin-top: 1.5rem;
-        padding-top: 1rem;
-        border-top: 1px solid #222;
-    }
+    
+    .modal-meta { font-family: 'Lato', sans-serif; font-size: 0.8rem; color: #444; text-align: center; margin-top: 2rem; }
 
     /* Footer Runes */
     .footer-container { opacity: 0.3; text-align: center; margin-top: 4rem; padding-bottom: 2rem;}
@@ -270,7 +237,50 @@ except Exception as e:
     st.stop()
 
 # -----------------------------------------------------------------------------
-# 5. LAYOUT & GRID
+# 5. THE MODAL (POP UP FUNCTION)
+# -----------------------------------------------------------------------------
+@st.dialog("The Soul Revealed", width="large")
+def view_soul(row):
+    """
+    This function renders the pop-up modal content when a card is clicked.
+    """
+    # Safe Image Handling
+    img_src = row.get('Image_URL', '')
+    if not str(img_src).startswith("http"):
+        img_src = "https://via.placeholder.com/800x400?text=No+Visage"
+
+    # 1. Large Header Image
+    st.image(img_src, use_container_width=True)
+    
+    # 2. Title Section
+    st.markdown(f"""
+        <div class="modal-header">
+            <div class="modal-name">{row['Name']}</div>
+            <div class="modal-class">{row['Class']}</div>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # 3. Voice (Quote)
+    st.markdown(f"""
+        <div class="modal-voice">“{row['Greeting']}”</div>
+    """, unsafe_allow_html=True)
+    
+    # 4. Lore (Full Text)
+    st.markdown(f"""
+        <div class="modal-lore">{row['Lore']}</div>
+    """, unsafe_allow_html=True)
+    
+    # 5. Metadata
+    st.markdown(f"""
+        <div class="modal-meta">
+            VISUAL: {row['Visual_Desc']}<br>
+            ACCESSION: {row.get('Timestamp', 'Unknown')}
+        </div>
+    """, unsafe_allow_html=True)
+
+
+# -----------------------------------------------------------------------------
+# 6. LAYOUT & GRID
 # -----------------------------------------------------------------------------
 st.page_link("home.py", label="< RETURN TO HALL", use_container_width=False)
 
@@ -301,44 +311,26 @@ if not filtered_df.empty:
         if not str(img_src).startswith("http"):
             img_src = "https://via.placeholder.com/400x500?text=No+Visage"
 
-        # --- LINE-BY-LINE HTML ---
-        html = ""
-        html += '<div class="archive-card">'
-        
-        # 1. IMAGE
-        html += '<div class="img-frame">'
-        html += f'<a href="{img_src}" target="_blank"><img src="{img_src}" loading="lazy"></a>'
-        html += '</div>'
-        
-        # 2. IDENTITY (Flex-Grow fills space)
-        html += '<div class="card-identity">'
-        html += f'<div class="card-name">{row["Name"]}</div>'
-        html += f'<div class="card-class">{row["Class"]}</div>'
-        html += '</div>'
-        
-        # 3. DETAILS (Pushed to bottom)
-        html += '<details>'
-        html += '<summary>INSPECT SOUL</summary>'
-        html += '<div class="hidden-content">'
-        
-        html += '<div class="voice-snippet">'
-        html += f'<div class="quote-text">“{row["Greeting"]}”</div>'
-        html += '</div>'
-        
-        html += '<div class="lore-text">'
-        html += f'{row["Lore"]}'
-        html += '</div>'
-        
-        html += '<div class="footer-meta">'
-        html += f'ACCESSION: {row.get("Timestamp", "Unknown")}'
-        html += '</div>'
-        
-        html += '</div>' # End hidden-content
-        html += '</details>'
-        html += '</div>' # End archive-card
-        
         with cols[col_index]:
+            # 1. THE VISUAL CARD (HTML)
+            # No interaction here, just display
+            html = ""
+            html += '<div class="archive-card">'
+            html += '<div class="img-frame">'
+            html += f'<img src="{img_src}" loading="lazy">'
+            html += '</div>'
+            html += '<div class="card-identity">'
+            html += f'<div class="card-name">{row["Name"]}</div>'
+            html += f'<div class="card-class">{row["Class"]}</div>'
+            html += '</div>'
+            html += '</div>' # End Card
+            
             st.markdown(html, unsafe_allow_html=True)
+            
+            # 2. THE TRIGGER BUTTON (Streamlit)
+            # Placed immediately below to look like the footer
+            if st.button(f"INSPECT SOUL ᛦ", key=f"btn_{index}"):
+                view_soul(row)
 
 else:
     st.markdown("<p style='text-align:center; color:#666;'>No souls answer to that name.</p>", unsafe_allow_html=True)
