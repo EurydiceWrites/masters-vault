@@ -1,4 +1,8 @@
+import os
 import streamlit as st
+
+# This will print the real file list at the top of your app
+st.write("📂 CLOUD FILES:", os.listdir("pages"))
 
 # -----------------------------------------------------------------------------
 # 1. SETUP & CONFIG
