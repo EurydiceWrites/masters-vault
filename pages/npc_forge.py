@@ -76,7 +76,7 @@ st.markdown("""
         padding: 3rem 2rem 1rem 2rem;
         border: none;
         
-        /* THE SHAPE: Wide Top, Narrow Waist, Wide Base */
+        /* THE SHAPE */
         clip-path: polygon(
             0% 0%, 100% 0%,      /* Top Face */
             95% 30%, 95% 70%,    /* Right Side Waist */
@@ -103,41 +103,50 @@ st.markdown("""
     }
     .stTextInput label { display: none; }
     
-    /* --- HIDE "PRESS ENTER TO APPLY" INSTRUCTIONS --- */
-    [data-testid="InputInstructions"] {
-        display: none !important;
-    }
+    /* --- HIDE INSTRUCTIONS --- */
+    [data-testid="InputInstructions"] { display: none !important; }
 
-    /* --- THE BLACK FORGE BUTTON --- */
+    /* --- THE BLACK FORGE BUTTON (FIXED ALIGNMENT) --- */
+    
+    /* 1. Force the container to fill width */
     .stButton {
         width: 100% !important;
         margin-top: 1rem;
+        display: flex;
+        justify-content: center;
     }
 
+    /* 2. Style the Button Element */
     .stButton > button {
-        width: 100% !important;
+        width: 100% !important; /* Full width of the anvil base */
         background-color: #000 !important;
         color: #666;
         border: 1px solid #222;
-        padding: 1rem;
+        padding: 1.2rem;
         font-family: 'Cinzel', serif;
         font-weight: 900;
         letter-spacing: 4px;
         font-size: 1.2rem;
         text-transform: uppercase;
-        transition: all 0.2s ease;
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 10;
     }
 
+    /* 3. THE GLOWING HOVER STATE */
     .stButton > button:hover {
-        color: var(--emerald-glow);
-        border-color: var(--emerald-dim);
-        background-color: #050505 !important;
+        color: #fff;
+        border-color: var(--emerald-glow);
+        background-color: #051a10 !important; /* Very dark green bg */
+        box-shadow: 0 0 20px rgba(80, 200, 120, 0.4); /* The Green Glow */
         text-shadow: 0 0 10px var(--emerald-glow);
+        transform: translateY(-2px);
     }
     
     .stButton > button:active {
         background-color: #000 !important;
         transform: translateY(2px);
+        box-shadow: none;
     }
 
     /* --- RESULT CARD --- */
@@ -227,7 +236,7 @@ with st.form("forge_form"):
     # Input Area
     user_input = st.text_input("Concept", placeholder="e.g. A weary executioner who collects butterflies...")
     
-    # The Black Button (Base of Anvil)
+    # The Black Button (Now Full Width & Centered)
     submitted = st.form_submit_button("FORGE")
 
 # -----------------------------------------------------------------------------
