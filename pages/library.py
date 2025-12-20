@@ -51,7 +51,7 @@ st.markdown("""
         margin-bottom: 3rem;
     }
 
-    /* --- SEARCH BAR (The Seeker) --- */
+    /* --- SEARCH BAR --- */
     .stTextInput > div > div > input {
         background-color: #0a0a0a !important;
         border: 1px solid #333 !important;
@@ -75,7 +75,7 @@ st.markdown("""
         box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         margin-bottom: 2rem;
         transition: transform 0.3s ease;
-        height: 600px; /* Fixed height for grid alignment */
+        height: 650px; /* Fixed height for grid alignment */
         display: flex;
         flex-direction: column;
         overflow: hidden;
@@ -89,7 +89,7 @@ st.markdown("""
     /* Card Components */
     .card-header { background: #111; padding: 1rem; text-align: center; border-bottom: 1px solid #222; }
     .card-name { font-family: 'Cinzel', serif; font-size: 1.4rem; color: #fff; letter-spacing: 2px; }
-    .card-class { font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--emerald-bright); letter-spacing: 1px; text-transform: uppercase; }
+    .card-class { font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--emerald-bright); letter-spacing: 1px; text-transform: uppercase; text-shadow: 0 0 5px rgba(102, 255, 153, 0.3); }
 
     .img-frame { 
         width: 100%; 
@@ -116,7 +116,7 @@ st.markdown("""
     }
 
     .lore-scroll {
-        padding: 1rem;
+        padding: 1.5rem;
         color: #999;
         font-family: 'Cormorant Garamond', serif;
         font-size: 1rem;
@@ -125,7 +125,7 @@ st.markdown("""
         flex-grow: 1;
         text-align: justify;
     }
-    /* Custom Scrollbar for Lore */
+    /* Custom Scrollbar */
     .lore-scroll::-webkit-scrollbar { width: 6px; }
     .lore-scroll::-webkit-scrollbar-track { background: #0e0e0e; }
     .lore-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
@@ -149,7 +149,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# 3. AUTHENTICATION (YOUR ARCHITECTURE)
+# 3. AUTHENTICATION
 # -----------------------------------------------------------------------------
 try:
     SCOPES = [
@@ -216,6 +216,46 @@ if search_query:
 else:
     filtered_df = df
 
+# --- HELPER FUNCTION TO GENERATE CLEAN HTML ---
+def create_card_html(row):
+    """
+    Generates a flattened HTML string for the character card.
+    Indentation here is strictly minimal to prevent Markdown code-block parsing.
+    """
+    # 1. Image Logic: Try 'Image_URL', then 'Image', then fallback
+    img_src = row.get('Image_URL', '')
+    if not img_src:
+        img_src = row.get('Image', '')
+    
+    if not str(img_src).startswith("http"):
+        img_src = "https://via.placeholder.com/400x200?text=No+Visage"
+
+    # 2. Extract Data
+    name = row.get('Name', 'Unknown')
+    char_class = row.get('Class', 'Wanderer')
+    greeting = row.get('Greeting', '...')
+    lore = row.get('Lore', 'The pages are blank.')
+    timestamp = row.get('Timestamp', '')
+
+    # 3. Construct HTML (NO INDENTATION in the f-string structure)
+    html = f"""
+<div class="archive-card">
+<div class="card-header">
+<div class="card-name">{name}</div>
+<div class="card-class">{char_class}</div>
+</div>
+<div class="img-frame">
+<a href="{img_src}" target="_blank"><img src="{img_src}" loading="lazy"></a>
+</div>
+<div class="voice-snippet">
+<div class="quote-text">“{greeting}”</div>
+</div>
+<div class="lore-scroll">{lore}</div>
+<div class="footer-meta">ACCESSION: {timestamp}</div>
+</div>
+"""
+    return html
+
 # --- THE GRID OF SOULS ---
 if not filtered_df.empty:
     cols = st.columns(3)
@@ -224,39 +264,8 @@ if not filtered_df.empty:
     for index, row in filtered_df.iloc[::-1].iterrows():
         col_index = index % 3
         
-        # Safe Image Handling
-        img_src = row.get('Image_URL', '')
-        if not str(img_src).startswith("http"):
-            # Placeholder if image is missing/broken
-            img_src = "https://via.placeholder.com/400x200?text=No+Visage"
-
-        # Construct Card HTML
-        card_html = f"""
-        <div class="archive-card">
-            <div class="card-header">
-                <div class="card-name">{row['Name']}</div>
-                <div class="card-class">{row['Class']}</div>
-            </div>
-            
-            <div class="img-frame">
-                <a href="{img_src}" target="_blank">
-                    <img src="{img_src}" loading="lazy">
-                </a>
-            </div>
-            
-            <div class="voice-snippet">
-                <div class="quote-text">“{row['Greeting']}”</div>
-            </div>
-            
-            <div class="lore-scroll">
-                {row['Lore']}
-            </div>
-            
-            <div class="footer-meta">
-                ACCESSION: {row.get('Timestamp', 'Unknown')}
-            </div>
-        </div>
-        """
+        # Generate the safe HTML
+        card_html = create_card_html(row)
         
         with cols[col_index]:
             st.markdown(card_html, unsafe_allow_html=True)
