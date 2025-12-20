@@ -73,8 +73,8 @@ st.markdown("""
     /* --- THE ANVIL CONTAINER (The Form) --- */
     [data-testid="stForm"] {
         background: var(--iron-gradient);
-        /* 0 padding at bottom allows button to touch the floor */
-        padding: 4rem 2rem 0rem 2rem; 
+        /* CRITICAL FIX: 0 padding on sides/bottom so button hits the edge */
+        padding: 4rem 0rem 0rem 0rem !important; 
         border: none;
         
         /* THE ANVIL SHAPE */
@@ -90,16 +90,22 @@ st.markdown("""
     }
 
     /* --- INPUT FIELD --- */
+    /* Because parent has 0 padding, we must manually center this and give it width */
+    .stTextInput {
+        width: 80% !important;
+        margin: 0 auto !important; /* Centers the input block */
+    }
+
     .stTextInput > div > div > input {
         background-color: #080808 !important; 
         border: 1px solid #333 !important;
-        border-top: 4px solid #000 !important; /* Deep Slot */
+        border-top: 4px solid #000 !important;
         color: #e0e0e0 !important;
         font-family: 'Lato', sans-serif;
         font-size: 1.2rem;
         padding: 1.5rem;
         text-align: center;
-        margin-bottom: 2rem; /* Push button down */
+        margin-bottom: 3rem; 
     }
     .stTextInput > div > div > input:focus {
         border-color: var(--emerald-dim) !important;
@@ -107,38 +113,39 @@ st.markdown("""
     .stTextInput label { display: none; }
     [data-testid="InputInstructions"] { display: none !important; }
 
-    /* --- THE BUTTON FIX (The Solid Base) --- */
+    /* --- THE BUTTON FIX --- */
     
-    /* 1. Force the Streamlit button container to expand */
+    /* 1. Reset the container margins */
     .stButton {
         width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
-    /* 2. Style the button to LOOK like the anvil base */
+    /* 2. The Button Itself - NO ROUNDING, FULL WIDTH */
     .stButton > button {
         width: 100% !important;
-        display: block !important;
+        border-radius: 0px !important; /* Sharp corners are essential */
         background-color: #000 !important; 
-        color: #555 !important;
+        color: #666 !important;
         border: none !important;
-        border-top: 2px solid #333 !important; /* The ridge of the base */
-        border-radius: 0px !important;
-        padding: 2.5rem !important; /* Tall, heavy base */
+        border-top: 2px solid #333 !important; 
+        padding: 2rem !important; 
         font-family: 'Cinzel', serif !important;
         font-weight: 900 !important;
         letter-spacing: 8px !important;
         font-size: 1.5rem !important;
         text-transform: uppercase !important;
         transition: all 0.3s ease !important;
-        box-shadow: none !important;
     }
 
     /* 3. Hover Effects */
     .stButton > button:hover {
         color: #fff !important;
-        background-color: #0a1f14 !important; /* Subtle green-black */
+        background-color: #0a1f14 !important; 
         text-shadow: 0 0 15px var(--emerald-glow) !important;
         border-top: 2px solid var(--emerald-glow) !important;
+        box-shadow: inset 0 0 50px var(--emerald-glow) !important;
     }
     
     .stButton > button:active {
