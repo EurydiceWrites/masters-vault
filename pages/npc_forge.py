@@ -8,21 +8,27 @@ import json
 import datetime
 import cloudinary
 import cloudinary.uploader
-import pandas as pd # Included per your requirements list
+import pandas as pd
 
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="NPC Forge", page_icon="🛡️", layout="wide")
 st.title("🛡️ NPC Forge")
-st.caption("The Character Foundry (Gemini 3 Pro)")
+st.caption("The Character Foundry (Gemini 3 Pro + Cloudinary + DB)")
 
-# --- 1. AUTHENTICATION & SETUP ---
+# --- 1. AUTHENTICATION (The Fix) ---
 try:
-    # Google Sheets Auth
+    # We define the EXACT permissions we need
+    SCOPES = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive"
+    ]
+
     if "gcp_service_account" in st.secrets:
         service_account_info = st.secrets["gcp_service_account"]
+        # Create credentials with the specific SCOPES
         creds = service_account.Credentials.from_service_account_info(
             service_account_info,
-            scopes=["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/cloud-platform"]
+            scopes=SCOPES
         )
         gc = gspread.authorize(creds)
     else:
@@ -37,16 +43,10 @@ try:
             api_secret = st.secrets["cloudinary"]["api_secret"],
             secure = True
         )
-    else:
-        st.error("🚨 Cloudinary Secrets missing.")
-        st.stop()
-
+    
     # Gemini API Auth
     if "GOOGLE_API_KEY" in st.secrets:
         genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-    else:
-        st.error("🚨 Google API Key missing.")
-        st.stop()
         
 except Exception as e:
     st.error(f"Configuration Error: {e}")
@@ -120,6 +120,7 @@ if summon_btn and user_input:
     # --- C. SAVE TO DB ---
     if character_data:
         try:
+            # Connects to Masters_Vault_Db
             sh = gc.open("Masters_Vault_Db")
             worksheet = sh.get_worksheet(0)
             
@@ -136,3 +137,4 @@ if summon_btn and user_input:
             st.toast("Saved to Vault!", icon="💾")
         except Exception as sheet_error:
             st.error(f"Database Error: {sheet_error}")
+            st.warning("Double check: Did you share 'Masters_Vault_Db' with the robot email?")
