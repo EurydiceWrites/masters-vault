@@ -7,7 +7,6 @@ import json
 import datetime
 import cloudinary
 import cloudinary.uploader
-import textwrap  # <--- NEW IMPORT TO FIX THE HTML BUG
 
 # -----------------------------------------------------------------------------
 # 1. SETUP & CONFIG
@@ -15,7 +14,7 @@ import textwrap  # <--- NEW IMPORT TO FIX THE HTML BUG
 st.set_page_config(page_title="The NPC Forge", layout="centered", page_icon="⚒️")
 
 # -----------------------------------------------------------------------------
-# 2. THE VISUAL ENGINE (Polished Obsidian & Grimoire Card)
+# 2. THE VISUAL ENGINE
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -57,7 +56,7 @@ st.markdown("""
         margin-bottom: 3rem;
     }
 
-    /* --- THE FORM CONTAINER (The Slab) --- */
+    /* --- THE FORM CONTAINER --- */
     [data-testid="stForm"] {
         background: linear-gradient(135deg, #1a1a1a 0%, #000 100%);
         border: 1px solid #333;
@@ -68,7 +67,7 @@ st.markdown("""
         overflow: hidden; 
     }
 
-    /* --- CONTENT AREA (Inputs) --- */
+    /* --- CONTENT AREA --- */
     [data-testid="stForm"] > div:nth-child(1) { padding: 3rem 2rem 2rem 2rem !important; }
 
     /* --- INPUT STYLING --- */
@@ -89,7 +88,7 @@ st.markdown("""
     .stTextInput label { display: none; }
     [data-testid="InputInstructions"] { display: none !important; }
 
-    /* --- THE BUTTON (THE BASE) --- */
+    /* --- THE BUTTON --- */
     .stButton { width: 100% !important; margin-top: 0rem !important; padding: 0 !important; }
     .stButton > button {
         width: 100% !important;
@@ -112,7 +111,7 @@ st.markdown("""
         text-shadow: 0 0 10px var(--emerald-glow);
     }
 
-    /* --- NEW CARD DESIGN (THE GRIMOIRE PAGE) --- */
+    /* --- CARD DESIGN --- */
     .character-card {
         background: #0a0a0a;
         border: 1px solid #222;
@@ -122,7 +121,7 @@ st.markdown("""
         animation: fadein 1s;
     }
     
-    /* 1. HEADER SECTION */
+    /* Header */
     .card-header {
         background: #111;
         padding: 2rem 1rem;
@@ -145,7 +144,7 @@ st.markdown("""
         opacity: 0.8;
     }
 
-    /* 2. IMAGE SECTION */
+    /* Image */
     .img-container {
         position: relative;
         overflow: hidden;
@@ -174,7 +173,7 @@ st.markdown("""
         line-height: 1.6;
     }
 
-    /* 3. VOICE SECTION (Greeting) */
+    /* Voice */
     .voice-section {
         padding: 2rem 3rem;
         background: #0e0e0e;
@@ -191,7 +190,7 @@ st.markdown("""
     .voice-quote::before { content: "“"; font-size: 3rem; color: var(--emerald-dim); vertical-align: -1rem; margin-right: 10px; }
     .voice-quote::after { content: "”"; font-size: 3rem; color: var(--emerald-dim); vertical-align: -2rem; margin-left: 10px; }
 
-    /* 4. LORE SECTION */
+    /* Lore */
     .lore-section {
         padding: 2.5rem 3rem;
         color: #aaa;
@@ -249,18 +248,13 @@ st.markdown("<div class='subtext'>Inscribe the soul. Strike the iron.</div>", un
 
 # THE OBSIDIAN SLAB CONTAINER
 with st.form("forge_form"):
-    
-    # 1. THE CALL
     st.markdown("""
         <p style='font-family: Cinzel; color: #555; text-align: center; font-size: 1rem; margin-bottom: 1rem; letter-spacing: 4px; text-transform: uppercase; opacity: 0.8;'>
             WHISPER THE DESIRE...
         </p>
     """, unsafe_allow_html=True)
     
-    # 2. THE RESPONSE
     user_input = st.text_input("Concept", placeholder="...AND THE VOID SHALL GIVE IT FORM.")
-    
-    # 3. THE LEVER
     submitted = st.form_submit_button("STRIKE THE ANVIL")
 
 # -----------------------------------------------------------------------------
@@ -321,33 +315,32 @@ if submitted and user_input:
     except Exception as e:
         st.error(f"Save Failed: {e}")
 
-    # RESULT CARD (FIXED INDENTATION WITH TEXTWRAP)
-    # textwrap.dedent removes common leading whitespace, preventing code block rendering
-    html_block = textwrap.dedent(f"""
-        <div class="character-card">
-            <div class="card-header">
-                <div class="card-name">{char_data['Name']}</div>
-                <div class="card-class">{char_data['Class']}</div>
-            </div>
-            
-            <div class="img-container">
-                <a href="{image_url}" target="_blank">
-                    <img src="{image_url}" title="Click to Expand">
-                </a>
-            </div>
-            <div class="visual-caption">"{char_data['Visual_Desc']}"</div>
-            
-            <div class="voice-section">
-                <div class="voice-quote">{char_data['Greeting']}</div>
-            </div>
-            
-            <div class="lore-section">
-                <span class="lore-label">Archive Record</span>
-                {char_data['Lore']}
-            </div>
-        </div>
-    """)
-    st.markdown(html_block, unsafe_allow_html=True)
+    # --- RESULT CARD GENERATION ---
+    # We construct the HTML line-by-line using concatenation to prevent
+    # Streamlit from interpreting indentation as a code block.
+    
+    card_html = ""
+    card_html += f'<div class="character-card">'
+    card_html += f'  <div class="card-header">'
+    card_html += f'    <div class="card-name">{char_data["Name"]}</div>'
+    card_html += f'    <div class="card-class">{char_data["Class"]}</div>'
+    card_html += f'  </div>'
+    card_html += f'  <div class="img-container">'
+    card_html += f'    <a href="{image_url}" target="_blank">'
+    card_html += f'      <img src="{image_url}" title="Click to Expand">'
+    card_html += f'    </a>'
+    card_html += f'  </div>'
+    card_html += f'  <div class="visual-caption">"{char_data["Visual_Desc"]}"</div>'
+    card_html += f'  <div class="voice-section">'
+    card_html += f'    <div class="voice-quote">{char_data["Greeting"]}</div>'
+    card_html += f'  </div>'
+    card_html += f'  <div class="lore-section">'
+    card_html += f'    <span class="lore-label">Archive Record</span>'
+    card_html += f'    {char_data["Lore"]}'
+    card_html += f'  </div>'
+    card_html += f'</div>'
+
+    st.markdown(card_html, unsafe_allow_html=True)
 
 # FOOTER
 runes = ["ᚦ", "ᚱ", "ᛁ", "ᛉ", "ᛉ", "ᚨ", "ᚱ"]
