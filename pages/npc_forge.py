@@ -73,7 +73,7 @@ if summon_btn and user_input:
                 text_model = genai.GenerativeModel('models/gemini-3-pro-preview')
                 
                 text_prompt = f"""
-                You are a dark fantasy writer. Create a character based on: "{user_input}".
+                You are a creative assistant to a dungeon master. Create a character based on: "{user_input}".
                 Return ONLY a raw JSON object with these keys:
                 "Name", "Class", "Lore", "Greeting", "Visual_Desc"
                 """
@@ -92,13 +92,13 @@ if summon_btn and user_input:
     # --- B. GENERATE & UPLOAD IMAGE (Gemini 3 Pro Image) ---
     with col1:
         st.markdown("---")
-        with st.spinner("Painting & Archiving..."):
+        with st.spinner("Conjuring the form..."):
             try:
                 # STRICT MODEL SELECTION: Gemini 3 Pro Image
                 image_model = genai.GenerativeModel('models/gemini-3-pro-image-preview')
                 
                 desc = character_data.get("Visual_Desc", user_input)
-                image_prompt = f"Dark fantasy character portrait, {desc}, oil painting style, 8k."
+                image_prompt = f"Dark fantasy character in photo realistic style with an appropriate background, {desc}, photo realistic, 8k."
                 
                 img_response = image_model.generate_content(image_prompt)
                 
