@@ -166,11 +166,11 @@ st.markdown("<div class='subtext'>Where imagination meets the void.</div>", unsa
 col1, col2 = st.columns(2)
 
 with col1:
-    st.page_link("pages/npc_forge.py", label="NPC FORGE", use_container_width=True)
+    st.page_link("pages/1_the_forge.py", label="The Forge", use_container_width=True)
     st.markdown("<p style='text-align: center; color: #666; font-family: Cormorant Garamond; font-size: 1rem; margin-top: -15px;'>Soul & Story</p>", unsafe_allow_html=True)
 
 with col2:
-    st.page_link("pages/art_studio.py", label="ART STUDIO", use_container_width=True)
+    st.page_link("pages/art_studio.py", label="Worldbuilding", use_container_width=True)
     st.markdown("<p style='text-align: center; color: #666; font-family: Cormorant Garamond; font-size: 1rem; margin-top: -15px;'>Visuals & Items</p>", unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
