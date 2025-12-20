@@ -70,6 +70,7 @@ st.markdown("""
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        z-index: 10;
     }
 
     a[data-testid="stPageLink-NavLink"]:hover {
@@ -99,30 +100,40 @@ st.markdown("""
         display: none;
     }
 
-    /* --- FOOTER RUNES (High Voltage Update) --- */
+    /* --- FOOTER RUNES (FIXED) --- */
+    .footer-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 5rem;
+        position: relative;
+        z-index: 9999; /* Force it to the top layer */
+    }
+
     .footer-runes {
         text-align: center;
-        opacity: 0.8; /* Increased from 0.2 to 0.8 */
+        opacity: 0.3;
         letter-spacing: 1.5rem;
-        color: var(--emerald-glow);
-        font-size: 1.5rem; /* Slightly larger */
-        margin-top: 5rem;
+        color: var(--emerald-dim);
+        font-size: 1.5rem;
         user-select: none;
-        cursor: default;
+        cursor: help; /* Changing cursor proves hover is working */
+        transition: all 0.4s ease-in-out;
+        padding: 20px; /* Bigger hitbox */
         
-        /* THE GLOW EFFECT */
-        text-shadow: 
-            0 0 5px rgba(80, 200, 120, 0.8),   /* Inner bright core */
-            0 0 15px rgba(80, 200, 120, 0.5),  /* Middle bloom */
-            0 0 30px rgba(80, 200, 120, 0.3);  /* Outer haze */
-        
-        animation: pulse 4s infinite alternate;
+        /* Ensure it captures mouse events */
+        pointer-events: auto; 
     }
     
-    /* Optional: Makes them breathe slowly */
-    @keyframes pulse {
-        0% { opacity: 0.6; text-shadow: 0 0 5px rgba(80, 200, 120, 0.6); }
-        100% { opacity: 1.0; text-shadow: 0 0 20px rgba(80, 200, 120, 1.0), 0 0 40px rgba(80, 200, 120, 0.4); }
+    /* HOVER STATE - Use !important to force overrides */
+    .footer-runes:hover {
+        opacity: 1.0 !important;
+        color: var(--emerald-glow) !important;
+        letter-spacing: 1.8rem !important;
+        text-shadow: 
+            0 0 10px rgba(80, 200, 120, 1.0),
+            0 0 30px rgba(80, 200, 120, 0.8),
+            0 0 60px rgba(80, 200, 120, 0.6);
+        transform: scale(1.1);
     }
 
 </style>
@@ -147,5 +158,9 @@ with col2:
     st.page_link("pages/art_studio.py", label="ART STUDIO", use_container_width=True)
     st.markdown("<p style='text-align: center; color: #666; font-family: Cormorant Garamond; font-size: 1rem; margin-top: -15px;'>Visuals & Items</p>", unsafe_allow_html=True)
 
-# FOOTER DECORATION
-st.markdown("<div class='footer-runes'>ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ</div>", unsafe_allow_html=True)
+# FOOTER DECORATION (Wrapped in container for Z-Index safety)
+st.markdown("""
+<div class='footer-container'>
+    <div class='footer-runes'>ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ</div>
+</div>
+""", unsafe_allow_html=True)
