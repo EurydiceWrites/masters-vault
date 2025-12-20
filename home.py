@@ -71,7 +71,7 @@ st.markdown("""
         align-items: center;
         justify-content: center;
         z-index: 10;
-        position: relative; /* Context for children */
+        position: relative;
     }
 
     a[data-testid="stPageLink-NavLink"]:hover {
@@ -101,28 +101,41 @@ st.markdown("""
         display: none;
     }
 
-    /* --- FOOTER RUNES (Sequential Glow) --- */
+    /* --- FOOTER RUNES (Sequential Glow + Hover Override) --- */
     .footer-container {
         display: flex;
         justify-content: center;
-        gap: 1.5rem; /* Space between runes */
+        gap: 1.5rem;
         margin-top: 5rem;
         position: relative;
-        z-index: 100;
+        z-index: 999; /* Top layer */
     }
 
-    /* Individual Rune Style */
     .rune-span {
         font-size: 1.8rem;
         color: var(--emerald-dim);
         opacity: 0.3;
         user-select: none;
+        cursor: pointer;
+        padding: 10px; /* Bigger hitbox */
+        transition: all 0.1s ease; /* Fast response on hover */
         
         /* The Ripple Animation */
         animation: rune-glow 3s infinite ease-in-out;
     }
 
-    /* The Glow Keyframes */
+    /* THE FIX: When hovered, PAUSE animation and FORCE glow */
+    .rune-span:hover {
+        animation-play-state: paused;
+        color: var(--emerald-glow) !important; 
+        opacity: 1 !important; 
+        text-shadow: 
+            0 0 10px var(--emerald-glow), 
+            0 0 20px var(--emerald-glow), 
+            0 0 40px var(--emerald-glow) !important; 
+        transform: scale(1.3) !important;
+    }
+
     @keyframes rune-glow {
         0%, 100% { 
             color: var(--emerald-dim); 
@@ -132,9 +145,9 @@ st.markdown("""
         }
         50% { 
             color: var(--emerald-glow); 
-            opacity: 1; 
-            text-shadow: 0 0 15px var(--emerald-glow), 0 0 30px var(--emerald-glow); 
-            transform: scale(1.2); /* Slight pulse size increase */
+            opacity: 0.8; 
+            text-shadow: 0 0 15px var(--emerald-dim); 
+            transform: scale(1.1);
         }
     }
 
@@ -161,14 +174,13 @@ with col2:
     st.markdown("<p style='text-align: center; color: #666; font-family: Cormorant Garamond; font-size: 1rem; margin-top: -15px;'>Visuals & Items</p>", unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# 4. THE FOOTER ENGINE (Sequential Generator)
+# 4. THE FOOTER ENGINE
 # -----------------------------------------------------------------------------
-# We create the HTML dynamically to add the animation delays
 runes = ["ᚠ", "ᚢ", "ᚦ", "ᚨ", "ᚱ", "ᚲ", "ᚷ", "ᚹ"]
 rune_html = "<div class='footer-container'>"
 
 for i, rune in enumerate(runes):
-    # Calculate delay: each rune lights up 0.2s after the previous one
+    # Staggered animation delay
     delay = i * 0.2
     rune_html += f"<span class='rune-span' style='animation-delay: {delay}s'>{rune}</span>"
 
