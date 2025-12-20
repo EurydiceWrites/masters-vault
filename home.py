@@ -6,7 +6,7 @@ import streamlit as st
 st.set_page_config(page_title="The Masters Vault", page_icon="🗝️", layout="centered")
 
 # -----------------------------------------------------------------------------
-# 2. THE VISUAL ENGINE (CSS)
+# 2. THE VISUAL ENGINE (CSS) - THE OBSIDIAN STYLE
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -19,40 +19,29 @@ st.markdown("""
         background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #000 80%);
     }
 
-    /* --- SIDEBAR STYLING (NEW) --- */
-    /* 1. The Container */
+    /* --- SIDEBAR STYLING --- */
     [data-testid="stSidebar"] {
-        background-color: #080808; /* Darker than main content */
-        border-right: 1px solid #1e3a2a; /* Dim Emerald Border */
+        background-color: #080808; 
+        border-right: 1px solid #1e3a2a;
     }
-
-    /* 2. The Navigation Links */
     [data-testid="stSidebarNav"] {
         font-family: 'Cinzel', serif;
         padding-top: 2rem;
     }
-    
-    /* 3. Link Text (Normal State) */
     [data-testid="stSidebarNav"] span {
         color: #666;
         font-size: 1rem;
         letter-spacing: 2px;
         transition: color 0.3s;
     }
-
-    /* 4. Link Text (Hover State) */
     [data-testid="stSidebarNav"] a:hover span {
         color: #50c878; /* Emerald Glow */
     }
-
-    /* 5. Active Page (The one you are currently on) */
     [data-testid="stSidebarNav"] [aria-current="page"] span {
         color: #66ff99 !important;
         font-weight: bold;
         text-shadow: 0 0 15px rgba(80, 200, 120, 0.4);
     }
-    
-    /* Hide the default top colored bar if present */
     header[data-testid="stHeader"] {
         background: transparent;
     }
@@ -78,8 +67,8 @@ st.markdown("""
         margin-bottom: 4rem;
     }
 
-    /* --- NAVIGATION CARDS --- */
-    /* (Streamlit Native Link Styling) */
+    /* --- NAVIGATION CARDS (THE OBSIDIAN LOOK) --- */
+    /* This targets the Streamlit buttons to make them look like cards */
     div[data-testid="stPageLink-NavLink"] {
         background-color: #0e0e0e;
         border: 1px solid #333;
@@ -94,20 +83,26 @@ st.markdown("""
         height: 150px; /* Fixed Height */
     }
     
+    /* Hover State - The Emerald Glow */
     div[data-testid="stPageLink-NavLink"]:hover {
         border-color: #50c878;
         background-color: #111;
         transform: translateY(-5px);
-        box-shadow: 0 0 30px rgba(80, 200, 120, 0.1);
+        box-shadow: 0 0 30px rgba(80, 200, 120, 0.15); /* The Glow */
     }
     
-    /* Icon styling */
+    /* Text Styling inside the card */
     div[data-testid="stPageLink-NavLink"] p {
         font-family: 'Cinzel', serif;
-        font-size: 1.5rem;
+        font-size: 1.2rem;
         letter-spacing: 2px;
+        font-weight: 600;
+        color: #e0e0e0;
     }
 
+    /* Remove default link underline */
+    a { text-decoration: none; }
+    
 </style>
 """, unsafe_allow_html=True)
 
@@ -121,13 +116,13 @@ st.markdown("<div class='subtitle'>A digital grimoire for the architect of world
 st.markdown("<br>", unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# 4. NAVIGATION TILES
+# 4. NAVIGATION TILES (Using Correct File Paths)
 # -----------------------------------------------------------------------------
 col1, col2 = st.columns(2)
 
 # TILE 1: THE FORGE
 with col1:
-    # Ensure this string matches YOUR server filename exactly (1_The Forge.py or 1_the_forge.py)
+    # Points to: 1_the_forge.py (Lowercase)
     st.page_link("pages/1_the_forge.py", label="ENTER THE FORGE", icon="⚒️", use_container_width=True)
     st.markdown("""
         <div style="text-align: center; color: #666; font-family: 'Cormorant Garamond'; font-style: italic; margin-top: 10px;">
@@ -137,6 +132,7 @@ with col1:
 
 # TILE 2: THE ARCHIVES
 with col2:
+    # Points to: 2_library.py (Lowercase)
     st.page_link("pages/2_library.py", label="OPEN THE ARCHIVES", icon="📜", use_container_width=True)
     st.markdown("""
         <div style="text-align: center; color: #666; font-family: 'Cormorant Garamond'; font-style: italic; margin-top: 10px;">
