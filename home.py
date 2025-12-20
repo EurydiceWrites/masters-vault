@@ -6,7 +6,7 @@ import streamlit as st
 st.set_page_config(page_title="Master's Vault", layout="centered", page_icon="⚔️")
 
 # -----------------------------------------------------------------------------
-# 2. THE VISUAL ENGINE (Refined Ancient Stone)
+# 2. THE VISUAL ENGINE
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -71,6 +71,7 @@ st.markdown("""
         align-items: center;
         justify-content: center;
         z-index: 10;
+        position: relative; /* Context for children */
     }
 
     a[data-testid="stPageLink-NavLink"]:hover {
@@ -100,40 +101,41 @@ st.markdown("""
         display: none;
     }
 
-    /* --- FOOTER RUNES (FIXED) --- */
+    /* --- FOOTER RUNES (Sequential Glow) --- */
     .footer-container {
         display: flex;
         justify-content: center;
+        gap: 1.5rem; /* Space between runes */
         margin-top: 5rem;
         position: relative;
-        z-index: 9999; /* Force it to the top layer */
+        z-index: 100;
     }
 
-    .footer-runes {
-        text-align: center;
-        opacity: 0.3;
-        letter-spacing: 1.5rem;
+    /* Individual Rune Style */
+    .rune-span {
+        font-size: 1.8rem;
         color: var(--emerald-dim);
-        font-size: 1.5rem;
+        opacity: 0.3;
         user-select: none;
-        cursor: help; /* Changing cursor proves hover is working */
-        transition: all 0.4s ease-in-out;
-        padding: 20px; /* Bigger hitbox */
         
-        /* Ensure it captures mouse events */
-        pointer-events: auto; 
+        /* The Ripple Animation */
+        animation: rune-glow 3s infinite ease-in-out;
     }
-    
-    /* HOVER STATE - Use !important to force overrides */
-    .footer-runes:hover {
-        opacity: 1.0 !important;
-        color: var(--emerald-glow) !important;
-        letter-spacing: 1.8rem !important;
-        text-shadow: 
-            0 0 10px rgba(80, 200, 120, 1.0),
-            0 0 30px rgba(80, 200, 120, 0.8),
-            0 0 60px rgba(80, 200, 120, 0.6);
-        transform: scale(1.1);
+
+    /* The Glow Keyframes */
+    @keyframes rune-glow {
+        0%, 100% { 
+            color: var(--emerald-dim); 
+            opacity: 0.3; 
+            text-shadow: none; 
+            transform: scale(1);
+        }
+        50% { 
+            color: var(--emerald-glow); 
+            opacity: 1; 
+            text-shadow: 0 0 15px var(--emerald-glow), 0 0 30px var(--emerald-glow); 
+            transform: scale(1.2); /* Slight pulse size increase */
+        }
     }
 
 </style>
@@ -158,9 +160,18 @@ with col2:
     st.page_link("pages/art_studio.py", label="ART STUDIO", use_container_width=True)
     st.markdown("<p style='text-align: center; color: #666; font-family: Cormorant Garamond; font-size: 1rem; margin-top: -15px;'>Visuals & Items</p>", unsafe_allow_html=True)
 
-# FOOTER DECORATION (Wrapped in container for Z-Index safety)
-st.markdown("""
-<div class='footer-container'>
-    <div class='footer-runes'>ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ</div>
-</div>
-""", unsafe_allow_html=True)
+# -----------------------------------------------------------------------------
+# 4. THE FOOTER ENGINE (Sequential Generator)
+# -----------------------------------------------------------------------------
+# We create the HTML dynamically to add the animation delays
+runes = ["ᚠ", "ᚢ", "ᚦ", "ᚨ", "ᚱ", "ᚲ", "ᚷ", "ᚹ"]
+rune_html = "<div class='footer-container'>"
+
+for i, rune in enumerate(runes):
+    # Calculate delay: each rune lights up 0.2s after the previous one
+    delay = i * 0.2
+    rune_html += f"<span class='rune-span' style='animation-delay: {delay}s'>{rune}</span>"
+
+rune_html += "</div>"
+
+st.markdown(rune_html, unsafe_allow_html=True)
