@@ -14,7 +14,7 @@ import cloudinary.uploader
 st.set_page_config(page_title="The NPC Forge", layout="centered", page_icon="⚒️")
 
 # -----------------------------------------------------------------------------
-# 2. THE VISUAL ENGINE (The Full Anvil)
+# 2. THE VISUAL ENGINE
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -73,7 +73,7 @@ st.markdown("""
     /* --- THE ANVIL CONTAINER (The Form) --- */
     [data-testid="stForm"] {
         background: var(--iron-gradient);
-        padding: 3rem 2rem 1rem 2rem; /* Extra top padding for the 'face' */
+        padding: 3rem 2rem 1rem 2rem;
         border: none;
         
         /* THE SHAPE: Wide Top, Narrow Waist, Wide Base */
@@ -83,8 +83,6 @@ st.markdown("""
             100% 100%, 0% 100%,  /* Base */
             5% 70%, 5% 30%       /* Left Side Waist */
         );
-        
-        /* Drop Shadow that follows the shape */
         filter: drop-shadow(0 0 20px rgba(0,0,0,0.8));
     }
 
@@ -104,8 +102,13 @@ st.markdown("""
         border-color: var(--emerald-dim) !important;
     }
     .stTextInput label { display: none; }
+    
+    /* --- HIDE "PRESS ENTER TO APPLY" INSTRUCTIONS --- */
+    [data-testid="InputInstructions"] {
+        display: none !important;
+    }
 
-    /* --- THE BLACK FORGE BUTTON (The Base) --- */
+    /* --- THE BLACK FORGE BUTTON --- */
     .stButton {
         width: 100% !important;
         margin-top: 1rem;
@@ -113,7 +116,7 @@ st.markdown("""
 
     .stButton > button {
         width: 100% !important;
-        background-color: #000 !important; /* Pure Black */
+        background-color: #000 !important;
         color: #666;
         border: 1px solid #222;
         padding: 1rem;
@@ -221,7 +224,7 @@ st.markdown("<div class='subtext'>Inscribe the soul. Strike the iron.</div>", un
 with st.form("forge_form"):
     st.markdown("<p style='font-family: Cinzel; color: #444; text-align: center; font-size: 0.8rem; margin-bottom: 5px; opacity: 0.5;'>INSCRIPTION SURFACE</p>", unsafe_allow_html=True)
     
-    # Input Area (Top of Anvil)
+    # Input Area
     user_input = st.text_input("Concept", placeholder="e.g. A weary executioner who collects butterflies...")
     
     # The Black Button (Base of Anvil)
