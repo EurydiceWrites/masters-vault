@@ -212,7 +212,8 @@ def forge_npc(concept, tone):
             if "GOOGLE_API_KEY" in st.secrets:
                 genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
             
-            text_model = genai.GenerativeModel('models/gemini-1.5-pro')
+            # --- UPDATED: USING GEMINI 3 PRO PREVIEW ---
+            text_model = genai.GenerativeModel('models/gemini-3-pro-preview')
             text_prompt = f"""
             Role: Dark Fantasy DM Assistant.
             Task: Create a richly textured, photo-realistic NPC based on: "{concept}".
@@ -229,8 +230,8 @@ def forge_npc(concept, tone):
     # 3. GENERATE IMAGE
     with st.spinner("Conjuring the form..."):
         try:
-            # Note: Ensure you have access to this model or swap to 'imagen-3.0-generate-001' if needed
-            image_model = genai.GenerativeModel('models/imagen-3.0-generate-001') 
+            # --- UPDATED: USING GEMINI 3 PRO IMAGE PREVIEW ---
+            image_model = genai.GenerativeModel('models/gemini-3-pro-image-preview') 
             img_prompt = f"{img_vibe}, {char_data['Visual_Desc']}, Norse aesthetic, 8k, cinematic lighting."
             img_response = image_model.generate_content(img_prompt)
             
