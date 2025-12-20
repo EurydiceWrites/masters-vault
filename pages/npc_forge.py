@@ -180,7 +180,7 @@ def forge_npc(concept, tone):
         img_vibe = "photo realistic, surreal, mist-filled, cinematic, strange colors, folklore aesthetic"
 
     # 2. GENERATE TEXT
-    with st.spinner(f"Forging with {tone} essence..."):
+    with st.spinner(f"Forging with essence of {tone}..."):
         try:
             if "GOOGLE_API_KEY" in st.secrets:
                 genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
@@ -200,7 +200,7 @@ def forge_npc(concept, tone):
             return None
 
     # 3. GENERATE IMAGE
-    with st.spinner("Conjuring the visage..."):
+    with st.spinner("Conjuring the form..."):
         try:
             image_model = genai.GenerativeModel('models/gemini-3-pro-image-preview')
             img_prompt = f"{img_vibe}, {char_data['Visual_Desc']}, Norse aesthetic, 8k, cinematic lighting."
