@@ -14,7 +14,7 @@ import cloudinary.uploader
 st.set_page_config(page_title="The NPC Forge", layout="centered", page_icon="⚒️")
 
 # -----------------------------------------------------------------------------
-# 2. THE VISUAL ENGINE (The Iron Altar)
+# 2. THE VISUAL ENGINE (The Furnace & Anvil)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -27,224 +27,215 @@ st.markdown("""
         --stone-dark: #0e0e0e;
         --emerald-glow: #50c878;
         --emerald-dim: #2e5a44;
-        --iron-gradient: linear-gradient(180deg, #444 0%, #222 50%, #111 100%);
-        --text-main: #d0d0d0;
-        --text-muted: #666; /* Darker placeholder */
+        --iron-plate: #1a1a1a;
+        --furnace-glow: rgba(80, 200, 120, 0.1);
     }
 
     /* --- BACKGROUND --- */
     .stApp {
         background-color: var(--stone-dark);
-        background-image: radial-gradient(circle at 50% 10%, #1f2220 0%, #000 100%);
-        color: var(--text-main);
+        background-image: 
+            radial-gradient(circle at 50% 0%, #1f2220 0%, transparent 60%),
+            url("https://www.transparenttextures.com/patterns/black-felt.png"); /* Subtle noise texture */
+        color: #d0d0d0;
         font-family: 'Lato', sans-serif;
     }
 
-    /* --- NAVIGATION BACK LINK --- */
+    /* --- NAVIGATION --- */
     a[data-testid="stPageLink-NavLink"] {
         background: transparent !important;
         border: none !important;
-        box-shadow: none !important;
         padding: 0 !important;
     }
-    
     a[data-testid="stPageLink-NavLink"] p {
-        color: var(--text-muted);
+        color: #666;
         font-family: 'Cinzel', serif;
         font-size: 0.9rem;
-        transition: color 0.3s;
     }
-    
-    a[data-testid="stPageLink-NavLink"]:hover p {
-        color: var(--emerald-glow);
-    }
+    a[data-testid="stPageLink-NavLink"]:hover p { color: var(--emerald-glow); }
 
     /* --- HEADER --- */
     h1 {
         font-family: 'Cinzel', serif !important;
         text-transform: uppercase;
-        letter-spacing: 10px;
-        font-size: 3rem !important;
+        letter-spacing: 12px;
+        font-size: 3.5rem !important;
         color: var(--emerald-glow) !important;
-        text-shadow: 0 0 20px rgba(80, 200, 120, 0.4);
+        text-shadow: 0 0 25px rgba(80, 200, 120, 0.3);
         text-align: center;
-        margin-top: -20px;
-        margin-bottom: 0.5rem !important;
+        margin-top: -10px;
+        margin-bottom: 0 !important;
     }
 
     .subtext {
         text-align: center;
         font-family: 'Cormorant Garamond', serif;
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         font-style: italic;
-        color: var(--text-muted);
+        color: #888;
         letter-spacing: 2px;
-        margin-bottom: 3rem; 
-        border-bottom: 1px solid var(--emerald-dim);
+        margin-bottom: 4rem; 
+        border-bottom: 1px solid #333;
         padding-bottom: 2rem;
     }
 
-    /* --- THE ALTAR (The Form Container) --- */
-    /* This grounds the input field so it's not floating */
+    /* --- THE IRON ALTAR (Form Container) --- */
     [data-testid="stForm"] {
-        background-color: #111;
+        background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
         border: 1px solid #333;
-        border-top: 4px solid #444; /* Highlight on top edge */
-        border-radius: 4px;
-        padding: 2rem;
+        border-top: 1px solid #555; /* Top highlight */
+        border-bottom: 5px solid #000; /* Heavy base */
+        border-radius: 6px;
+        padding: 3rem 2rem 2rem 2rem;
         box-shadow: 
-            0 20px 50px rgba(0,0,0,0.8), /* Drop shadow */
-            inset 0 0 100px rgba(0,0,0,0.8); /* Inner shadow for depth */
+            0 20px 50px rgba(0,0,0,0.9),
+            inset 0 0 60px rgba(0,0,0,0.8); /* Inner depth */
         position: relative;
     }
-    
-    /* Decorative Bolts on the Altar */
-    [data-testid="stForm"]::before, [data-testid="stForm"]::after {
-        content: '+';
-        position: absolute;
-        top: 10px;
-        color: #333;
-        font-family: 'Cinzel', serif;
-    }
-    [data-testid="stForm"]::before { left: 15px; }
-    [data-testid="stForm"]::after { right: 15px; }
 
-    /* --- INPUT AREA (Embedded in the Altar) --- */
+    /* THE BOLTS (Pseudo-elements) */
+    [data-testid="stForm"]::before {
+        content: '';
+        position: absolute;
+        top: 15px; left: 15px;
+        width: 10px; height: 10px;
+        background: #000;
+        border-radius: 50%;
+        box-shadow: 0 1px 0 #333;
+    }
+    [data-testid="stForm"]::after {
+        content: '';
+        position: absolute;
+        top: 15px; right: 15px;
+        width: 10px; height: 10px;
+        background: #000;
+        border-radius: 50%;
+        box-shadow: 0 1px 0 #333;
+    }
+
+    /* --- THE "MOULD" (Input Field) --- */
     .stTextInput > div > div > input {
         background-color: #050505 !important; 
         border: 1px solid #222 !important;
+        border-top: 3px solid #000 !important; /* Deep shadow top */
         border-bottom: 1px solid #333 !important;
         color: #e0e0e0 !important;
         font-family: 'Lato', sans-serif;
-        font-size: 1.1rem;
-        padding: 1rem;
-        box-shadow: inset 0 5px 10px rgba(0,0,0,0.9); /* Recessed look */
+        font-size: 1.2rem;
+        padding: 1.5rem;
+        box-shadow: inset 0 0 20px #000;
+        border-radius: 4px;
     }
 
     .stTextInput > div > div > input:focus {
         border-color: var(--emerald-dim) !important;
+        background-color: #080a09 !important;
         color: #fff !important;
     }
 
-    /* DIM THE PLACEHOLDER TEXT */
     .stTextInput input::placeholder {
         color: #444 !important;
         font-style: italic;
+        letter-spacing: 1px;
     }
     
-    .stTextInput label {
-        display: none;
-    }
+    .stTextInput label { display: none; }
 
-    /* --- THE ANVIL BUTTON --- */
+    /* --- THE HAMMER (Button) --- */
+    /* This targets the button container to ensure full width */
     .stButton {
-        display: flex;
-        justify-content: center;
+        width: 100%;
         margin-top: 2rem;
     }
 
     .stButton > button {
         width: 100%;
-        max-width: 300px;
-        height: 80px; /* Tall button */
-        background: var(--iron-gradient);
-        color: #aaa;
-        border: 1px solid #333;
-        border-bottom: 6px solid #111; /* Thickness */
+        background: radial-gradient(circle at center, #2e3b33 0%, #0e1210 100%);
+        color: #888;
+        border: 1px solid #2e5a44;
+        border-bottom: 4px solid #000;
+        padding: 1.5rem;
         font-family: 'Cinzel', serif;
-        font-weight: 900;
-        letter-spacing: 4px;
-        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: 6px;
+        font-size: 1.4rem;
         text-transform: uppercase;
-        transition: all 0.1s ease;
-        position: relative;
-        
-        /* TRAPEZOID SHAPE (The Striking Plate) */
-        clip-path: polygon(
-            10% 0, 90% 0,   /* Narrower top */
-            100% 100%, 0% 100% /* Wider bottom base */
-        );
-        
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         text-shadow: 0 -1px 0 #000;
+        position: relative;
+        overflow: hidden;
     }
 
+    /* Hover: The Metal heats up */
     .stButton > button:hover {
-        background: linear-gradient(180deg, #555 0%, #333 100%);
-        color: var(--emerald-glow);
-        text-shadow: 0 0 10px rgba(80, 200, 120, 0.8);
-        border-bottom: 6px solid #111;
+        background: radial-gradient(circle at center, #3a5c4a 0%, #15221c 100%);
+        color: #fff;
+        border-color: var(--emerald-glow);
+        text-shadow: 0 0 15px var(--emerald-glow);
         transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(80, 200, 120, 0.1);
+    }
+
+    .stButton > button:active {
+        transform: translateY(2px);
+        border-bottom: 1px solid #000;
+        box-shadow: inset 0 0 20px #000;
+    }
+
+    /* --- THE ARTIFACT (Result Card) --- */
+    .character-card {
+        background: #080808;
+        border: 1px solid #222;
+        padding: 0; /* Image touches edges */
+        margin-top: 4rem;
+        box-shadow: 0 0 60px rgba(0,0,0,1);
+        position: relative;
     }
     
-    .stButton > button:active {
-        transform: translateY(4px); /* Heavy impact */
-        border-bottom: 2px solid #111;
-        background: #222;
+    .card-header {
+        background: #0f1210;
+        padding: 1.5rem;
+        border-bottom: 1px solid #222;
+        text-align: center;
     }
-
-    /* --- THE RESULT CARD --- */
-    .character-card {
-        background: linear-gradient(145deg, #111, #0a0a0a);
-        border: 1px solid #222;
-        border-top: 3px solid var(--emerald-dim);
-        padding: 2.5rem;
-        margin-top: 4rem;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.9);
-        position: relative;
-    }
-
+    
     .card-name {
         font-family: 'Cinzel', serif;
-        font-size: 2.2rem;
+        font-size: 2rem;
         color: #fff;
-        text-align: center;
-        border-bottom: 1px solid #222;
-        padding-bottom: 1.5rem;
-        margin-bottom: 2rem;
         letter-spacing: 3px;
-        text-shadow: 0 0 10px rgba(80, 200, 120, 0.4);
+        margin: 0;
+        text-shadow: 0 0 10px rgba(80, 200, 120, 0.5);
+    }
+    
+    .card-body {
+        padding: 2rem;
     }
 
     .visual-block {
-        background-color: #080808;
+        background-color: #0c0c0c;
         border-left: 2px solid var(--emerald-dim);
         padding: 1.5rem;
         font-style: italic;
-        color: #bbb;
-        margin: 2rem 0;
-        line-height: 1.6;
+        color: #ccc;
+        margin-bottom: 2rem;
         font-family: 'Cormorant Garamond', serif;
         font-size: 1.1rem;
     }
     
-    .lore-section {
-        margin-top: 2rem;
-        border-top: 1px solid #222;
-        padding-top: 1.5rem;
-        color: #888;
-        font-size: 0.95rem;
-        line-height: 1.7;
-    }
-
-    /* --- FOOTER RUNES (Sequential Glow) --- */
+    /* --- FOOTER RUNES (Consistent) --- */
     .footer-container {
         display: flex;
         justify-content: center;
         gap: 1.5rem;
         margin-top: 5rem;
-        position: relative;
-        z-index: 100;
     }
-
     .rune-span {
         font-size: 1.5rem;
         color: var(--emerald-dim);
         opacity: 0.3;
-        user-select: none;
-        cursor: default;
         animation: rune-glow 4s infinite ease-in-out;
     }
-
     @keyframes rune-glow {
         0%, 100% { color: var(--emerald-dim); opacity: 0.3; text-shadow: none; }
         50% { color: var(--emerald-glow); opacity: 0.8; text-shadow: 0 0 10px var(--emerald-dim); }
@@ -254,7 +245,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# 3. AUTH & LOGIC
+# 3. LOGIC
 # -----------------------------------------------------------------------------
 def setup_auth():
     try:
@@ -276,33 +267,29 @@ if not auth_success:
     st.stop()
 
 # -----------------------------------------------------------------------------
-# 4. MAIN LAYOUT
+# 4. LAYOUT
 # -----------------------------------------------------------------------------
-
-# Back Navigation
 st.page_link("home.py", label="< RETURN TO VAULT", use_container_width=False)
 
-# Header
 st.markdown("<h1>THE NPC FORGE</h1>", unsafe_allow_html=True)
-st.markdown("<div class='subtext'>Inscribe the core concept to manifest a soul.</div>", unsafe_allow_html=True)
+st.markdown("<div class='subtext'>The anvil awaits your hammer. Strike true.</div>", unsafe_allow_html=True)
 
-# THE IRON ALTAR (Form)
+# THE IRON ALTAR
 with st.form("forge_form"):
-    st.markdown("<p style='font-family: Cinzel; color: #50c878; letter-spacing: 2px; font-size: 0.9rem; margin-bottom: 5px; text-align: center; opacity: 0.7;'>CORE CONCEPT INSCRIPTION</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-family: Cinzel; color: #555; letter-spacing: 2px; font-size: 0.8rem; text-align: center; margin-bottom: 10px;'>INSCRIPTION</p>", unsafe_allow_html=True)
     
-    # Text input with darker placeholder styling
-    user_input = st.text_input("Concept", placeholder="e.g. A weary executioner who collects butterflies...")
+    user_input = st.text_input("Concept", placeholder="Describe the soul you wish to forge...")
     
-    # The Anvil Button
-    submitted = st.form_submit_button("FORGE")
+    # The massive button
+    submitted = st.form_submit_button("STRIKE THE ANVIL")
 
 # -----------------------------------------------------------------------------
-# 5. GENERATION & DISPLAY
+# 5. GENERATION
 # -----------------------------------------------------------------------------
 if submitted and user_input:
     
-    # 1. Text Gen
-    with st.spinner("Striking the anvil..."):
+    # 1. Text
+    with st.spinner("The hammers are ringing..."):
         try:
             if "GOOGLE_API_KEY" in st.secrets:
                 genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
@@ -321,8 +308,8 @@ if submitted and user_input:
             st.error(f"Forging Failed: {e}")
             st.stop()
 
-    # 2. Image Gen
-    with st.spinner("Cooling the steel..."):
+    # 2. Image
+    with st.spinner("Quenching the steel..."):
         try:
             image_model = genai.GenerativeModel('models/gemini-3-pro-image-preview')
             img_prompt = f"Hyper-realistic photograph, dark fantasy, {char_data['Visual_Desc']}, Norse aesthetic, gritty, 8k, cinematic lighting."
@@ -360,16 +347,21 @@ if submitted and user_input:
     # 4. Render
     st.markdown(f"""
     <div class="character-card">
-        <div class="card-name">{char_data['Name']}</div>
-        <div style="border: 1px solid #333; padding: 5px; background: #000;">
-            <img src="{image_url}" style="width: 100%; display: block; opacity: 1.0;">
+        <div class="card-header">
+            <div class="card-name">{char_data['Name']}</div>
+            <div style="color: #50c878; font-family: Cinzel; font-size: 0.9rem; margin-top: 5px;">{char_data['Class']}</div>
         </div>
-        <div class="visual-block">"{char_data['Visual_Desc']}"</div>
-        <div class="lore-section">
-            <strong style="color: #50c878; font-family: Cinzel;">CLASS:</strong> <span style="color: #ccc;">{char_data['Class']}</span><br><br>
-            <strong style="color: #50c878; font-family: Cinzel;">GREETING:</strong> <span style="color: #ccc;">"{char_data['Greeting']}"</span><br><br>
-            <strong style="color: #50c878; font-family: Cinzel;">LORE:</strong><br>
-            {char_data['Lore']}
+        
+        <img src="{image_url}" style="width: 100%; display: block; opacity: 1.0; border-bottom: 1px solid #222;">
+        
+        <div class="card-body">
+            <div class="visual-block">"{char_data['Visual_Desc']}"</div>
+            
+            <div style="color: #aaa; line-height: 1.6; font-size: 0.95rem;">
+                <strong style="color: #50c878; font-family: Cinzel;">GREETING:</strong> <span style="color: #ddd;">"{char_data['Greeting']}"</span><br><br>
+                <strong style="color: #50c878; font-family: Cinzel;">LORE:</strong><br>
+                {char_data['Lore']}
+            </div>
         </div>
     </div>
     """, unsafe_allow_html=True)
