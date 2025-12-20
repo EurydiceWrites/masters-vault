@@ -1,33 +1,33 @@
 import streamlit as st
-import random
-from google.oauth2 import service_account
 import google.generativeai as genai
+from google.oauth2 import service_account
 
-# --- PAGE SETUP ---
+# --- PAGE CONFIG ---
 st.set_page_config(page_title="NPC Forge", page_icon="🛡️")
-
 st.title("🛡️ NPC Forge")
 st.write("Summon Dark Fantasy characters with Norse names.")
 
-# --- AUTHENTICATION (The Fix) ---
+# --- AUTHENTICATION ---
 try:
-    # Check if we are on the Cloud (Secrets exist)
     if "gcp_service_account" in st.secrets:
+        # Cloud Mode
         service_account_info = st.secrets["gcp_service_account"]
         creds = service_account.Credentials.from_service_account_info(service_account_info)
-    # If not, fall back to local file (Computer mode)
     else:
+        # Local Mode
         creds = service_account.Credentials.from_service_account_file("service_account.json")
 except Exception as e:
-    st.error(f"🚨 Authentication Error: {e}")
+    st.error(f"🚨 Auth Error: {e}")
     st.stop()
 
-# --- AI SETUP ---
-# Grab the API Key from secrets
-api_key = st.secrets["GOOGLE_API_KEY"]
-genai.configure(api_key=api_key)
+# --- AI CONFIGURATION ---
+if "GOOGLE_API_KEY" in st.secrets:
+    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+else:
+    st.error("Missing GOOGLE_API_KEY in secrets.")
+    st.stop()
 
-# --- THE APP LOGIC ---
+# --- THE APP ---
 user_input = st.text_input("Who shall we summon?", placeholder="E.g., A paranoid alchemist with blue skin...")
 
 if st.button("Manifest NPC"):
@@ -36,35 +36,37 @@ if st.button("Manifest NPC"):
     else:
         with st.spinner("Weaving fate..."):
             try:
-                # 1. Create the Prompt
+                # 1. The Prompt
                 prompt = f"""
-                Generate a dark fantasy NPC based on this description: "{user_input}".
+                You are a creative writer for a dark fantasy RPG. 
+                Generate a character based on this concept: "{user_input}".
                 
-                The NPC must have a Norse-inspired name.
-                Provide the output in this specific format:
+                REQUIREMENTS:
+                - Name: Must be Norse-inspired.
+                - Tone: Dark, gritty, mysterious.
                 
+                OUTPUT FORMAT:
                 **Name:** [Name]
                 **Class:** [Class]
                 **Race:** [Race]
                 
                 **Appearance:**
-                [2-3 sentences describing them visually]
+                [Visual description]
                 
                 **Backstory:**
-                [Short paragraph about their dark past]
+                [A short, compelling history]
                 
                 **Secret:**
-                [One dark secret they are hiding]
+                [One hidden fact or weakness]
                 """
 
-                # 2. Call the AI
-                model = genai.GenerativeModel('gemini-1.5-flash')
+                # 2. The Model (UPDATED TO GEMINI 3 PRO PREVIEW)
+                model = genai.GenerativeModel('models/gemini-3-pro-preview')
                 response = model.generate_content(prompt)
                 
-                # 3. Show the Result
+                # 3. Output
                 st.markdown("### 📜 The Scroll Unfurls")
                 st.markdown(response.text)
-                
                 st.success("Summoning Complete.")
 
             except Exception as e:
