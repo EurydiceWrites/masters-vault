@@ -77,8 +77,8 @@ st.markdown("""
         transition: transform 0.3s ease;
         display: flex;
         flex-direction: column;
-        overflow: hidden;
-        height: 850px; /* FIXED HEIGHT Ensures Alignment */
+        /* FIXED HEIGHT ensures all cards are same size */
+        height: 800px; 
     }
     .archive-card:hover {
         transform: translateY(-5px);
@@ -86,53 +86,58 @@ st.markdown("""
         box-shadow: 0 15px 50px rgba(0,0,0,1);
     }
 
-    /* 1. IMAGE (THE HERO) */
+    /* 1. IMAGE (Fixed Height) */
     .img-frame { 
         width: 100%; 
-        height: 450px; 
+        height: 400px; 
         overflow: hidden; 
         border-bottom: 1px solid #222;
         position: relative;
-        flex-shrink: 0; /* Prevents image from shrinking */
+        flex-shrink: 0; /* Never shrink */
     }
     .img-frame img { width: 100%; height: 100%; object-fit: cover; object-position: top; opacity: 0.95; transition: opacity 0.5s; }
     .img-frame:hover img { opacity: 1; transform: scale(1.02); }
 
-    /* 2. IDENTITY (Title Area) */
+    /* 2. IDENTITY (Flexible Middle) */
     .card-identity {
-        padding: 2rem 1.5rem;
+        padding: 1rem 1.5rem;
         text-align: center;
         background: linear-gradient(180deg, #111 0%, #0e0e0e 100%);
         
-        /* MAGIC SAUCE FOR ALIGNMENT: */
-        flex-grow: 1; /* This forces this section to take up all available space */
+        /* THIS FIXES THE ALIGNMENT: */
+        flex-grow: 1; /* Grow to fill all empty space */
         display: flex;
         flex-direction: column;
-        justify-content: center; /* Centers text vertically in the gap */
+        justify-content: center; /* Center text vertically in this space */
     }
+    
     .card-name { 
         font-family: 'Cinzel', serif; 
-        font-size: 2rem; 
+        /* SMALLER FONT to prevent breaking words */
+        font-size: 1.5rem; 
         color: #fff; 
-        letter-spacing: 3px; 
-        margin-bottom: 0.8rem;
+        /* TIGHTER SPACING to keep words together */
+        letter-spacing: 1px; 
+        margin-bottom: 0.5rem;
         text-shadow: 0 4px 10px #000;
-        line-height: 1.2;
+        line-height: 1.3;
+        word-wrap: break-word; /* Prevents "Unboun-d" */
     }
     .card-class { 
         font-family: 'Cinzel', serif; 
-        font-size: 0.9rem; 
+        font-size: 0.8rem; 
         color: var(--emerald-bright); 
         letter-spacing: 2px; 
         text-transform: uppercase; 
         opacity: 0.9;
     }
 
-    /* 3. THE TOGGLE (Footer) */
+    /* 3. THE TOGGLE (Sticks to Bottom) */
     details {
         background: #080808;
         border-top: 1px solid #222;
-        margin-top: auto; /* REDUNDANT SAFETY to force to bottom */
+        /* No margin-top: auto needed because card-identity grows */
+        flex-shrink: 0; /* Never shrink */
     }
     
     summary {
@@ -155,7 +160,6 @@ st.markdown("""
     }
     
     /* --- RUNE INDICATORS --- */
-    /* We use ::after with display:block to put the rune UNDER the text */
     summary::after { 
         content: "ᛦ"; /* Yr (Roots/Closed) */
         display: block; 
@@ -167,23 +171,20 @@ st.markdown("""
     
     summary:hover::after { color: var(--emerald-glow); }
 
-    /* Open state: Tyr (Spear/Open) */
     details[open] summary::after { 
-        content: "ᛐ"; 
+        content: "ᛐ"; /* Tyr (Spear/Open) */
         color: var(--emerald-bright);
         text-shadow: 0 0 10px var(--emerald-bright);
     }
     
     details[open] summary { border-bottom: 1px solid #222; color: var(--emerald-bright); }
 
-    /* The Hidden Content */
-    /* Using absolute positioning trick to make content overlay the image if card is too small, 
-       or just scroll. For now, standard flow. */
+    /* The Hidden Content (Overlays image if needed, or scrolls) */
     .hidden-content {
         padding: 0 1.5rem 1.5rem 1.5rem;
         background: #0a0a0a;
         animation: fadeIn 0.5s;
-        max-height: 400px;
+        max-height: 350px; /* Limits height so card doesn't explode */
         overflow-y: auto;
     }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -300,22 +301,22 @@ if not filtered_df.empty:
         if not str(img_src).startswith("http"):
             img_src = "https://via.placeholder.com/400x500?text=No+Visage"
 
-        # --- LINE-BY-LINE HTML CONSTRUCTION ---
+        # --- LINE-BY-LINE HTML ---
         html = ""
         html += '<div class="archive-card">'
         
-        # 1. IMAGE (Top)
+        # 1. IMAGE
         html += '<div class="img-frame">'
         html += f'<a href="{img_src}" target="_blank"><img src="{img_src}" loading="lazy"></a>'
         html += '</div>'
         
-        # 2. IDENTITY (Middle - Grows to fill space)
+        # 2. IDENTITY (Flex-Grow fills space)
         html += '<div class="card-identity">'
         html += f'<div class="card-name">{row["Name"]}</div>'
         html += f'<div class="card-class">{row["Class"]}</div>'
         html += '</div>'
         
-        # 3. DETAILS (Bottom)
+        # 3. DETAILS (Pushed to bottom)
         html += '<details>'
         html += '<summary>INSPECT SOUL</summary>'
         html += '<div class="hidden-content">'
