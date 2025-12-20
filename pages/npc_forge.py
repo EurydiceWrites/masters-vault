@@ -11,149 +11,189 @@ import cloudinary.uploader
 # -----------------------------------------------------------------------------
 # 1. SETUP & CONFIG
 # -----------------------------------------------------------------------------
-st.set_page_config(page_title="Master's Vault", layout="centered", page_icon="⚔️")
+st.set_page_config(page_title="The NPC Forge", layout="centered", page_icon="⚒️")
 
 # -----------------------------------------------------------------------------
-# 2. THE VISUAL ENGINE (CSS INJECTION)
+# 2. THE VISUAL ENGINE (The Workshop Aesthetic)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
     /* --- FONTS --- */
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Lato:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:wght@400;600&family=Lato:wght@400;700&display=swap');
 
-    /* --- VARIABLES --- */
+    /* --- VARIABLES (Consistent with Home) --- */
     :root {
-        --stone-bg: #1c1c1c; /* Solid Dark Stone */
-        --stone-dark: #111111;
+        --stone-bg: #1c1c1c;
+        --stone-dark: #0e0e0e;
         --emerald-glow: #50c878;
         --emerald-dim: #2e5a44;
         --text-main: #d0d0d0;
-        --border-color: #3a3a3a;
+        --text-muted: #888;
     }
 
-    /* --- BACKGROUND (Solid Stone, No Sci-Fi Stars) --- */
+    /* --- BACKGROUND --- */
     .stApp {
         background-color: var(--stone-dark);
-        background-image: radial-gradient(circle at center, #252525 0%, #0a0a0a 100%);
+        background-image: radial-gradient(circle at 50% 10%, #1f2220 0%, #000 100%);
         color: var(--text-main);
         font-family: 'Lato', sans-serif;
     }
 
-    /* --- HEADER (The Inscription) --- */
+    /* --- NAVIGATION BACK LINK --- */
+    /* Small, discrete link to return home */
+    a[data-testid="stPageLink-NavLink"] {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+    
+    a[data-testid="stPageLink-NavLink"] p {
+        color: var(--text-muted);
+        font-family: 'Cinzel', serif;
+        font-size: 0.9rem;
+        transition: color 0.3s;
+    }
+    
+    a[data-testid="stPageLink-NavLink"]:hover p {
+        color: var(--emerald-glow);
+    }
+
+    /* --- HEADER (The Anvil) --- */
     h1 {
         font-family: 'Cinzel', serif !important;
         text-transform: uppercase;
-        letter-spacing: 8px;
-        font-size: 3.5rem !important;
+        letter-spacing: 10px;
+        font-size: 3rem !important;
         color: var(--emerald-glow) !important;
-        text-shadow: 0 5px 15px rgba(0,0,0,0.8);
+        text-shadow: 0 0 15px rgba(80, 200, 120, 0.3);
         text-align: center;
-        margin-bottom: 2rem !important; /* SEPARATION */
+        margin-top: -20px;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .subtext {
+        text-align: center;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.1rem;
+        font-style: italic;
+        color: var(--text-muted);
+        letter-spacing: 2px;
+        margin-bottom: 3rem; 
         border-bottom: 1px solid var(--emerald-dim);
         padding-bottom: 2rem;
     }
 
-    /* --- THE RUNES (Decorative Separation) --- */
-    .rune-divider {
-        font-size: 1.2rem;
-        color: #444; /* Darker, etched look */
-        text-align: center;
-        letter-spacing: 2rem;
-        margin-bottom: 4rem; /* MASSIVE SPACE HERE */
-        font-family: sans-serif;
-        text-shadow: 0 1px 0 rgba(255,255,255,0.1);
-    }
-
-    /* --- SUBTEXT (Fantasy Flavor) --- */
-    .subtext {
-        text-align: center;
-        font-family: 'Cinzel', serif;
-        font-size: 0.9rem;
-        color: #666;
-        letter-spacing: 3px;
-        margin-bottom: 3rem; 
-        text-transform: uppercase;
-    }
-
-    /* --- INPUT FIELDS (Carved Stone Block) --- */
+    /* --- INPUT AREA (The Inscription Slab) --- */
+    /* Distinct from Home: Darker, inset look like carved stone */
     .stTextInput > div > div > input {
-        background-color: #222 !important; 
-        border: 2px solid #333 !important; /* Physical border, not glowing */
-        border-top: 4px solid #111 !important; /* Shadow effect */
+        background-color: #080808 !important; 
+        border: 1px solid #333 !important;
+        border-top: 2px solid #000 !important; /* Inner Shadow effect */
         color: #e0e0e0 !important;
         font-family: 'Lato', sans-serif;
         font-size: 1.1rem;
-        padding: 15px;
-        border-radius: 4px;
-        box-shadow: inset 0 5px 10px rgba(0,0,0,0.5); /* Inner shadow for depth */
+        padding: 1.5rem;
+        border-radius: 2px;
+        box-shadow: inset 0 5px 15px rgba(0,0,0,0.8);
+        transition: all 0.3s ease;
     }
 
     .stTextInput > div > div > input:focus {
         border-color: var(--emerald-dim) !important;
-        background-color: #252525 !important;
+        box-shadow: inset 0 5px 15px rgba(0,0,0,0.8), 0 0 15px rgba(80, 200, 120, 0.1);
+        color: #fff !important;
     }
-
-    /* Label Styling */
+    
+    /* Hide the default label to use our own custom header */
     .stTextInput label {
-        color: #888 !important;
-        font-family: 'Cinzel', serif !important;
-        letter-spacing: 1px;
-        margin-bottom: 15px;
+        display: none;
     }
 
-    /* --- BUTTONS (Physical Tablet) --- */
+    /* --- THE HAMMER BUTTON --- */
     .stButton > button {
         width: 100%;
-        background-color: #1a2e25; /* Dark Emerald Stone */
-        color: #ccc;
-        border: 1px solid #2e5a44;
-        border-bottom: 4px solid #11221a; /* 3D Effect */
-        padding: 1rem;
+        background: linear-gradient(180deg, #1f2e26 0%, #0e1612 100%);
+        color: var(--text-main);
+        border: 1px solid var(--emerald-dim);
+        padding: 1.2rem;
         font-family: 'Cinzel', serif;
         font-weight: 700;
-        letter-spacing: 3px;
-        transition: all 0.2s ease;
-        border-radius: 4px;
-        margin-top: 29px; /* Aligns with input box */
+        letter-spacing: 4px;
+        font-size: 1.1rem;
         text-transform: uppercase;
+        transition: all 0.2s ease;
+        margin-top: 1rem;
+        box-shadow: 0 4px 0 #0b110e; /* Physical button depth */
     }
 
     .stButton > button:hover {
-        background-color: #2e5a44;
+        background: var(--emerald-dim);
         color: #fff;
-        transform: translateY(2px); /* Physical press effect */
-        border-bottom: 2px solid #11221a;
+        transform: translateY(2px); /* Press down effect */
+        box-shadow: 0 2px 0 #0b110e; /* Reduced shadow on press */
+        text-shadow: 0 0 10px rgba(80, 200, 120, 0.8);
+        border-color: var(--emerald-glow);
     }
     
-    /* --- CHARACTER CARD (Parchment/Stone Style) --- */
+    .stButton > button:active {
+        transform: translateY(4px);
+        box-shadow: none;
+    }
+
+    /* --- THE RESULT CARD (Obsidian Artifact) --- */
     .character-card {
-        background-color: #181818;
-        border: 1px solid #333;
-        padding: 40px;
-        margin-top: 5rem; /* DISTANCE from input */
-        box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-        border-radius: 4px;
+        background: linear-gradient(145deg, #111, #0a0a0a);
+        border: 1px solid #222;
+        border-top: 3px solid var(--emerald-dim);
+        padding: 2.5rem;
+        margin-top: 4rem;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+        position: relative;
     }
-    
+
     .card-name {
         font-family: 'Cinzel', serif;
-        font-size: 2.5rem;
-        color: #e0e0e0;
+        font-size: 2.2rem;
+        color: #fff;
         text-align: center;
-        border-bottom: 1px solid #333;
-        padding-bottom: 20px;
-        margin-bottom: 30px;
-        letter-spacing: 2px;
+        border-bottom: 1px solid #222;
+        padding-bottom: 1.5rem;
+        margin-bottom: 2rem;
+        letter-spacing: 3px;
+        text-shadow: 0 0 10px rgba(80, 200, 120, 0.4);
     }
-    
+
     .visual-block {
-        background-color: #111;
-        border-left: 4px solid var(--emerald-dim);
-        padding: 20px;
+        background-color: #080808;
+        border-left: 2px solid var(--emerald-dim);
+        padding: 1.5rem;
         font-style: italic;
         color: #bbb;
-        margin: 20px 0;
+        margin: 2rem 0;
         line-height: 1.6;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.1rem;
+    }
+    
+    .lore-section {
+        margin-top: 2rem;
+        border-top: 1px solid #222;
+        padding-top: 1.5rem;
+        color: #888;
+        font-size: 0.95rem;
+        line-height: 1.7;
+    }
+
+    /* --- FOOTER RUNES (Decoration) --- */
+    .forge-runes {
+        text-align: center;
+        margin-top: 4rem;
+        color: var(--emerald-dim);
+        opacity: 0.3;
+        letter-spacing: 2rem;
+        font-size: 1.2rem;
+        user-select: none;
     }
 
 </style>
@@ -192,103 +232,99 @@ def setup_auth():
 # -----------------------------------------------------------------------------
 # 4. MAIN LAYOUT
 # -----------------------------------------------------------------------------
-def main():
-    gc, auth_success, auth_msg = setup_auth()
+gc, auth_success, auth_msg = setup_auth()
 
-    if not auth_success:
-        st.error(f"System Failure: {auth_msg}")
-        st.stop()
+if not auth_success:
+    st.error(f"System Failure: {auth_msg}")
+    st.stop()
 
-    # --- HEADER SECTION ---
-    # 1. The Title
-    st.markdown("<h1>THE MASTER'S VAULT</h1>", unsafe_allow_html=True)
+# NAVIGATION (Back to Vault)
+st.page_link("home.py", label="< RETURN TO VAULT", use_container_width=False)
+
+# HEADER
+st.markdown("<h1>THE NPC FORGE</h1>", unsafe_allow_html=True)
+st.markdown("<div class='subtext'>Inscribe the core concept to manifest a soul.</div>", unsafe_allow_html=True)
+
+# THE WORKSTATION (Input & Button)
+# Using a "Form" ensures the user can hit Enter to submit
+with st.form("forge_form"):
+    # Custom label via Markdown because we hid the default label in CSS
+    st.markdown("<p style='font-family: Cinzel; color: #50c878; letter-spacing: 2px; font-size: 0.9rem; margin-bottom: 5px;'>CORE CONCEPT INSCRIPTION</p>", unsafe_allow_html=True)
     
-    # 2. The Subtext (Now Fantasy Themed)
-    st.markdown("<div class='subtext'>THE FORGE AWAITS YOUR COMMAND</div>", unsafe_allow_html=True)
-
-    # 3. The Divider (Visual separation)
-    st.markdown("<div class='rune-divider'>ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈ</div>", unsafe_allow_html=True)
-
-    # --- INPUT SECTION ---
-    col1, col2 = st.columns([3, 1])
+    user_input = st.text_input("Concept", placeholder="e.g. A weary executioner who collects butterflies...")
     
-    # Fix for the Indentation Error: Ensure everything inside 'with' is indented
-    with col1:
-        user_input = st.text_input("CORE CONCEPT", placeholder="e.g. A weary knight with a rusted shield...")
+    submitted = st.form_submit_button("FORGE ENTITY")
+
+# -----------------------------------------------------------------------------
+# 5. GENERATION ENGINE
+# -----------------------------------------------------------------------------
+if submitted and user_input:
     
-    with col2:
-        # Button text updated to "SUMMON CREATION"
-        generate_btn = st.button("SUMMON CREATION")
-
-    # --- GENERATION LOGIC ---
-    if generate_btn and user_input:
-        
-        # A. Text Generation
-        with st.spinner("Forging..."):
-            try:
-                text_model = genai.GenerativeModel('models/gemini-3-pro-preview')
-                text_prompt = f"""
-                Role: Dark Fantasy DM Assistant.
-                Task: Create a detailed NPC based on: "{user_input}".
-                Rules: Norse-inspired name (EASY to pronounce). Dark, gritty tone. No Stats.
-                Format: JSON with keys: Name, Class, Visual_Desc, Lore, Greeting.
-                """
-                text_response = text_model.generate_content(text_prompt)
-                clean_json = text_response.text.replace("```json", "").replace("```", "").strip()
-                char_data = json.loads(clean_json)
-            except Exception as e:
-                st.error(f"Text Gen Failed: {e}")
-                st.stop()
-
-        # B. Image Generation
-        with st.spinner("Summoning Visuals..."):
-            try:
-                image_model = genai.GenerativeModel('models/gemini-3-pro-image-preview')
-                img_prompt = f"Hyper-realistic photograph, dark fantasy, {char_data['Visual_Desc']}, Norse aesthetic, gritty, 8k, cinematic lighting."
-                img_response = image_model.generate_content(img_prompt)
-                
-                if img_response.parts:
-                    img_bytes = img_response.parts[0].inline_data.data
-                    upload_result = cloudinary.uploader.upload(io.BytesIO(img_bytes), folder="masters_vault_npcs")
-                    image_url = upload_result.get("secure_url")
-                else:
-                    image_url = "https://via.placeholder.com/500?text=Manifestation+Failed"
-            except Exception as e:
-                st.error(f"Image Gen Failed: {e}")
-                image_url = "https://via.placeholder.com/500?text=Error"
-
-        # C. Save to DB
+    # A. Text Generation
+    with st.spinner("Forging..."):
         try:
-            sh = gc.open("Masters_Vault_Db")
-            worksheet = sh.get_worksheet(0)
-            row_data = [char_data['Name'], char_data['Class'], char_data['Lore'], char_data['Greeting'], char_data['Visual_Desc'], image_url, str(datetime.datetime.now())]
-            worksheet.append_row(row_data)
-            st.toast("Saved to the Vault", icon="⚔️")
+            text_model = genai.GenerativeModel('models/gemini-3-pro-preview')
+            text_prompt = f"""
+            Role: Dark Fantasy DM Assistant.
+            Task: Create a detailed NPC based on: "{user_input}".
+            Rules: Norse-inspired name (EASY to pronounce). Dark, gritty tone. No Stats.
+            Format: JSON with keys: Name, Class, Visual_Desc, Lore, Greeting.
+            """
+            text_response = text_model.generate_content(text_prompt)
+            clean_json = text_response.text.replace("```json", "").replace("```", "").strip()
+            char_data = json.loads(clean_json)
         except Exception as e:
-            st.error(f"Save Failed: {e}")
+            st.error(f"Forging Failed: {e}")
+            st.stop()
 
-        # D. HTML Injection for the Card
-        st.markdown(f"""
-        <div class="character-card">
-            <div class="card-name">{char_data['Name']}</div>
+    # B. Image Generation
+    with st.spinner("Manifesting Visuals..."):
+        try:
+            image_model = genai.GenerativeModel('models/gemini-3-pro-image-preview')
+            img_prompt = f"Hyper-realistic photograph, dark fantasy, {char_data['Visual_Desc']}, Norse aesthetic, gritty, 8k, cinematic lighting."
+            img_response = image_model.generate_content(img_prompt)
             
-            <div style="border: 4px solid #111; padding: 0; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
-                <img src="{image_url}" style="width: 100%; display: block; opacity: 1.0;">
-            </div>
-            
-            <div class="visual-block">
-                <span style="font-size: 0.7rem; color: #50c878; display: block; margin-bottom: 8px; font-family: Cinzel; letter-spacing: 2px;">VISUAL DESCRIPTION</span>
-                {char_data['Visual_Desc']}
-            </div>
-            
-            <div style="margin-top: 30px; font-size: 0.95rem; line-height: 1.6; color: #aaa;">
-                <strong style="color: #50c878; font-family: Cinzel;">CLASS:</strong> {char_data['Class']}<br><br>
-                <strong style="color: #50c878; font-family: Cinzel;">GREETING:</strong> "{char_data['Greeting']}"<br><br>
-                <strong style="color: #50c878; font-family: Cinzel;">LORE:</strong><br>
-                {char_data['Lore']}
-            </div>
+            if img_response.parts:
+                img_bytes = img_response.parts[0].inline_data.data
+                upload_result = cloudinary.uploader.upload(io.BytesIO(img_bytes), folder="masters_vault_npcs")
+                image_url = upload_result.get("secure_url")
+            else:
+                image_url = "https://via.placeholder.com/500?text=Manifestation+Failed"
+        except Exception as e:
+            st.error(f"Image Gen Failed: {e}")
+            image_url = "https://via.placeholder.com/500?text=Error"
+
+    # C. Save to DB
+    try:
+        sh = gc.open("Masters_Vault_Db")
+        worksheet = sh.get_worksheet(0)
+        row_data = [char_data['Name'], char_data['Class'], char_data['Lore'], char_data['Greeting'], char_data['Visual_Desc'], image_url, str(datetime.datetime.now())]
+        worksheet.append_row(row_data)
+        st.toast("Entity Saved to Vault", icon="⚒️")
+    except Exception as e:
+        st.error(f"Save Failed: {e}")
+
+    # D. RENDER THE ARTIFACT (HTML Card)
+    st.markdown(f"""
+    <div class="character-card">
+        <div class="card-name">{char_data['Name']}</div>
+        
+        <div style="border: 1px solid #333; padding: 5px; background: #000;">
+            <img src="{image_url}" style="width: 100%; display: block; opacity: 1.0;">
         </div>
-        """, unsafe_allow_html=True)
+        
+        <div class="visual-block">
+            "{char_data['Visual_Desc']}"
+        </div>
+        
+        <div class="lore-section">
+            <strong style="color: #50c878; font-family: Cinzel;">CLASS:</strong> <span style="color: #ccc;">{char_data['Class']}</span><br><br>
+            <strong style="color: #50c878; font-family: Cinzel;">GREETING:</strong> <span style="color: #ccc;">"{char_data['Greeting']}"</span><br><br>
+            <strong style="color: #50c878; font-family: Cinzel;">LORE:</strong><br>
+            {char_data['Lore']}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-if __name__ == "__main__":
-    main()
+# Footer Runes
+st.markdown("<div class='forge-runes'>ᚦ ᚱ ᛁ ᛉ ᛉ ᚨ ᚱ</div>", unsafe_allow_html=True)
