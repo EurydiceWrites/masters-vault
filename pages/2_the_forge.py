@@ -271,7 +271,7 @@ def forge_npc(concept, tone):
 # -----------------------------------------------------------------------------
 # 4. LAYOUT & INTERACTION
 # -----------------------------------------------------------------------------
-st.page_link("home.py", label="< RETURN TO VAULT", use_container_width=False)
+st.page_link("1_the_vault.py", label="< RETURN TO VAULT", use_container_width=False)
 
 st.markdown("<h1>THE NPC FORGE</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtext'>Inscribe the soul. Strike the iron.</div>", unsafe_allow_html=True)
