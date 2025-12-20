@@ -13,15 +13,19 @@ import cloudinary.uploader
 # -----------------------------------------------------------------------------
 st.set_page_config(page_title="The NPC Forge", layout="centered", page_icon="⚒️")
 
+# Initialize Session State
+if "npc_data" not in st.session_state:
+    st.session_state.npc_data = None
+if "last_concept" not in st.session_state:
+    st.session_state.last_concept = ""
+
 # -----------------------------------------------------------------------------
-# 2. THE VISUAL ENGINE (Dynamic Tones)
+# 2. THE VISUAL ENGINE
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
-    /* --- FONTS --- */
+    /* --- FONTS & VARS --- */
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Lato:wght@400;700&display=swap');
-
-    /* --- VARIABLES --- */
     :root {
         --stone-bg: #111;
         --emerald-glow: #50c878;
@@ -56,19 +60,19 @@ st.markdown("""
         margin-bottom: 3rem;
     }
 
-    /* --- THE FORM CONTAINER --- */
+    /* --- FORM STYLING --- */
     [data-testid="stForm"] {
         background: linear-gradient(135deg, #1a1a1a 0%, #000 100%);
         border: 1px solid #333;
         box-shadow: 0 10px 40px rgba(0,0,0,0.9);
         padding: 0px !important; 
         border-radius: 4px;
-        margin-bottom: 3rem;
+        margin-bottom: 2rem;
         overflow: hidden; 
     }
     [data-testid="stForm"] > div:nth-child(1) { padding: 3rem 2rem 2rem 2rem !important; }
 
-    /* --- INPUT STYLING --- */
+    /* Input */
     .stTextInput > div > div > input {
         background-color: #080808 !important;
         border: 1px solid #333 !important;
@@ -84,38 +88,7 @@ st.markdown("""
     .stTextInput label { display: none; }
     [data-testid="InputInstructions"] { display: none !important; }
 
-    /* --- RADIO BUTTON STYLING (The Tone Selector) --- */
-    [role="radiogroup"] {
-        justify-content: center;
-        margin-bottom: 1.5rem;
-    }
-    [data-testid="stMarkdownContainer"] p {
-        font-family: 'Cinzel', serif;
-        color: #888;
-        font-size: 0.9rem;
-    }
-    /* The dots */
-    div[role="radiogroup"] > label > div:first-child {
-        background-color: #080808 !important;
-        border-color: #444 !important;
-    }
-    /* Active dot */
-    div[role="radiogroup"] > label[data-checked="true"] > div:first-child {
-        background-color: var(--emerald-glow) !important;
-        border-color: var(--emerald-bright) !important;
-    }
-    /* Text Label */
-    div[role="radiogroup"] label p {
-        font-family: 'Cinzel', serif !important;
-        font-size: 0.85rem !important;
-        color: #666 !important;
-    }
-    div[role="radiogroup"] label[data-checked="true"] p {
-        color: var(--emerald-bright) !important;
-        text-shadow: 0 0 10px rgba(80, 200, 120, 0.4);
-    }
-
-    /* --- THE BUTTON --- */
+    /* Button */
     .stButton { width: 100% !important; margin-top: 0rem !important; padding: 0 !important; }
     .stButton > button {
         width: 100% !important;
@@ -147,22 +120,18 @@ st.markdown("""
         margin-top: 2rem;
         animation: fadein 1s;
     }
-    .seam {
-        height: 1px;
-        background: radial-gradient(circle, #444 0%, transparent 90%);
-        margin: 0; border: none; opacity: 0.6;
-    }
+    .seam { height: 1px; background: radial-gradient(circle, #444 0%, transparent 90%); margin: 0; border: none; opacity: 0.6; }
+    
     .card-header { background: #111; padding: 2rem 1rem; text-align: center; }
     .card-name { font-family: 'Cinzel', serif; font-size: 2.2rem; color: #fff; letter-spacing: 4px; margin-bottom: 0.5rem; }
     .card-class { font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--emerald-bright); letter-spacing: 3px; text-transform: uppercase; text-shadow: 0 0 10px rgba(102, 255, 153, 0.3); }
-    
+
     .img-container { position: relative; overflow: hidden; }
     .img-container img { width: 100%; display: block; opacity: 0.9; transition: all 0.5s ease; cursor: zoom-in; }
     .img-container::after { content: ""; position: absolute; bottom: 0; left: 0; width: 100%; height: 80px; background: linear-gradient(to top, #0a0a0a, transparent); pointer-events: none; }
     .img-container img:hover { opacity: 1; transform: scale(1.02); }
 
     .visual-caption { background: #080808; padding: 2rem 3rem; font-family: 'Cormorant Garamond', serif; font-style: italic; color: #888; text-align: left; font-size: 1.15rem; line-height: 1.6; }
-    
     .voice-section { padding: 2.5rem 3rem 1.5rem 3rem; background: radial-gradient(circle at 50% 50%, #111 0%, #0a0a0a 100%); text-align: center; }
     .voice-quote { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: #d0d0d0; font-style: italic; line-height: 1.4; }
     .voice-quote::before { content: "“"; font-size: 3rem; color: var(--emerald-dim); vertical-align: -1rem; margin-right: 10px; }
@@ -171,13 +140,15 @@ st.markdown("""
     .lore-section { padding: 1.5rem 3rem 3rem 3rem; color: #b0b0b0; line-height: 1.7; font-size: 1.2rem; font-family: 'Cormorant Garamond', serif; background: #050505; text-align: left; }
     .lore-label { font-family: 'Cinzel', serif; font-size: 0.8rem; color: #666; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 10px; text-align: center; opacity: 0.8; }
 
+    /* Footer */
     .footer-container { opacity: 0.3; text-align: center; margin-top: 4rem; padding-bottom: 2rem;}
     .rune-span { margin: 0 10px; font-size: 1.2rem; color: #444; cursor: default; }
+
 </style>
 """, unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# 3. AUTH & LOGIC
+# 3. CORE LOGIC (THE BLACKSMITH)
 # -----------------------------------------------------------------------------
 def setup_auth():
     try:
@@ -192,65 +163,32 @@ def setup_auth():
     except Exception as e:
         return None, False, str(e)
 
-gc, auth_success, auth_msg = setup_auth()
-if not auth_success:
-    st.error(f"System Failure: {auth_msg}")
-    st.stop()
-
-# -----------------------------------------------------------------------------
-# 4. LAYOUT
-# -----------------------------------------------------------------------------
-st.page_link("home.py", label="< RETURN TO VAULT", use_container_width=False)
-
-st.markdown("<h1>THE NPC FORGE</h1>", unsafe_allow_html=True)
-st.markdown("<div class='subtext'>Inscribe the soul. Strike the iron.</div>", unsafe_allow_html=True)
-
-# THE OBSIDIAN SLAB CONTAINER
-with st.form("forge_form"):
-    st.markdown("""
-        <p style='font-family: Cinzel; color: #666; text-align: center; font-size: 1rem; margin-bottom: 1rem; letter-spacing: 4px; text-transform: uppercase; opacity: 0.8;'>
-            WHISPER THE DESIRE...
-        </p>
-    """, unsafe_allow_html=True)
-    
-    # 1. THE TONE SELECTOR (Hidden until needed)
-    tone_selection = st.radio(
-        "Select Resonance", 
-        ["Grim & Shadow", "Noble & Bright", "Mystic & Weird"], 
-        horizontal=True,
-        label_visibility="collapsed" # We hide the label for a cleaner look
-    )
-
-    user_input = st.text_input("Concept", placeholder="...AND THE VOID SHALL GIVE IT FORM.")
-    submitted = st.form_submit_button("STRIKE THE ANVIL")
-
-# -----------------------------------------------------------------------------
-# 5. GENERATION
-# -----------------------------------------------------------------------------
-if submitted and user_input:
-    
-    # --- DYNAMIC PROMPT LOGIC ---
-    if tone_selection == "Grim & Shadow":
+def forge_npc(concept, tone):
+    """
+    The core generation function. 
+    Accepts a concept and a tone, generates the NPC, and updates Session State.
+    """
+    # 1. DEFINE VIBES BASED ON SELECTION
+    if tone == "Grim & Shadow":
         text_vibe = "Dark fantasy, gritty, morally ambiguous, dangerous tone."
-        img_vibe = "dark fantasy, gritty, low key lighting, shadow heavy, ominous"
-    elif tone_selection == "Noble & Bright":
+        img_vibe = "photo realistic, dark fantasy, gritty, low key lighting, shadow heavy, ominous"
+    elif tone == "Noble & Bright":
         text_vibe = "High fantasy, heroic, hopeful, noble, clean and elegant tone."
-        img_vibe = "high fantasy, vibrant, golden hour lighting, majestic, clean, ethereal"
+        img_vibe = "photo realistic, high fantasy, vibrant, golden hour lighting, majestic, clean, ethereal"
     else: # Mystic & Weird
         text_vibe = "Eldritch, strange, dreamlike, mysterious, folklore-heavy tone."
-        img_vibe = "surreal, mist-filled, cinematic, strange colors, folklore aesthetic"
+        img_vibe = "photo realistic, surreal, mist-filled, cinematic, strange colors, folklore aesthetic"
 
-    with st.spinner("Summoning the soul..."):
+    # 2. GENERATE TEXT
+    with st.spinner(f"Forging with {tone} essence..."):
         try:
             if "GOOGLE_API_KEY" in st.secrets:
                 genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
             
             text_model = genai.GenerativeModel('models/gemini-3-pro-preview')
-            
-            # INJECTED THE DYNAMIC VIBE HERE
             text_prompt = f"""
             Role: Dark Fantasy DM Assistant.
-            Task: Create a detailed NPC based on: "{user_input}".
+            Task: Create a richly textured, photo-realistic NPC based on: "{concept}".
             Rules: Norse-inspired name (EASY to pronounce). {text_vibe}. No Stats.
             Format: JSON with keys: Name, Class, Visual_Desc, Lore, Greeting.
             """
@@ -258,15 +196,14 @@ if submitted and user_input:
             clean_json = text_response.text.replace("```json", "").replace("```", "").strip()
             char_data = json.loads(clean_json)
         except Exception as e:
-            st.error(f"Forging Failed: {e}")
-            st.stop()
+            st.error(f"Text Forging Failed: {e}")
+            return None
 
-    with st.spinner("Conjuring the form..."):
+    # 3. GENERATE IMAGE
+    with st.spinner("Conjuring the visage..."):
         try:
             image_model = genai.GenerativeModel('models/gemini-3-pro-image-preview')
-            
-            # INJECTED THE DYNAMIC IMAGE VIBE HERE
-            img_prompt = f"Hyper-realistic photograph, {img_vibe}, {char_data['Visual_Desc']}, Norse aesthetic, 8k, cinematic lighting."
+            img_prompt = f"{img_vibe}, {char_data['Visual_Desc']}, Norse aesthetic, 8k, cinematic lighting."
             img_response = image_model.generate_content(img_prompt)
             
             if img_response.parts:
@@ -288,40 +225,96 @@ if submitted and user_input:
             st.error(f"Image Gen Failed: {e}")
             image_url = "https://via.placeholder.com/500?text=Error"
 
+    # 4. SAVE TO DB
     try:
-        sh = gc.open("Masters_Vault_Db")
-        worksheet = sh.get_worksheet(0)
-        row_data = [char_data['Name'], char_data['Class'], char_data['Lore'], char_data['Greeting'], char_data['Visual_Desc'], image_url, str(datetime.datetime.now())]
-        worksheet.append_row(row_data)
-        st.toast("Entity Forged.", icon="⚒️")
+        gc, auth_success, auth_msg = setup_auth()
+        if auth_success:
+            sh = gc.open("Masters_Vault_Db")
+            worksheet = sh.get_worksheet(0)
+            row_data = [char_data['Name'], char_data['Class'], char_data['Lore'], char_data['Greeting'], char_data['Visual_Desc'], image_url, str(datetime.datetime.now())]
+            worksheet.append_row(row_data)
     except Exception as e:
-        st.error(f"Save Failed: {e}")
+        st.warning(f"Database Save Failed (Local only): {e}")
 
-    # --- RESULT CARD GENERATION (NO INDENTATION) ---
+    # 5. RETURN PACKAGE
+    char_data['image_url'] = image_url
+    return char_data
+
+# -----------------------------------------------------------------------------
+# 4. LAYOUT & INTERACTION
+# -----------------------------------------------------------------------------
+st.page_link("home.py", label="< RETURN TO VAULT", use_container_width=False)
+
+st.markdown("<h1>THE NPC FORGE</h1>", unsafe_allow_html=True)
+st.markdown("<div class='subtext'>Inscribe the soul. Strike the iron.</div>", unsafe_allow_html=True)
+
+# --- INPUT FORM (Simple & Clean) ---
+with st.form("forge_form"):
+    st.markdown("""
+        <p style='font-family: Cinzel; color: #666; text-align: center; font-size: 1rem; margin-bottom: 1rem; letter-spacing: 4px; text-transform: uppercase; opacity: 0.8;'>
+            WHISPER THE DESIRE...
+        </p>
+    """, unsafe_allow_html=True)
+    
+    user_input = st.text_input("Concept", placeholder="...AND THE VOID SHALL GIVE IT FORM.")
+    submitted = st.form_submit_button("STRIKE THE ANVIL")
+
+# --- HANDLING SUBMISSION (DEFAULT GRIM) ---
+if submitted and user_input:
+    st.session_state.last_concept = user_input # Save for tweaks
+    st.session_state.npc_data = forge_npc(user_input, "Grim & Shadow")
+
+# -----------------------------------------------------------------------------
+# 5. RESULT & MODIFIERS
+# -----------------------------------------------------------------------------
+if st.session_state.npc_data:
+    data = st.session_state.npc_data
+    
+    # --- RENDER CARD ---
     card_html = ""
     card_html += f'<div class="character-card">'
     card_html += f'  <div class="card-header">'
-    card_html += f'    <div class="card-name">{char_data["Name"]}</div>'
-    card_html += f'    <div class="card-class">{char_data["Class"]}</div>'
+    card_html += f'    <div class="card-name">{data["Name"]}</div>'
+    card_html += f'    <div class="card-class">{data["Class"]}</div>'
     card_html += f'  </div>'
     card_html += f'  <div class="img-container">'
-    card_html += f'    <a href="{image_url}" target="_blank">'
-    card_html += f'      <img src="{image_url}" title="Click to Expand">'
+    card_html += f'    <a href="{data["image_url"]}" target="_blank">'
+    card_html += f'      <img src="{data["image_url"]}" title="Click to Expand">'
     card_html += f'    </a>'
     card_html += f'  </div>'
-    card_html += f'  <div class="visual-caption">"{char_data["Visual_Desc"]}"</div>'
+    card_html += f'  <div class="visual-caption">"{data["Visual_Desc"]}"</div>'
     card_html += f'  <hr class="seam">'
     card_html += f'  <div class="voice-section">'
-    card_html += f'    <div class="voice-quote">{char_data["Greeting"]}</div>'
+    card_html += f'    <div class="voice-quote">{data["Greeting"]}</div>'
     card_html += f'  </div>'
     card_html += f'  <hr class="seam">'
     card_html += f'  <div class="lore-section">'
     card_html += f'    <span class="lore-label">Archive Record</span>'
-    card_html += f'    {char_data["Lore"]}'
+    card_html += f'    {data["Lore"]}'
     card_html += f'  </div>'
     card_html += f'</div>'
-
     st.markdown(card_html, unsafe_allow_html=True)
+
+    # --- RESONANCE MODIFIERS (THE TWEAK UI) ---
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; font-family: Cinzel; color: #444; letter-spacing: 2px;'>SHIFT THE RESONANCE</p>", unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if st.button("GRIM & SHADOW", use_container_width=True):
+            st.session_state.npc_data = forge_npc(st.session_state.last_concept, "Grim & Shadow")
+            st.rerun()
+            
+    with col2:
+        if st.button("NOBLE & BRIGHT", use_container_width=True):
+            st.session_state.npc_data = forge_npc(st.session_state.last_concept, "Noble & Bright")
+            st.rerun()
+            
+    with col3:
+        if st.button("MYSTIC & WEIRD", use_container_width=True):
+            st.session_state.npc_data = forge_npc(st.session_state.last_concept, "Mystic & Weird")
+            st.rerun()
 
 # FOOTER
 runes = ["ᚦ", "ᚱ", "ᛁ", "ᛉ", "ᛉ", "ᚨ", "ᚱ"]
