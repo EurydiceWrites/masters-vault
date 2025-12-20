@@ -49,7 +49,7 @@ if summon_btn and user_input:
                 
                 REQUIREMENTS:
                 - Name: Norse-inspired.
-                - Tone: Dark, gritty.
+                - Tone: Dark, fantasy.
                 
                 OUTPUT FORMAT:
                 **Name:** [Name]
@@ -78,7 +78,7 @@ if summon_btn and user_input:
                 image_model = genai.GenerativeModel('models/gemini-3-pro-image-preview')
                 
                 # We enforce "Character Portrait" in the prompt so it doesn't make a landscape
-                image_prompt = f"Dark fantasy character portrait, {user_input}, detailed face, upper body, oil painting style, neutral background, 8k."
+                image_prompt = f"Dark fantasy photo realistic image, {user_input}, detailed face, upper body, photo realistic, suitable background, 8k."
                 
                 img_response = image_model.generate_content(image_prompt)
                 
