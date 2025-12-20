@@ -67,16 +67,30 @@ if summon_btn and user_input:
 
     # --- A. GENERATE TEXT (Gemini 3 Pro) ---
     with col2:
-        with st.spinner("Weaving the soul (Gemini 3 Pro)..."):
+        with st.spinner("Summoning the backstory (Gemini 3 Pro)..."):
             try:
                 # STRICT MODEL SELECTION: Gemini 3 Pro Preview
                 text_model = genai.GenerativeModel('models/gemini-3-pro-preview')
                 
-                text_prompt = f"""
-                You are a creative assistant to a dungeon master. Create a character based on: "{user_input}".
-                Return ONLY a raw JSON object with these keys:
-                "Name", "Class", "Lore", "Greeting", "Visual_Desc"
-                """
+                text_prompt = text_prompt = f"""
+    You are a gritty, Dark Fantasy creative assistant for a Dungeon Master.
+    
+    INSTRUCTIONS:
+    1.  **Role:** Generate a detailed NPC description based on this concept: "{user_input}".
+    2.  **Name:** Provide a **Norse-inspired name**, but strictly make it **easy to pronounce** (avoid excessive consonants or confusing spellings).
+    3.  **Tone:** Dark, gritty, realistic. No "high fantasy" whimsy[cite: 28].
+    4.  **Visuals:** Focus heavily on physical appearance (scars, armor texture, lighting) to help visualize the character[cite: 18].
+    5.  **RESTRICTIONS:** Do NOT generate combat stats (HP, AC, CR). Narrative only.
+    
+    6.  **FORMAT:** Return ONLY raw JSON with these exact keys:
+        {{
+            "Name": "Name here",
+            "Class": "Class/Role (e.g. Shield Maiden)",
+            "Visual_Desc": "3-4 sentences describing appearance, weapons, and grit.",
+            "Lore": "A brief, dark backstory involving their motive.",
+            "Greeting": "One sentence of dialogue they might say."
+        }}
+    """
                 text_response = text_model.generate_content(text_prompt)
                 clean_json = text_response.text.replace("```json", "").replace("```", "").strip()
                 character_data = json.loads(clean_json)
@@ -98,7 +112,8 @@ if summon_btn and user_input:
                 image_model = genai.GenerativeModel('models/gemini-3-pro-image-preview')
                 
                 desc = character_data.get("Visual_Desc", user_input)
-                image_prompt = f"Dark fantasy character in photo realistic style with an appropriate background, {desc}, photo realistic, 8k."
+                # Updated to enforce Norse aesthetic, gritty texture, and photo-realism
+                image_prompt = f"A hyper-realistic photograph of a dark fantasy character, {desc}. Norse mythology aesthetic, gritty textures, dramatic cinematic lighting, 8k resolution, highly detailed, and a setting the fits the context"
                 
                 img_response = image_model.generate_content(image_prompt)
                 
