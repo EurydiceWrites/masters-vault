@@ -14,7 +14,7 @@ import cloudinary.uploader
 st.set_page_config(page_title="The NPC Forge", layout="centered", page_icon="⚒️")
 
 # -----------------------------------------------------------------------------
-# 2. THE VISUAL ENGINE (The Perfected Iron Anvil)
+# 2. THE VISUAL ENGINE
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -75,38 +75,45 @@ st.markdown("""
         background: var(--iron-gradient);
         border: none;
         
-        /* 1. THE SHAPE: Wide Top, Narrow Waist, Wide Base */
+        /* The Outer Shape */
         clip-path: polygon(
-            0% 0%, 100% 0%,      /* Top Face (Wide) */
-            90% 35%, 90% 65%,    /* Right Waist (Deep pinch) */
-            100% 100%, 0% 100%,  /* Base (Wide) */
-            10% 65%, 10% 35%     /* Left Waist (Deep pinch) */
+            0% 0%, 100% 0%,      /* Top Face */
+            90% 30%, 90% 60%,    /* Right Waist */
+            100% 100%, 0% 100%,  /* Base */
+            10% 60%, 10% 30%     /* Left Waist */
         );
-        
-        /* 2. THE FIX: Remove padding so the button touches the bottom edge */
-        padding: 4rem 0rem 0rem 0rem !important; 
         
         filter: drop-shadow(0 0 30px rgba(0,0,0,0.9));
         margin-bottom: 2rem;
+        
+        /* Step 1: Remove Outer Padding */
+        padding: 0px !important;
+    }
+
+    /* --- THE GHOST PADDING FIX (The Secret Wrapper) --- */
+    /* This targets the invisible div inside the form that holds the content */
+    [data-testid="stForm"] > div:first-child {
+        padding: 4rem 2rem 0rem 2rem !important; /* Top/Side padding YES, Bottom NO */
+        gap: 0px !important; /* Remove gaps between input and button */
     }
 
     /* --- INPUT FIELD --- */
-    /* Since we removed padding from the form, we must center the input manually */
+    /* Center it inside the anvil waist */
     .stTextInput {
         width: 80% !important;
         margin: 0 auto !important;
+        margin-bottom: 3rem !important; /* Push the button down to the base */
     }
 
     .stTextInput > div > div > input {
         background-color: #080808 !important; 
         border: 1px solid #333 !important;
-        border-top: 4px solid #000 !important; /* Deep Slot look */
+        border-top: 4px solid #000 !important;
         color: #e0e0e0 !important;
         font-family: 'Lato', sans-serif;
         font-size: 1.2rem;
         padding: 1.5rem;
         text-align: center;
-        margin-bottom: 3rem; /* Space between input and the button below */
     }
     .stTextInput > div > div > input:focus {
         border-color: var(--emerald-dim) !important;
@@ -116,18 +123,18 @@ st.markdown("""
 
     /* --- THE BUTTON (THE ANVIL BASE) --- */
     
-    /* 1. Reset container */
+    /* 1. The Container */
     .stButton {
         width: 100% !important;
-        margin: 0 !important;
         padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
     }
 
-    /* 2. Style the Button to look like the Iron Base */
+    /* 2. The Button Element */
     .stButton > button {
-        width: 100% !important;
-        display: block !important;
-        border-radius: 0px !important; /* Sharp corners are mandatory */
+        width: 100% !important; /* Fill the full width of the container */
+        border-radius: 0px !important; /* Sharp corners */
         background-color: #000 !important; 
         color: #555 !important;
         border: none !important;
@@ -139,9 +146,12 @@ st.markdown("""
         font-size: 1.5rem !important;
         text-transform: uppercase !important;
         transition: all 0.3s ease !important;
+        
+        /* Force block display to kill left-align */
+        display: block !important; 
     }
 
-    /* 3. Hover Effects (EMERALD GLOW) */
+    /* 3. Hover Effects */
     .stButton > button:hover {
         color: #fff !important;
         background-color: #0a1f14 !important; 
@@ -153,6 +163,14 @@ st.markdown("""
     .stButton > button:active {
         background-color: #000 !important;
         transform: translateY(2px);
+    }
+    
+    /* Decoration: A thin line separating input area from base */
+    .stButton > button::before {
+        content: "";
+        display: block;
+        width: 100%;
+        height: 1px;
     }
 
     /* --- RESULT CARD --- */
