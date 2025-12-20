@@ -189,7 +189,7 @@ def forge_npc(concept, tone):
             text_prompt = f"""
             Role: Dark Fantasy DM Assistant.
             Task: Create a richly textured, photo-realistic NPC based on: "{concept}".
-            Rules: Norse-inspired name (EASY to pronounce). {text_vibe}. No Stats.
+            Rules: Norse-inspired name (EASY to pronounce). photo realistic. {text_vibe}. No Stats.
             Format: JSON with keys: Name, Class, Visual_Desc, Lore, Greeting.
             """
             text_response = text_model.generate_content(text_prompt)
