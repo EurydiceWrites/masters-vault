@@ -3,29 +3,30 @@ import streamlit as st
 # -----------------------------------------------------------------------------
 # 1. SETUP & CONFIG
 # -----------------------------------------------------------------------------
-st.set_page_config(page_title="Master's Vault", layout="centered", page_icon="🗝️")
+st.set_page_config(page_title="Master's Vault", layout="centered", page_icon="⚔️")
 
 # -----------------------------------------------------------------------------
-# 2. THE VISUAL ENGINE (Ancient Stone Theme)
+# 2. THE VISUAL ENGINE (Refined Ancient Stone)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
     /* --- FONTS --- */
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Lato:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:wght@400;600&family=Lato:wght@400;700&display=swap');
 
     /* --- VARIABLES --- */
     :root {
         --stone-bg: #1c1c1c;
-        --stone-dark: #111111;
+        --stone-dark: #0e0e0e;
         --emerald-glow: #50c878;
         --emerald-dim: #2e5a44;
         --text-main: #d0d0d0;
+        --text-muted: #888;
     }
 
     /* --- BACKGROUND --- */
     .stApp {
         background-color: var(--stone-dark);
-        background-image: radial-gradient(circle at center, #252525 0%, #0a0a0a 100%);
+        background-image: radial-gradient(circle at 50% 30%, #252525 0%, #000 100%);
         color: var(--text-main);
         font-family: 'Lato', sans-serif;
     }
@@ -34,12 +35,12 @@ st.markdown("""
     h1 {
         font-family: 'Cinzel', serif !important;
         text-transform: uppercase;
-        letter-spacing: 8px;
-        font-size: 3.5rem !important;
+        letter-spacing: 12px; /* Wider for more epic feel */
+        font-size: 3.8rem !important;
         color: var(--emerald-glow) !important;
-        text-shadow: 0 5px 15px rgba(0,0,0,0.8);
+        text-shadow: 0 0 20px rgba(80, 200, 120, 0.2);
         text-align: center;
-        margin-bottom: 2rem !important;
+        margin-bottom: 1rem !important;
         border-bottom: 1px solid var(--emerald-dim);
         padding-bottom: 2rem;
     }
@@ -47,45 +48,74 @@ st.markdown("""
     /* --- SUBTEXT --- */
     .subtext {
         text-align: center;
-        font-family: 'Cinzel', serif;
-        font-size: 1.2rem;
-        color: #888;
-        letter-spacing: 4px;
-        margin-bottom: 4rem; 
-        text-transform: uppercase;
+        font-family: 'Cormorant Garamond', serif; /* More book-like font */
+        font-size: 1.3rem;
+        font-style: italic;
+        color: var(--text-muted);
+        letter-spacing: 2px;
+        margin-bottom: 5rem; 
     }
 
-    /* --- NAVIGATION TABLETS (Styling the Links) --- */
-    /* This targets the page_link buttons to make them look like stone slabs */
+    /* --- STONE TABLET NAVIGATION (No Emojis) --- */
+    /* We style the link container to look like a heavy slab */
     a[data-testid="stPageLink-NavLink"] {
-        background-color: #1a2e25;
-        border: 1px solid #2e5a44;
-        border-left: 4px solid var(--emerald-glow); /* Accent on left */
-        padding: 2rem;
-        border-radius: 4px;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        background: linear-gradient(145deg, #1f2220, #151515);
+        border: 1px solid #333;
+        border-left: 3px solid var(--emerald-dim);
+        padding: 2.5rem 1.5rem;
+        border-radius: 2px;
+        transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
 
+    /* Hover State: The Emerald Awakening */
     a[data-testid="stPageLink-NavLink"]:hover {
-        background-color: #2e5a44;
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.7);
+        background: linear-gradient(145deg, #252b27, #1a1a1a);
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.8), 0 0 15px rgba(80, 200, 120, 0.1);
         border-color: var(--emerald-glow);
+        border-left: 3px solid var(--emerald-glow);
     }
 
-    /* Text inside the links */
+    /* The Title Text inside the Tablet */
     a[data-testid="stPageLink-NavLink"] p {
         font-family: 'Cinzel', serif;
-        font-size: 1.5rem;
+        font-size: 1.6rem;
         font-weight: 700;
         color: #e0e0e0;
-        letter-spacing: 2px;
+        letter-spacing: 3px;
+        margin: 0;
+        transition: color 0.3s ease;
     }
     
-    /* Remove default Streamlit icons/decorations if any */
+    a[data-testid="stPageLink-NavLink"]:hover p {
+        color: var(--emerald-glow);
+    }
+
+    /* Hiding the default Streamlit Icon to remove "Amateur" feel */
     [data-testid="stPageLink-NavLink"] img {
-        filter: grayscale(100%) brightness(1.2);
+        display: none;
+    }
+    
+    /* --- CUSTOM ICON REPLACEMENT (Pseudo-elements) --- */
+    /* We can't easily inject icons via CSS into Streamlit links, 
+       so we rely on the clean typography and borders. */
+
+    /* --- FOOTER RUNES --- */
+    .footer-runes {
+        text-align: center;
+        opacity: 0.2;
+        letter-spacing: 1.5rem;
+        color: var(--emerald-glow);
+        font-size: 1.2rem;
+        margin-top: 5rem;
+        user-select: none;
+        cursor: default;
     }
 
 </style>
@@ -97,19 +127,19 @@ st.markdown("""
 
 # HEADER
 st.markdown("<h1>THE MASTER'S VAULT</h1>", unsafe_allow_html=True)
-st.markdown("<div class='subtext'>SELECT YOUR MODULE</div>", unsafe_allow_html=True)
+st.markdown("<div class='subtext'>Where imagination meets the void.</div>", unsafe_allow_html=True)
 
 # NAVIGATION COLUMNS
 col1, col2 = st.columns(2)
 
 with col1:
-    st.page_link("pages/npc_forge.py", label="THE NPC FORGE", icon="⚒️", use_container_width=True)
-    st.markdown("<p style='text-align: center; color: #666; font-size: 0.9rem; margin-top: 10px;'>Summon Characters & Lore</p>", unsafe_allow_html=True)
+    # Notice: No icon="..." parameter. We are letting the CSS do the work.
+    st.page_link("pages/npc_forge.py", label="NPC FORGE", use_container_width=True)
+    st.markdown("<p style='text-align: center; color: #666; font-family: Cormorant Garamond; font-size: 1rem; margin-top: -15px;'>Soul & Story</p>", unsafe_allow_html=True)
 
 with col2:
-    st.page_link("pages/art_studio.py", label="THE ART STUDIO", icon="🎨", use_container_width=True)
-    st.markdown("<p style='text-align: center; color: #666; font-size: 0.9rem; margin-top: 10px;'>Manifest Visuals & items</p>", unsafe_allow_html=True)
+    st.page_link("pages/art_studio.py", label="ART STUDIO", use_container_width=True)
+    st.markdown("<p style='text-align: center; color: #666; font-family: Cormorant Garamond; font-size: 1rem; margin-top: -15px;'>Visuals & Items</p>", unsafe_allow_html=True)
 
 # FOOTER DECORATION
-st.markdown("<br><br><br>", unsafe_allow_html=True)
-st.markdown("<div style='text-align: center; opacity: 0.3; letter-spacing: 1rem; color: #50c878;'>ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ</div>", unsafe_allow_html=True)
+st.markdown("<div class='footer-runes'>ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ</div>", unsafe_allow_html=True)
