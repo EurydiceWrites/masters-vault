@@ -14,7 +14,7 @@ import cloudinary.uploader
 st.set_page_config(page_title="The NPC Forge", layout="centered", page_icon="⚒️")
 
 # -----------------------------------------------------------------------------
-# 2. THE VISUAL ENGINE (The Iron Workshop)
+# 2. THE VISUAL ENGINE (The Iron Altar)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -27,10 +27,9 @@ st.markdown("""
         --stone-dark: #0e0e0e;
         --emerald-glow: #50c878;
         --emerald-dim: #2e5a44;
-        --iron-dark: #1a1a1a;
-        --iron-light: #333;
+        --iron-gradient: linear-gradient(180deg, #444 0%, #222 50%, #111 100%);
         --text-main: #d0d0d0;
-        --text-muted: #888;
+        --text-muted: #666; /* Darker placeholder */
     }
 
     /* --- BACKGROUND --- */
@@ -60,7 +59,7 @@ st.markdown("""
         color: var(--emerald-glow);
     }
 
-    /* --- HEADER (The Forge Fire) --- */
+    /* --- HEADER --- */
     h1 {
         font-family: 'Cinzel', serif !important;
         text-transform: uppercase;
@@ -85,24 +84,52 @@ st.markdown("""
         padding-bottom: 2rem;
     }
 
-    /* --- INPUT AREA (The Stone Slab) --- */
-    /* We make this look heavy and carved */
+    /* --- THE ALTAR (The Form Container) --- */
+    /* This grounds the input field so it's not floating */
+    [data-testid="stForm"] {
+        background-color: #111;
+        border: 1px solid #333;
+        border-top: 4px solid #444; /* Highlight on top edge */
+        border-radius: 4px;
+        padding: 2rem;
+        box-shadow: 
+            0 20px 50px rgba(0,0,0,0.8), /* Drop shadow */
+            inset 0 0 100px rgba(0,0,0,0.8); /* Inner shadow for depth */
+        position: relative;
+    }
+    
+    /* Decorative Bolts on the Altar */
+    [data-testid="stForm"]::before, [data-testid="stForm"]::after {
+        content: '+';
+        position: absolute;
+        top: 10px;
+        color: #333;
+        font-family: 'Cinzel', serif;
+    }
+    [data-testid="stForm"]::before { left: 15px; }
+    [data-testid="stForm"]::after { right: 15px; }
+
+    /* --- INPUT AREA (Embedded in the Altar) --- */
     .stTextInput > div > div > input {
-        background-color: #080808 !important; 
-        border: 2px solid #222 !important;
-        border-left: 4px solid var(--emerald-dim) !important;
+        background-color: #050505 !important; 
+        border: 1px solid #222 !important;
+        border-bottom: 1px solid #333 !important;
         color: #e0e0e0 !important;
         font-family: 'Lato', sans-serif;
         font-size: 1.1rem;
-        padding: 1.5rem;
-        border-radius: 2px;
-        box-shadow: inset 0 0 20px rgba(0,0,0,0.9); /* Deep inner shadow */
+        padding: 1rem;
+        box-shadow: inset 0 5px 10px rgba(0,0,0,0.9); /* Recessed look */
     }
 
     .stTextInput > div > div > input:focus {
-        border-color: var(--emerald-glow) !important;
-        box-shadow: inset 0 0 20px rgba(0,0,0,0.9), 0 0 15px rgba(80, 200, 120, 0.1);
+        border-color: var(--emerald-dim) !important;
         color: #fff !important;
+    }
+
+    /* DIM THE PLACEHOLDER TEXT */
+    .stTextInput input::placeholder {
+        color: #444 !important;
+        font-style: italic;
     }
     
     .stTextInput label {
@@ -118,43 +145,44 @@ st.markdown("""
 
     .stButton > button {
         width: 100%;
-        max-width: 400px; /* Limit width to look like an object */
-        background: linear-gradient(180deg, #2a2a2a 0%, #0e0e0e 100%); /* Iron Gradient */
+        max-width: 300px;
+        height: 80px; /* Tall button */
+        background: var(--iron-gradient);
         color: #aaa;
-        border: none;
-        padding: 1.5rem;
+        border: 1px solid #333;
+        border-bottom: 6px solid #111; /* Thickness */
         font-family: 'Cinzel', serif;
-        font-weight: 800;
-        letter-spacing: 5px;
-        font-size: 1.2rem;
+        font-weight: 900;
+        letter-spacing: 4px;
+        font-size: 1.5rem;
         text-transform: uppercase;
-        transition: all 0.2s ease;
+        transition: all 0.1s ease;
         position: relative;
         
-        /* THE ANVIL SHAPE */
+        /* TRAPEZOID SHAPE (The Striking Plate) */
         clip-path: polygon(
-            5% 0%, 95% 0%,   /* Top flat */
-            100% 20%, 100% 80%, /* Sides flare out */
-            85% 100%, 15% 100%, /* Bottom base */
-            0% 80%, 0% 20%      /* Left side flare */
+            10% 0, 90% 0,   /* Narrower top */
+            100% 100%, 0% 100% /* Wider bottom base */
         );
         
-        border-top: 2px solid #444; /* Highlight on top edge */
+        text-shadow: 0 -1px 0 #000;
     }
 
     .stButton > button:hover {
-        background: linear-gradient(180deg, #333 0%, #111 100%);
+        background: linear-gradient(180deg, #555 0%, #333 100%);
         color: var(--emerald-glow);
         text-shadow: 0 0 10px rgba(80, 200, 120, 0.8);
-        transform: scale(1.02); /* Slight swell */
+        border-bottom: 6px solid #111;
+        transform: translateY(-2px);
     }
     
     .stButton > button:active {
-        transform: scale(0.98);
-        background: #000;
+        transform: translateY(4px); /* Heavy impact */
+        border-bottom: 2px solid #111;
+        background: #222;
     }
 
-    /* --- THE RESULT CARD (Obsidian Artifact) --- */
+    /* --- THE RESULT CARD --- */
     .character-card {
         background: linear-gradient(145deg, #111, #0a0a0a);
         border: 1px solid #222;
@@ -214,8 +242,6 @@ st.markdown("""
         opacity: 0.3;
         user-select: none;
         cursor: default;
-        
-        /* The Ripple Animation */
         animation: rune-glow 4s infinite ease-in-out;
     }
 
@@ -233,63 +259,54 @@ st.markdown("""
 def setup_auth():
     try:
         SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-        
         if "gcp_service_account" in st.secrets:
             creds = service_account.Credentials.from_service_account_info(
                 st.secrets["gcp_service_account"], scopes=SCOPES
             )
             gc = gspread.authorize(creds)
-        else:
-            return None, None, "Missing Google Secrets"
-
-        if "cloudinary" in st.secrets:
-            cloudinary.config(
-                cloud_name = st.secrets["cloudinary"]["cloud_name"],
-                api_key = st.secrets["cloudinary"]["api_key"],
-                api_secret = st.secrets["cloudinary"]["api_secret"],
-                secure = True
-            )
-        
-        if "GOOGLE_API_KEY" in st.secrets:
-            genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-            
-        return gc, True, "Success"
+            return gc, True, "Success"
+        return None, None, "Missing Google Secrets"
     except Exception as e:
         return None, False, str(e)
 
-# -----------------------------------------------------------------------------
-# 4. MAIN LAYOUT
-# -----------------------------------------------------------------------------
 gc, auth_success, auth_msg = setup_auth()
 
 if not auth_success:
     st.error(f"System Failure: {auth_msg}")
     st.stop()
 
-# NAVIGATION (Back to Vault)
+# -----------------------------------------------------------------------------
+# 4. MAIN LAYOUT
+# -----------------------------------------------------------------------------
+
+# Back Navigation
 st.page_link("home.py", label="< RETURN TO VAULT", use_container_width=False)
 
-# HEADER
+# Header
 st.markdown("<h1>THE NPC FORGE</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtext'>Inscribe the core concept to manifest a soul.</div>", unsafe_allow_html=True)
 
-# THE WORKSTATION
+# THE IRON ALTAR (Form)
 with st.form("forge_form"):
-    st.markdown("<p style='font-family: Cinzel; color: #50c878; letter-spacing: 2px; font-size: 0.9rem; margin-bottom: 5px;'>CORE CONCEPT INSCRIPTION</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-family: Cinzel; color: #50c878; letter-spacing: 2px; font-size: 0.9rem; margin-bottom: 5px; text-align: center; opacity: 0.7;'>CORE CONCEPT INSCRIPTION</p>", unsafe_allow_html=True)
     
+    # Text input with darker placeholder styling
     user_input = st.text_input("Concept", placeholder="e.g. A weary executioner who collects butterflies...")
     
-    # This button now looks like an ANVIL thanks to CSS
-    submitted = st.form_submit_button("STRIKE THE ANVIL")
+    # The Anvil Button
+    submitted = st.form_submit_button("FORGE")
 
 # -----------------------------------------------------------------------------
-# 5. GENERATION ENGINE
+# 5. GENERATION & DISPLAY
 # -----------------------------------------------------------------------------
 if submitted and user_input:
     
-    # A. Text Generation
-    with st.spinner("Forging..."):
+    # 1. Text Gen
+    with st.spinner("Striking the anvil..."):
         try:
+            if "GOOGLE_API_KEY" in st.secrets:
+                genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+            
             text_model = genai.GenerativeModel('models/gemini-3-pro-preview')
             text_prompt = f"""
             Role: Dark Fantasy DM Assistant.
@@ -304,8 +321,8 @@ if submitted and user_input:
             st.error(f"Forging Failed: {e}")
             st.stop()
 
-    # B. Image Generation
-    with st.spinner("Manifesting Visuals..."):
+    # 2. Image Gen
+    with st.spinner("Cooling the steel..."):
         try:
             image_model = genai.GenerativeModel('models/gemini-3-pro-image-preview')
             img_prompt = f"Hyper-realistic photograph, dark fantasy, {char_data['Visual_Desc']}, Norse aesthetic, gritty, 8k, cinematic lighting."
@@ -313,37 +330,41 @@ if submitted and user_input:
             
             if img_response.parts:
                 img_bytes = img_response.parts[0].inline_data.data
-                upload_result = cloudinary.uploader.upload(io.BytesIO(img_bytes), folder="masters_vault_npcs")
-                image_url = upload_result.get("secure_url")
+                if "cloudinary" in st.secrets:
+                    cloudinary.config(
+                        cloud_name = st.secrets["cloudinary"]["cloud_name"],
+                        api_key = st.secrets["cloudinary"]["api_key"],
+                        api_secret = st.secrets["cloudinary"]["api_secret"],
+                        secure = True
+                    )
+                    upload_result = cloudinary.uploader.upload(io.BytesIO(img_bytes), folder="masters_vault_npcs")
+                    image_url = upload_result.get("secure_url")
+                else:
+                    image_url = "https://via.placeholder.com/500?text=Cloudinary+Missing"
             else:
                 image_url = "https://via.placeholder.com/500?text=Manifestation+Failed"
         except Exception as e:
             st.error(f"Image Gen Failed: {e}")
             image_url = "https://via.placeholder.com/500?text=Error"
 
-    # C. Save to DB
+    # 3. Save
     try:
         sh = gc.open("Masters_Vault_Db")
         worksheet = sh.get_worksheet(0)
         row_data = [char_data['Name'], char_data['Class'], char_data['Lore'], char_data['Greeting'], char_data['Visual_Desc'], image_url, str(datetime.datetime.now())]
         worksheet.append_row(row_data)
-        st.toast("Entity Saved to Vault", icon="⚒️")
+        st.toast("Entity Forged.", icon="⚒️")
     except Exception as e:
         st.error(f"Save Failed: {e}")
 
-    # D. RENDER THE ARTIFACT
+    # 4. Render
     st.markdown(f"""
     <div class="character-card">
         <div class="card-name">{char_data['Name']}</div>
-        
         <div style="border: 1px solid #333; padding: 5px; background: #000;">
             <img src="{image_url}" style="width: 100%; display: block; opacity: 1.0;">
         </div>
-        
-        <div class="visual-block">
-            "{char_data['Visual_Desc']}"
-        </div>
-        
+        <div class="visual-block">"{char_data['Visual_Desc']}"</div>
         <div class="lore-section">
             <strong style="color: #50c878; font-family: Cinzel;">CLASS:</strong> <span style="color: #ccc;">{char_data['Class']}</span><br><br>
             <strong style="color: #50c878; font-family: Cinzel;">GREETING:</strong> <span style="color: #ccc;">"{char_data['Greeting']}"</span><br><br>
@@ -353,7 +374,7 @@ if submitted and user_input:
     </div>
     """, unsafe_allow_html=True)
 
-# Footer Runes (Animated)
+# Footer
 runes = ["ᚦ", "ᚱ", "ᛁ", "ᛉ", "ᛉ", "ᚨ", "ᚱ"]
 rune_html = "<div class='footer-container'>"
 for i, rune in enumerate(runes):
