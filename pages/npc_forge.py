@@ -73,11 +73,11 @@ st.markdown("""
     /* --- THE ANVIL CONTAINER (The Form) --- */
     [data-testid="stForm"] {
         background: var(--iron-gradient);
-        /* No bottom padding allows button to hit the floor */
+        /* 0 padding at bottom allows button to touch the floor */
         padding: 4rem 2rem 0rem 2rem; 
         border: none;
         
-        /* THE REAL ANVIL SHAPE */
+        /* THE ANVIL SHAPE */
         clip-path: polygon(
             0% 0%, 100% 0%,      /* Top Face (Wide) */
             90% 35%, 90% 65%,    /* Right Waist (Deep pinch) */
@@ -99,7 +99,7 @@ st.markdown("""
         font-size: 1.2rem;
         padding: 1.5rem;
         text-align: center;
-        margin-bottom: 3rem; /* Space between input and bottom button */
+        margin-bottom: 2rem; /* Push button down */
     }
     .stTextInput > div > div > input:focus {
         border-color: var(--emerald-dim) !important;
@@ -107,51 +107,43 @@ st.markdown("""
     .stTextInput label { display: none; }
     [data-testid="InputInstructions"] { display: none !important; }
 
-    /* --- THE BUTTON (NUCLEAR OVERRIDE) --- */
+    /* --- THE BUTTON FIX (The Solid Base) --- */
     
-    /* 1. Target the CONTAINER of the button inside the form */
-    div[data-testid="stForm"] .stButton {
+    /* 1. Force the Streamlit button container to expand */
+    .stButton {
         width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
     }
 
-    /* 2. Target the BUTTON ELEMENT ITSELF */
-    div[data-testid="stForm"] .stButton > button {
+    /* 2. Style the button to LOOK like the anvil base */
+    .stButton > button {
         width: 100% !important;
-        min-width: 100% !important;
+        display: block !important;
         background-color: #000 !important; 
-        color: #666 !important;
+        color: #555 !important;
         border: none !important;
-        border-top: 2px solid #333 !important; /* Top edge of the base */
+        border-top: 2px solid #333 !important; /* The ridge of the base */
         border-radius: 0px !important;
-        padding: 2rem !important; /* Tall, heavy base */
+        padding: 2.5rem !important; /* Tall, heavy base */
         font-family: 'Cinzel', serif !important;
         font-weight: 900 !important;
         letter-spacing: 8px !important;
         font-size: 1.5rem !important;
         text-transform: uppercase !important;
         transition: all 0.3s ease !important;
+        box-shadow: none !important;
     }
 
-    /* 3. HOVER STATE - EMERALD IGNITION */
-    div[data-testid="stForm"] .stButton > button:hover {
+    /* 3. Hover Effects */
+    .stButton > button:hover {
         color: #fff !important;
-        background-color: #051a10 !important; 
-        box-shadow: inset 0 0 80px var(--emerald-glow) !important; 
+        background-color: #0a1f14 !important; /* Subtle green-black */
         text-shadow: 0 0 15px var(--emerald-glow) !important;
         border-top: 2px solid var(--emerald-glow) !important;
     }
     
-    div[data-testid="stForm"] .stButton > button:active {
+    .stButton > button:active {
         background-color: #000 !important;
         transform: translateY(2px);
-    }
-    
-    /* Decoration on the button */
-    div[data-testid="stForm"] .stButton > button p {
-        position: relative;
-        top: 2px;
     }
 
     /* --- RESULT CARD --- */
