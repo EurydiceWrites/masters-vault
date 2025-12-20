@@ -71,73 +71,115 @@ st.markdown("""
     .archive-card {
         background: #0e0e0e;
         border: 1px solid #222;
-        border-top: 2px solid var(--emerald-dim);
+        border-top: 4px solid var(--emerald-dim);
         box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         margin-bottom: 2rem;
         transition: transform 0.3s ease;
-        height: 850px; /* TALLER CARD */
         display: flex;
         flex-direction: column;
         overflow: hidden;
     }
     .archive-card:hover {
         transform: translateY(-5px);
-        border-top: 2px solid var(--emerald-bright);
-        box-shadow: 0 15px 40px rgba(0,0,0,1);
+        border-top: 4px solid var(--emerald-bright);
+        box-shadow: 0 15px 50px rgba(0,0,0,1);
     }
 
-    /* Card Components */
-    .card-header { background: #111; padding: 1.5rem; text-align: center; border-bottom: 1px solid #222; }
-    .card-name { font-family: 'Cinzel', serif; font-size: 1.6rem; color: #fff; letter-spacing: 2px; margin-bottom: 5px; }
-    .card-class { font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--emerald-bright); letter-spacing: 1px; text-transform: uppercase; text-shadow: 0 0 5px rgba(102, 255, 153, 0.3); }
-
+    /* 1. IMAGE (THE HERO) - NOW MUCH BIGGER */
     .img-frame { 
         width: 100%; 
-        height: 350px; /* MUCH TALLER IMAGE AREA */
+        height: 400px; /* Massive Hero Image */
         overflow: hidden; 
         border-bottom: 1px solid #222;
         position: relative;
     }
     .img-frame img { width: 100%; height: 100%; object-fit: cover; opacity: 0.9; transition: opacity 0.5s; }
-    .img-frame:hover img { opacity: 1; transform: scale(1.05); }
+    .img-frame:hover img { opacity: 1; transform: scale(1.02); }
+
+    /* 2. IDENTITY (Title Area) */
+    .card-identity {
+        padding: 1.5rem;
+        text-align: center;
+        background: linear-gradient(180deg, #111 0%, #0e0e0e 100%);
+        border-bottom: 1px solid #222;
+    }
+    .card-name { 
+        font-family: 'Cinzel', serif; 
+        font-size: 1.8rem; 
+        color: #fff; 
+        letter-spacing: 3px; 
+        margin-bottom: 0.5rem;
+        text-shadow: 0 4px 10px #000;
+    }
+    .card-class { 
+        font-family: 'Cinzel', serif; 
+        font-size: 0.85rem; 
+        color: var(--emerald-bright); 
+        letter-spacing: 2px; 
+        text-transform: uppercase; 
+        opacity: 0.9;
+    }
+
+    /* 3. THE EXPANDABLE SECTION (DETAILS TAG) */
+    details {
+        background: #0a0a0a;
+        color: #888;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    details[open] {
+        background: #050505; /* Darker when open */
+    }
+    
+    /* The Clickable Label */
+    summary {
+        padding: 1rem;
+        text-align: center;
+        font-family: 'Cinzel', serif;
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+        color: #555;
+        list-style: none; /* Hide default triangle */
+        outline: none;
+        border-top: 1px solid #222;
+    }
+    summary:hover { color: var(--emerald-glow); background: #111; }
+    summary::after { content: " ▼"; font-size: 0.7rem; }
+    details[open] summary::after { content: " ▲"; }
+    
+    /* The Hidden Content */
+    .hidden-content {
+        padding: 0 1.5rem 1.5rem 1.5rem;
+        animation: fadeIn 0.5s;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     .voice-snippet {
-        padding: 1.5rem;
-        background: radial-gradient(circle at 50% 50%, #151515 0%, #0e0e0e 100%);
+        padding: 1.5rem 0;
         text-align: center;
         border-bottom: 1px solid #222;
+        margin-bottom: 1rem;
     }
     .quote-text {
         font-family: 'Cormorant Garamond', serif;
         font-size: 1.2rem;
         color: #d0d0d0;
         font-style: italic;
-        line-height: 1.4;
     }
-
-    .lore-scroll {
-        padding: 1.5rem;
-        color: #999;
+    .lore-text {
         font-family: 'Cormorant Garamond', serif;
         font-size: 1.1rem;
+        color: #999;
         line-height: 1.6;
-        overflow-y: auto; 
-        flex-grow: 1;
-        text-align: left; /* FIXED ALIGNMENT */
+        text-align: left;
     }
-    /* Custom Scrollbar */
-    .lore-scroll::-webkit-scrollbar { width: 6px; }
-    .lore-scroll::-webkit-scrollbar-track { background: #0e0e0e; }
-    .lore-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-    .lore-scroll::-webkit-scrollbar-thumb:hover { background: var(--emerald-dim); }
-
     .footer-meta {
-        padding: 0.8rem;
-        background: #050505;
-        text-align: center;
         font-family: 'Lato', sans-serif;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         color: #444;
+        text-align: center;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
         border-top: 1px solid #222;
     }
 
@@ -165,7 +207,6 @@ try:
         )
         gc = gspread.authorize(creds)
     else:
-        # Local fallback
         creds = service_account.Credentials.from_service_account_file(
             "service_account.json",
             scopes=SCOPES
@@ -182,12 +223,11 @@ except Exception as e:
 try:
     sh = gc.open("Masters_Vault_Db")
     worksheet = sh.get_worksheet(0)
-    
     data = worksheet.get_all_records()
     df = pd.DataFrame(data)
 
     if df.empty:
-        st.info("The Library is empty. Go to the Forge to summon new souls.")
+        st.info("The Library is empty.")
         st.stop()
 
 except Exception as e:
@@ -195,17 +235,16 @@ except Exception as e:
     st.stop()
 
 # -----------------------------------------------------------------------------
-# 5. LAYOUT & GRID DISPLAY
+# 5. LAYOUT & GRID
 # -----------------------------------------------------------------------------
 st.page_link("home.py", label="< RETURN TO HALL", use_container_width=False)
 
 st.markdown("<h1>THE ARCHIVES OF THE LOST</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtext'>That which is remembered, lives forever.</div>", unsafe_allow_html=True)
 
-# --- SEARCH RUNE ---
+# --- SEARCH ---
 search_query = st.text_input("Search the Archives", placeholder="Speak the name, class, or secret...")
 
-# --- FILTER LOGIC ---
 if search_query:
     mask = (
         df['Name'].astype(str).str.contains(search_query, case=False) |
@@ -216,45 +255,52 @@ if search_query:
 else:
     filtered_df = df
 
-# --- THE GRID OF SOULS ---
+# --- GRID ---
 if not filtered_df.empty:
     cols = st.columns(3)
     
-    # Reverse order to show newest characters first
     for index, row in filtered_df.iloc[::-1].iterrows():
         col_index = index % 3
         
-        # Safe Image Handling
         img_src = row.get('Image_URL', '')
         if not str(img_src).startswith("http"):
-            # Placeholder if image is missing/broken
-            img_src = "https://via.placeholder.com/400x250?text=No+Visage"
+            img_src = "https://via.placeholder.com/400x400?text=No+Visage"
 
-        # --- THE FIX: MANUAL STRING CONCATENATION ---
-        # This prevents Python from adding indentation to the string.
+        # --- LINE-BY-LINE HTML CONSTRUCTION ---
         html = ""
         html += '<div class="archive-card">'
-        html += '<div class="card-header">'
+        
+        # 1. IMAGE (Top)
+        html += '<div class="img-frame">'
+        html += f'<a href="{img_src}" target="_blank"><img src="{img_src}" loading="lazy"></a>'
+        html += '</div>'
+        
+        # 2. IDENTITY (Middle)
+        html += '<div class="card-identity">'
         html += f'<div class="card-name">{row["Name"]}</div>'
         html += f'<div class="card-class">{row["Class"]}</div>'
         html += '</div>'
         
-        html += '<div class="img-frame">'
-        html += f'<a href="{img_src}" target="_blank"><img src="{img_src}" loading="lazy"></a>'
-        html += '</div>'
+        # 3. DETAILS (Bottom - Expandable)
+        html += '<details>'
+        html += '<summary>INSPECT SOUL</summary>'
+        html += '<div class="hidden-content">'
         
         html += '<div class="voice-snippet">'
         html += f'<div class="quote-text">“{row["Greeting"]}”</div>'
         html += '</div>'
         
-        html += '<div class="lore-scroll">'
+        html += '<div class="lore-text">'
         html += f'{row["Lore"]}'
         html += '</div>'
         
         html += '<div class="footer-meta">'
         html += f'ACCESSION: {row.get("Timestamp", "Unknown")}'
         html += '</div>'
-        html += '</div>'
+        
+        html += '</div>' # End hidden-content
+        html += '</details>'
+        html += '</div>' # End archive-card
         
         with cols[col_index]:
             st.markdown(html, unsafe_allow_html=True)
