@@ -14,7 +14,7 @@ import cloudinary.uploader
 st.set_page_config(page_title="The NPC Forge", layout="centered", page_icon="⚒️")
 
 # -----------------------------------------------------------------------------
-# 2. THE VISUAL ENGINE
+# 2. THE VISUAL ENGINE (The Norse Anvil)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -73,11 +73,11 @@ st.markdown("""
     /* --- THE ANVIL CONTAINER (The Form) --- */
     [data-testid="stForm"] {
         background: var(--iron-gradient);
-        /* Standard padding to keep the INPUT contained */
+        /* We keep padding on top/sides for the Input, but 0 on bottom for the button */
         padding: 3rem 2rem 0rem 2rem; 
         border: none;
         
-        /* THE SHAPE */
+        /* THE SHAPE: Wide Top, Narrow Waist, Wide Base */
         clip-path: polygon(
             0% 0%, 100% 0%,      /* Top Face */
             90% 35%, 90% 65%,    /* Right Waist */
@@ -99,7 +99,7 @@ st.markdown("""
         font-size: 1.2rem;
         padding: 1.5rem;
         text-align: center;
-        margin-bottom: 2rem;
+        margin-bottom: 2rem; /* Push button down */
     }
     .stTextInput > div > div > input:focus {
         border-color: var(--emerald-dim) !important;
@@ -107,14 +107,13 @@ st.markdown("""
     .stTextInput label { display: none; }
     [data-testid="InputInstructions"] { display: none !important; }
 
-    /* --- THE NEGATIVE MARGIN HACK (The Fix) --- */
-    
-    /* This pulls the button OUTSIDE the form padding to touch the edges */
+    /* --- THE BUTTON (THE BASE) --- */
+    /* This negative margin pulls the button OUT to the edges of the form */
     .stButton {
-        width: calc(100% + 4rem) !important; /* Wider than container */
-        margin-left: -2rem !important; /* Pull left */
-        margin-right: -2rem !important; /* Pull right */
-        margin-bottom: 0rem !important;
+        width: calc(100% + 4rem) !important; /* Widen to counter padding */
+        margin-left: -2rem !important; /* Pull Left */
+        margin-right: -2rem !important; /* Pull Right */
+        margin-bottom: 0 !important;
     }
 
     .stButton > button {
@@ -123,7 +122,7 @@ st.markdown("""
         background-color: #000 !important; 
         color: #555 !important;
         border: none !important;
-        border-top: 2px solid #333 !important;
+        border-top: 2px solid #333 !important; /* The visual "ridge" */
         padding: 2.5rem !important; /* Tall, heavy base */
         font-family: 'Cinzel', serif !important;
         font-weight: 900 !important;
@@ -237,7 +236,7 @@ with st.form("forge_form"):
     user_input = st.text_input("Concept", placeholder="e.g. A weary executioner who collects butterflies...")
     
     # The Black Button (Base of Anvil)
-    submitted = st.form_submit_button("FORGE")
+    submitted = st.form_submit_button("STRIKE THE ANVIL")
 
 # -----------------------------------------------------------------------------
 # 5. GENERATION
