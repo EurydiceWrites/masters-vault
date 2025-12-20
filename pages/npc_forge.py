@@ -14,7 +14,7 @@ import cloudinary.uploader
 st.set_page_config(page_title="The NPC Forge", layout="centered", page_icon="⚒️")
 
 # -----------------------------------------------------------------------------
-# 2. THE VISUAL ENGINE
+# 2. THE VISUAL ENGINE (Grimoire Edition)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -24,12 +24,11 @@ st.markdown("""
     /* --- VARIABLES --- */
     :root {
         --stone-bg: #111;
-        --metal-dark: #1a1a1a;
         --emerald-glow: #50c878;
         --emerald-dim: #1e3a2a;
     }
 
-    /* --- GLOBAL POLISH --- */
+    /* --- GLOBAL --- */
     ::selection { background: var(--emerald-dim); color: var(--emerald-glow); }
     .stApp {
         background-color: #050505;
@@ -66,8 +65,6 @@ st.markdown("""
         margin-bottom: 3rem;
         overflow: hidden; 
     }
-
-    /* --- CONTENT AREA --- */
     [data-testid="stForm"] > div:nth-child(1) { padding: 3rem 2rem 2rem 2rem !important; }
 
     /* --- INPUT STYLING --- */
@@ -81,8 +78,6 @@ st.markdown("""
         text-align: center;
         padding: 1.5rem;
     }
-    
-    /* GHOST TEXT LOGIC */
     .stTextInput input::placeholder { color: transparent !important; transition: color 0.5s; font-style: italic;}
     .stTextInput:hover input::placeholder, .stTextInput input:focus::placeholder { color: #444 !important; }
     .stTextInput label { display: none; }
@@ -120,13 +115,21 @@ st.markdown("""
         margin-top: 2rem;
         animation: fadein 1s;
     }
+
+    /* MAGICAL SEAM: The glowing divider */
+    .seam {
+        height: 1px;
+        background: radial-gradient(circle, #444 0%, transparent 90%);
+        margin: 0;
+        border: none;
+        opacity: 0.6;
+    }
     
     /* Header */
     .card-header {
         background: #111;
         padding: 2rem 1rem;
         text-align: center;
-        border-bottom: 1px solid #222;
     }
     .card-name {
         font-family: 'Cinzel', serif;
@@ -144,11 +147,10 @@ st.markdown("""
         opacity: 0.8;
     }
 
-    /* Image */
+    /* Image Container with Vignette */
     .img-container {
         position: relative;
         overflow: hidden;
-        border-bottom: 1px solid #222;
     }
     .img-container img {
         width: 100%;
@@ -157,47 +159,59 @@ st.markdown("""
         transition: all 0.5s ease;
         cursor: zoom-in;
     }
-    .img-container img:hover {
-        opacity: 1;
-        transform: scale(1.02);
+    /* The Gradient Overlay to blend image into text */
+    .img-container::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 80px;
+        background: linear-gradient(to top, #0a0a0a, transparent);
+        pointer-events: none;
     }
+    .img-container img:hover { opacity: 1; transform: scale(1.02); }
+
+    /* Visual Caption */
     .visual-caption {
         background: #080808;
-        padding: 1.5rem 2.5rem;
+        padding: 2rem 3rem;
         font-family: 'Cormorant Garamond', serif;
         font-style: italic;
         color: #888;
-        text-align: center;
-        font-size: 1.1rem;
-        border-bottom: 1px solid #222;
+        text-align: left; /* Reading Mode */
+        font-size: 1.15rem;
         line-height: 1.6;
     }
 
-    /* Voice */
+    /* Voice Section (Centered & Dramatic) */
     .voice-section {
-        padding: 2rem 3rem;
-        background: #0e0e0e;
+        /* Reduced bottom padding to pull sections closer */
+        padding: 2.5rem 3rem 1.5rem 3rem; 
+        background: radial-gradient(circle at 50% 50%, #111 0%, #0a0a0a 100%);
         text-align: center;
-        border-bottom: 1px solid #1a1a1a;
     }
     .voice-quote {
         font-family: 'Cormorant Garamond', serif;
-        font-size: 1.4rem;
+        font-size: 1.5rem;
         color: #d0d0d0;
         font-style: italic;
-        line-height: 1.5;
+        line-height: 1.4;
     }
     .voice-quote::before { content: "“"; font-size: 3rem; color: var(--emerald-dim); vertical-align: -1rem; margin-right: 10px; }
     .voice-quote::after { content: "”"; font-size: 3rem; color: var(--emerald-dim); vertical-align: -2rem; margin-left: 10px; }
 
-    /* Lore */
+    /* Lore Section (Unified Font) */
     .lore-section {
-        padding: 2.5rem 3rem;
-        color: #aaa;
-        line-height: 1.8;
-        font-size: 1.05rem;
-        font-family: 'Lato', sans-serif;
-        background: linear-gradient(180deg, #0a0a0a 0%, #050505 100%);
+        /* Reduced top padding */
+        padding: 1.5rem 3rem 3rem 3rem; 
+        color: #b0b0b0;
+        line-height: 1.7;
+        font-size: 1.2rem;
+        /* Switched to Garamond to match the book aesthetic */
+        font-family: 'Cormorant Garamond', serif; 
+        background: #050505;
+        text-align: left;
     }
     .lore-label {
         font-family: 'Cinzel', serif;
@@ -208,6 +222,7 @@ st.markdown("""
         display: block;
         margin-bottom: 10px;
         text-align: center;
+        opacity: 0.6;
     }
 
     /* Footer */
@@ -315,25 +330,38 @@ if submitted and user_input:
     except Exception as e:
         st.error(f"Save Failed: {e}")
 
-    # --- RESULT CARD GENERATION ---
-    # We construct the HTML line-by-line using concatenation to prevent
-    # Streamlit from interpreting indentation as a code block.
-    
+    # --- RESULT CARD GENERATION (NO INDENTATION) ---
     card_html = ""
     card_html += f'<div class="character-card">'
+    
+    # 1. Header
     card_html += f'  <div class="card-header">'
     card_html += f'    <div class="card-name">{char_data["Name"]}</div>'
     card_html += f'    <div class="card-class">{char_data["Class"]}</div>'
     card_html += f'  </div>'
+    
+    # 2. Image
     card_html += f'  <div class="img-container">'
     card_html += f'    <a href="{image_url}" target="_blank">'
     card_html += f'      <img src="{image_url}" title="Click to Expand">'
     card_html += f'    </a>'
     card_html += f'  </div>'
+    
+    # 3. Visual Caption (Left Aligned)
     card_html += f'  <div class="visual-caption">"{char_data["Visual_Desc"]}"</div>'
+    
+    # Seam Divider
+    card_html += f'  <hr class="seam">'
+    
+    # 4. Voice (Centered & Dramatic)
     card_html += f'  <div class="voice-section">'
     card_html += f'    <div class="voice-quote">{char_data["Greeting"]}</div>'
     card_html += f'  </div>'
+    
+    # Seam Divider
+    card_html += f'  <hr class="seam">'
+    
+    # 5. Lore (Left Aligned, Cormorant Font)
     card_html += f'  <div class="lore-section">'
     card_html += f'    <span class="lore-label">Archive Record</span>'
     card_html += f'    {char_data["Lore"]}'
