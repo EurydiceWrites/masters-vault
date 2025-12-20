@@ -78,8 +78,7 @@ st.markdown("""
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        justify-content: space-between; 
-        min-height: 750px; 
+        height: 850px; /* FIXED HEIGHT Ensures Alignment */
     }
     .archive-card:hover {
         transform: translateY(-5px);
@@ -94,6 +93,7 @@ st.markdown("""
         overflow: hidden; 
         border-bottom: 1px solid #222;
         position: relative;
+        flex-shrink: 0; /* Prevents image from shrinking */
     }
     .img-frame img { width: 100%; height: 100%; object-fit: cover; object-position: top; opacity: 0.95; transition: opacity 0.5s; }
     .img-frame:hover img { opacity: 1; transform: scale(1.02); }
@@ -103,7 +103,12 @@ st.markdown("""
         padding: 2rem 1.5rem;
         text-align: center;
         background: linear-gradient(180deg, #111 0%, #0e0e0e 100%);
-        flex-grow: 1; 
+        
+        /* MAGIC SAUCE FOR ALIGNMENT: */
+        flex-grow: 1; /* This forces this section to take up all available space */
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* Centers text vertically in the gap */
     }
     .card-name { 
         font-family: 'Cinzel', serif; 
@@ -127,7 +132,7 @@ st.markdown("""
     details {
         background: #080808;
         border-top: 1px solid #222;
-        margin-top: auto; 
+        margin-top: auto; /* REDUNDANT SAFETY to force to bottom */
     }
     
     summary {
@@ -150,18 +155,21 @@ st.markdown("""
     }
     
     /* --- RUNE INDICATORS --- */
-    /* Closed state: ᛦ (Yr - Roots/Down) */
+    /* We use ::after with display:block to put the rune UNDER the text */
     summary::after { 
-        content: " ᛦ"; 
-        font-size: 1.2rem; 
-        margin-left: 8px; 
-        vertical-align: middle; 
-        opacity: 0.7;
+        content: "ᛦ"; /* Yr (Roots/Closed) */
+        display: block; 
+        font-size: 1.5rem; 
+        margin-top: 0.5rem;
+        color: #444;
+        transition: color 0.3s;
     }
     
-    /* Open state: ᛐ (Tyr - Spear/Up) */
+    summary:hover::after { color: var(--emerald-glow); }
+
+    /* Open state: Tyr (Spear/Open) */
     details[open] summary::after { 
-        content: " ᛐ"; 
+        content: "ᛐ"; 
         color: var(--emerald-bright);
         text-shadow: 0 0 10px var(--emerald-bright);
     }
@@ -169,10 +177,14 @@ st.markdown("""
     details[open] summary { border-bottom: 1px solid #222; color: var(--emerald-bright); }
 
     /* The Hidden Content */
+    /* Using absolute positioning trick to make content overlay the image if card is too small, 
+       or just scroll. For now, standard flow. */
     .hidden-content {
         padding: 0 1.5rem 1.5rem 1.5rem;
         background: #0a0a0a;
         animation: fadeIn 0.5s;
+        max-height: 400px;
+        overflow-y: auto;
     }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
@@ -297,7 +309,7 @@ if not filtered_df.empty:
         html += f'<a href="{img_src}" target="_blank"><img src="{img_src}" loading="lazy"></a>'
         html += '</div>'
         
-        # 2. IDENTITY (Middle)
+        # 2. IDENTITY (Middle - Grows to fill space)
         html += '<div class="card-identity">'
         html += f'<div class="card-name">{row["Name"]}</div>'
         html += f'<div class="card-class">{row["Class"]}</div>'
