@@ -14,7 +14,7 @@ import cloudinary.uploader
 st.set_page_config(page_title="The NPC Forge", layout="centered", page_icon="⚒️")
 
 # -----------------------------------------------------------------------------
-# 2. THE VISUAL ENGINE (High-Contrast Grimoire)
+# 2. THE VISUAL ENGINE (Dynamic Tones)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -24,8 +24,8 @@ st.markdown("""
     /* --- VARIABLES --- */
     :root {
         --stone-bg: #111;
-        --emerald-glow: #50c878; /* Original, darker green */
-        --emerald-bright: #66ff99; /* New, brighter green for titles */
+        --emerald-glow: #50c878;
+        --emerald-bright: #66ff99;
         --emerald-dim: #1e3a2a;
     }
 
@@ -36,14 +36,14 @@ st.markdown("""
         background-image: radial-gradient(circle at 50% 0%, #1f2b24 0%, #000 80%);
     }
 
-    /* --- HEADER (Brighter & Stronger Glow) --- */
+    /* --- HEADER --- */
     h1 {
         font-family: 'Cinzel', serif !important;
         text-transform: uppercase;
         letter-spacing: 12px;
         font-size: 3.5rem !important;
         color: var(--emerald-bright) !important;
-        text-shadow: 0 0 40px rgba(102, 255, 153, 0.6); /* Stronger, brighter glow */
+        text-shadow: 0 0 40px rgba(102, 255, 153, 0.6);
         margin-bottom: 0 !important;
         text-align: center;
     }
@@ -51,7 +51,7 @@ st.markdown("""
         text-align: center;
         font-family: 'Cormorant Garamond', serif;
         font-size: 1.2rem;
-        color: #aaa; /* Lighter grey for better readability */
+        color: #aaa;
         font-style: italic;
         margin-bottom: 3rem;
     }
@@ -83,6 +83,37 @@ st.markdown("""
     .stTextInput:hover input::placeholder, .stTextInput input:focus::placeholder { color: #666 !important; }
     .stTextInput label { display: none; }
     [data-testid="InputInstructions"] { display: none !important; }
+
+    /* --- RADIO BUTTON STYLING (The Tone Selector) --- */
+    [role="radiogroup"] {
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+    [data-testid="stMarkdownContainer"] p {
+        font-family: 'Cinzel', serif;
+        color: #888;
+        font-size: 0.9rem;
+    }
+    /* The dots */
+    div[role="radiogroup"] > label > div:first-child {
+        background-color: #080808 !important;
+        border-color: #444 !important;
+    }
+    /* Active dot */
+    div[role="radiogroup"] > label[data-checked="true"] > div:first-child {
+        background-color: var(--emerald-glow) !important;
+        border-color: var(--emerald-bright) !important;
+    }
+    /* Text Label */
+    div[role="radiogroup"] label p {
+        font-family: 'Cinzel', serif !important;
+        font-size: 0.85rem !important;
+        color: #666 !important;
+    }
+    div[role="radiogroup"] label[data-checked="true"] p {
+        color: var(--emerald-bright) !important;
+        text-shadow: 0 0 10px rgba(80, 200, 120, 0.4);
+    }
 
     /* --- THE BUTTON --- */
     .stButton { width: 100% !important; margin-top: 0rem !important; padding: 0 !important; }
@@ -116,116 +147,32 @@ st.markdown("""
         margin-top: 2rem;
         animation: fadein 1s;
     }
-
-    /* MAGICAL SEAM */
     .seam {
         height: 1px;
         background: radial-gradient(circle, #444 0%, transparent 90%);
-        margin: 0;
-        border: none;
-        opacity: 0.6;
+        margin: 0; border: none; opacity: 0.6;
     }
+    .card-header { background: #111; padding: 2rem 1rem; text-align: center; }
+    .card-name { font-family: 'Cinzel', serif; font-size: 2.2rem; color: #fff; letter-spacing: 4px; margin-bottom: 0.5rem; }
+    .card-class { font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--emerald-bright); letter-spacing: 3px; text-transform: uppercase; text-shadow: 0 0 10px rgba(102, 255, 153, 0.3); }
     
-    /* Header (Brighter Class Name) */
-    .card-header {
-        background: #111;
-        padding: 2rem 1rem;
-        text-align: center;
-    }
-    .card-name {
-        font-family: 'Cinzel', serif;
-        font-size: 2.2rem;
-        color: #fff;
-        letter-spacing: 4px;
-        margin-bottom: 0.5rem;
-    }
-    .card-class {
-        font-family: 'Cinzel', serif;
-        font-size: 0.9rem;
-        color: var(--emerald-bright); /* Brighter green */
-        letter-spacing: 3px;
-        text-transform: uppercase;
-        text-shadow: 0 0 10px rgba(102, 255, 153, 0.3);
-    }
-
-    /* Image Container */
-    .img-container {
-        position: relative;
-        overflow: hidden;
-    }
-    .img-container img {
-        width: 100%;
-        display: block;
-        opacity: 0.9;
-        transition: all 0.5s ease;
-        cursor: zoom-in;
-    }
-    .img-container::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 80px;
-        background: linear-gradient(to top, #0a0a0a, transparent);
-        pointer-events: none;
-    }
+    .img-container { position: relative; overflow: hidden; }
+    .img-container img { width: 100%; display: block; opacity: 0.9; transition: all 0.5s ease; cursor: zoom-in; }
+    .img-container::after { content: ""; position: absolute; bottom: 0; left: 0; width: 100%; height: 80px; background: linear-gradient(to top, #0a0a0a, transparent); pointer-events: none; }
     .img-container img:hover { opacity: 1; transform: scale(1.02); }
 
-    /* Visual Caption */
-    .visual-caption {
-        background: #080808;
-        padding: 2rem 3rem;
-        font-family: 'Cormorant Garamond', serif;
-        font-style: italic;
-        color: #888;
-        text-align: left;
-        font-size: 1.15rem;
-        line-height: 1.6;
-    }
-
-    /* Voice Section */
-    .voice-section {
-        padding: 2.5rem 3rem 1.5rem 3rem; 
-        background: radial-gradient(circle at 50% 50%, #111 0%, #0a0a0a 100%);
-        text-align: center;
-    }
-    .voice-quote {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 1.5rem;
-        color: #d0d0d0;
-        font-style: italic;
-        line-height: 1.4;
-    }
+    .visual-caption { background: #080808; padding: 2rem 3rem; font-family: 'Cormorant Garamond', serif; font-style: italic; color: #888; text-align: left; font-size: 1.15rem; line-height: 1.6; }
+    
+    .voice-section { padding: 2.5rem 3rem 1.5rem 3rem; background: radial-gradient(circle at 50% 50%, #111 0%, #0a0a0a 100%); text-align: center; }
+    .voice-quote { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: #d0d0d0; font-style: italic; line-height: 1.4; }
     .voice-quote::before { content: "“"; font-size: 3rem; color: var(--emerald-dim); vertical-align: -1rem; margin-right: 10px; }
     .voice-quote::after { content: "”"; font-size: 3rem; color: var(--emerald-dim); vertical-align: -2rem; margin-left: 10px; }
 
-    /* Lore Section */
-    .lore-section {
-        padding: 1.5rem 3rem 3rem 3rem; 
-        color: #b0b0b0;
-        line-height: 1.7;
-        font-size: 1.2rem;
-        font-family: 'Cormorant Garamond', serif; 
-        background: #050505;
-        text-align: left;
-    }
-    .lore-label {
-        font-family: 'Cinzel', serif;
-        font-size: 0.8rem;
-        color: #666;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        display: block;
-        margin-bottom: 10px;
-        text-align: center;
-        opacity: 0.8;
-    }
+    .lore-section { padding: 1.5rem 3rem 3rem 3rem; color: #b0b0b0; line-height: 1.7; font-size: 1.2rem; font-family: 'Cormorant Garamond', serif; background: #050505; text-align: left; }
+    .lore-label { font-family: 'Cinzel', serif; font-size: 0.8rem; color: #666; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 10px; text-align: center; opacity: 0.8; }
 
-    /* Footer */
     .footer-container { opacity: 0.3; text-align: center; margin-top: 4rem; padding-bottom: 2rem;}
     .rune-span { margin: 0 10px; font-size: 1.2rem; color: #444; cursor: default; }
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -266,6 +213,14 @@ with st.form("forge_form"):
         </p>
     """, unsafe_allow_html=True)
     
+    # 1. THE TONE SELECTOR (Hidden until needed)
+    tone_selection = st.radio(
+        "Select Resonance", 
+        ["Grim & Shadow", "Noble & Bright", "Mystic & Weird"], 
+        horizontal=True,
+        label_visibility="collapsed" # We hide the label for a cleaner look
+    )
+
     user_input = st.text_input("Concept", placeholder="...AND THE VOID SHALL GIVE IT FORM.")
     submitted = st.form_submit_button("STRIKE THE ANVIL")
 
@@ -274,16 +229,29 @@ with st.form("forge_form"):
 # -----------------------------------------------------------------------------
 if submitted and user_input:
     
+    # --- DYNAMIC PROMPT LOGIC ---
+    if tone_selection == "Grim & Shadow":
+        text_vibe = "Dark fantasy, gritty, morally ambiguous, dangerous tone."
+        img_vibe = "dark fantasy, gritty, low key lighting, shadow heavy, ominous"
+    elif tone_selection == "Noble & Bright":
+        text_vibe = "High fantasy, heroic, hopeful, noble, clean and elegant tone."
+        img_vibe = "high fantasy, vibrant, golden hour lighting, majestic, clean, ethereal"
+    else: # Mystic & Weird
+        text_vibe = "Eldritch, strange, dreamlike, mysterious, folklore-heavy tone."
+        img_vibe = "surreal, mist-filled, cinematic, strange colors, folklore aesthetic"
+
     with st.spinner("Summoning the soul..."):
         try:
             if "GOOGLE_API_KEY" in st.secrets:
                 genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
             
             text_model = genai.GenerativeModel('models/gemini-3-pro-preview')
+            
+            # INJECTED THE DYNAMIC VIBE HERE
             text_prompt = f"""
             Role: Dark Fantasy DM Assistant.
             Task: Create a detailed NPC based on: "{user_input}".
-            Rules: Norse-inspired name (EASY to pronounce). Dark, gritty tone. No Stats.
+            Rules: Norse-inspired name (EASY to pronounce). {text_vibe}. No Stats.
             Format: JSON with keys: Name, Class, Visual_Desc, Lore, Greeting.
             """
             text_response = text_model.generate_content(text_prompt)
@@ -296,7 +264,9 @@ if submitted and user_input:
     with st.spinner("Conjuring the form..."):
         try:
             image_model = genai.GenerativeModel('models/gemini-3-pro-image-preview')
-            img_prompt = f"Hyper-realistic photograph, dark fantasy, {char_data['Visual_Desc']}, Norse aesthetic, gritty, 8k, cinematic lighting."
+            
+            # INJECTED THE DYNAMIC IMAGE VIBE HERE
+            img_prompt = f"Hyper-realistic photograph, {img_vibe}, {char_data['Visual_Desc']}, Norse aesthetic, 8k, cinematic lighting."
             img_response = image_model.generate_content(img_prompt)
             
             if img_response.parts:
@@ -328,7 +298,6 @@ if submitted and user_input:
         st.error(f"Save Failed: {e}")
 
     # --- RESULT CARD GENERATION (NO INDENTATION) ---
-    # The HTML block is intentionally un-indented to prevent Markdown from interpreting it as code.
     card_html = ""
     card_html += f'<div class="character-card">'
     card_html += f'  <div class="card-header">'
