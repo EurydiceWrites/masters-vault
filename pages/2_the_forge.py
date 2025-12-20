@@ -202,7 +202,7 @@ def forge_npc(concept, tone):
     elif tone == "Noble & Bright":
         text_vibe = "High fantasy, heroic, hopeful, noble, clean and elegant tone."
         img_vibe = "photo realistic, high fantasy, vibrant, golden hour lighting, majestic, clean, ethereal"
-    else: # Mystic & Weird
+    else: # Mystic & Strange
         text_vibe = "Eldritch, strange, dreamlike, mysterious, folklore-heavy tone."
         img_vibe = "photo realistic, surreal, mist-filled, cinematic, strange colors, folklore aesthetic"
 
@@ -215,7 +215,7 @@ def forge_npc(concept, tone):
             # --- UPDATED: USING GEMINI 3 PRO PREVIEW ---
             text_model = genai.GenerativeModel('models/gemini-3-pro-preview')
             text_prompt = f"""
-            Role: Dark Fantasy DM Assistant.
+            Role:  Fantasy DM Creative Archivist.
             Task: Create a richly textured, photo-realistic NPC based on: "{concept}".
             Rules: Norse-inspired name (EASY to pronounce). photo realistic. {text_vibe}. No Stats.
             Format: JSON with keys: Name, Class, Visual_Desc, Lore, Greeting.
@@ -341,8 +341,8 @@ if st.session_state.npc_data:
             st.rerun()
             
     with col3:
-        if st.button("MYSTIC & WEIRD", use_container_width=True):
-            st.session_state.npc_data = forge_npc(st.session_state.last_concept, "Mystic & Weird")
+        if st.button("MYSTIC & STRANGE", use_container_width=True):
+            st.session_state.npc_data = forge_npc(st.session_state.last_concept, "Mystic & Strange")
             st.rerun()
 
 # FOOTER
