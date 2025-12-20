@@ -30,6 +30,33 @@ st.markdown("""
         background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #000 80%);
     }
 
+    /* --- SIDEBAR STYLING (NEW) --- */
+    [data-testid="stSidebar"] {
+        background-color: #080808; 
+        border-right: 1px solid #1e3a2a;
+    }
+    [data-testid="stSidebarNav"] {
+        font-family: 'Cinzel', serif;
+        padding-top: 2rem;
+    }
+    [data-testid="stSidebarNav"] span {
+        color: #666;
+        font-size: 1rem;
+        letter-spacing: 2px;
+        transition: color 0.3s;
+    }
+    [data-testid="stSidebarNav"] a:hover span {
+        color: #50c878; /* Emerald Glow */
+    }
+    [data-testid="stSidebarNav"] [aria-current="page"] span {
+        color: #66ff99 !important;
+        font-weight: bold;
+        text-shadow: 0 0 15px rgba(80, 200, 120, 0.4);
+    }
+    header[data-testid="stHeader"] {
+        background: transparent;
+    }
+
     /* --- HEADER --- */
     h1 {
         font-family: 'Cinzel', serif !important;

@@ -40,6 +40,33 @@ st.markdown("""
         background-image: radial-gradient(circle at 50% 0%, #1f2b24 0%, #000 80%);
     }
 
+    /* --- SIDEBAR STYLING (ADDED) --- */
+    [data-testid="stSidebar"] {
+        background-color: #080808; 
+        border-right: 1px solid #1e3a2a;
+    }
+    [data-testid="stSidebarNav"] {
+        font-family: 'Cinzel', serif;
+        padding-top: 2rem;
+    }
+    [data-testid="stSidebarNav"] span {
+        color: #666;
+        font-size: 1rem;
+        letter-spacing: 2px;
+        transition: color 0.3s;
+    }
+    [data-testid="stSidebarNav"] a:hover span {
+        color: #50c878; /* Emerald Glow */
+    }
+    [data-testid="stSidebarNav"] [aria-current="page"] span {
+        color: #66ff99 !important;
+        font-weight: bold;
+        text-shadow: 0 0 15px rgba(80, 200, 120, 0.4);
+    }
+    header[data-testid="stHeader"] {
+        background: transparent;
+    }
+
     /* --- HEADER --- */
     h1 {
         font-family: 'Cinzel', serif !important;
@@ -185,7 +212,7 @@ def forge_npc(concept, tone):
             if "GOOGLE_API_KEY" in st.secrets:
                 genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
             
-            text_model = genai.GenerativeModel('models/gemini-3-pro-preview')
+            text_model = genai.GenerativeModel('models/gemini-1.5-pro')
             text_prompt = f"""
             Role: Dark Fantasy DM Assistant.
             Task: Create a richly textured, photo-realistic NPC based on: "{concept}".
@@ -202,7 +229,8 @@ def forge_npc(concept, tone):
     # 3. GENERATE IMAGE
     with st.spinner("Conjuring the form..."):
         try:
-            image_model = genai.GenerativeModel('models/gemini-3-pro-image-preview')
+            # Note: Ensure you have access to this model or swap to 'imagen-3.0-generate-001' if needed
+            image_model = genai.GenerativeModel('models/imagen-3.0-generate-001') 
             img_prompt = f"{img_vibe}, {char_data['Visual_Desc']}, Norse aesthetic, 8k, cinematic lighting."
             img_response = image_model.generate_content(img_prompt)
             
