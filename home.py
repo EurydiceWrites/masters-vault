@@ -128,7 +128,7 @@ col1, col2 = st.columns(2)
 # TILE 1: THE FORGE
 with col1:
     # Ensure this string matches YOUR server filename exactly (1_The Forge.py or 1_the_forge.py)
-    st.page_link("pages/1_The Forge.py", label="ENTER THE FORGE", icon="⚒️", use_container_width=True)
+    st.page_link("pages/1_the_forge.py", label="ENTER THE FORGE", icon="⚒️", use_container_width=True)
     st.markdown("""
         <div style="text-align: center; color: #666; font-family: 'Cormorant Garamond'; font-style: italic; margin-top: 10px;">
             Strike the iron. Breathe life into the void. <br>Create new souls for your world.
