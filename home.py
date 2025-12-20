@@ -137,7 +137,7 @@ with col1:
 
 # TILE 2: THE ARCHIVES
 with col2:
-    st.page_link("pages/2_The_Archives.py", label="OPEN THE ARCHIVES", icon="📜", use_container_width=True)
+    st.page_link("pages/2_library.py", label="OPEN THE ARCHIVES", icon="📜", use_container_width=True)
     st.markdown("""
         <div style="text-align: center; color: #666; font-family: 'Cormorant Garamond'; font-style: italic; margin-top: 10px;">
             That which is remembered, lives forever. <br>View and manage your creation.
