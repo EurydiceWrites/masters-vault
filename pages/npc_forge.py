@@ -14,19 +14,21 @@ import cloudinary.uploader
 st.set_page_config(page_title="The NPC Forge", layout="centered", page_icon="⚒️")
 
 # -----------------------------------------------------------------------------
-# 2. THE VISUAL ENGINE (The Workshop Aesthetic)
+# 2. THE VISUAL ENGINE (The Iron Workshop)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
     /* --- FONTS --- */
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:wght@400;600&family=Lato:wght@400;700&display=swap');
 
-    /* --- VARIABLES (Consistent with Home) --- */
+    /* --- VARIABLES --- */
     :root {
         --stone-bg: #1c1c1c;
         --stone-dark: #0e0e0e;
         --emerald-glow: #50c878;
         --emerald-dim: #2e5a44;
+        --iron-dark: #1a1a1a;
+        --iron-light: #333;
         --text-main: #d0d0d0;
         --text-muted: #888;
     }
@@ -40,7 +42,6 @@ st.markdown("""
     }
 
     /* --- NAVIGATION BACK LINK --- */
-    /* Small, discrete link to return home */
     a[data-testid="stPageLink-NavLink"] {
         background: transparent !important;
         border: none !important;
@@ -59,14 +60,14 @@ st.markdown("""
         color: var(--emerald-glow);
     }
 
-    /* --- HEADER (The Anvil) --- */
+    /* --- HEADER (The Forge Fire) --- */
     h1 {
         font-family: 'Cinzel', serif !important;
         text-transform: uppercase;
         letter-spacing: 10px;
         font-size: 3rem !important;
         color: var(--emerald-glow) !important;
-        text-shadow: 0 0 15px rgba(80, 200, 120, 0.3);
+        text-shadow: 0 0 20px rgba(80, 200, 120, 0.4);
         text-align: center;
         margin-top: -20px;
         margin-bottom: 0.5rem !important;
@@ -84,61 +85,73 @@ st.markdown("""
         padding-bottom: 2rem;
     }
 
-    /* --- INPUT AREA (The Inscription Slab) --- */
-    /* Distinct from Home: Darker, inset look like carved stone */
+    /* --- INPUT AREA (The Stone Slab) --- */
+    /* We make this look heavy and carved */
     .stTextInput > div > div > input {
         background-color: #080808 !important; 
-        border: 1px solid #333 !important;
-        border-top: 2px solid #000 !important; /* Inner Shadow effect */
+        border: 2px solid #222 !important;
+        border-left: 4px solid var(--emerald-dim) !important;
         color: #e0e0e0 !important;
         font-family: 'Lato', sans-serif;
         font-size: 1.1rem;
         padding: 1.5rem;
         border-radius: 2px;
-        box-shadow: inset 0 5px 15px rgba(0,0,0,0.8);
-        transition: all 0.3s ease;
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.9); /* Deep inner shadow */
     }
 
     .stTextInput > div > div > input:focus {
-        border-color: var(--emerald-dim) !important;
-        box-shadow: inset 0 5px 15px rgba(0,0,0,0.8), 0 0 15px rgba(80, 200, 120, 0.1);
+        border-color: var(--emerald-glow) !important;
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.9), 0 0 15px rgba(80, 200, 120, 0.1);
         color: #fff !important;
     }
     
-    /* Hide the default label to use our own custom header */
     .stTextInput label {
         display: none;
     }
 
-    /* --- THE HAMMER BUTTON --- */
+    /* --- THE ANVIL BUTTON --- */
+    .stButton {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
     .stButton > button {
         width: 100%;
-        background: linear-gradient(180deg, #1f2e26 0%, #0e1612 100%);
-        color: var(--text-main);
-        border: 1px solid var(--emerald-dim);
-        padding: 1.2rem;
+        max-width: 400px; /* Limit width to look like an object */
+        background: linear-gradient(180deg, #2a2a2a 0%, #0e0e0e 100%); /* Iron Gradient */
+        color: #aaa;
+        border: none;
+        padding: 1.5rem;
         font-family: 'Cinzel', serif;
-        font-weight: 700;
-        letter-spacing: 4px;
-        font-size: 1.1rem;
+        font-weight: 800;
+        letter-spacing: 5px;
+        font-size: 1.2rem;
         text-transform: uppercase;
         transition: all 0.2s ease;
-        margin-top: 1rem;
-        box-shadow: 0 4px 0 #0b110e; /* Physical button depth */
+        position: relative;
+        
+        /* THE ANVIL SHAPE */
+        clip-path: polygon(
+            5% 0%, 95% 0%,   /* Top flat */
+            100% 20%, 100% 80%, /* Sides flare out */
+            85% 100%, 15% 100%, /* Bottom base */
+            0% 80%, 0% 20%      /* Left side flare */
+        );
+        
+        border-top: 2px solid #444; /* Highlight on top edge */
     }
 
     .stButton > button:hover {
-        background: var(--emerald-dim);
-        color: #fff;
-        transform: translateY(2px); /* Press down effect */
-        box-shadow: 0 2px 0 #0b110e; /* Reduced shadow on press */
+        background: linear-gradient(180deg, #333 0%, #111 100%);
+        color: var(--emerald-glow);
         text-shadow: 0 0 10px rgba(80, 200, 120, 0.8);
-        border-color: var(--emerald-glow);
+        transform: scale(1.02); /* Slight swell */
     }
     
     .stButton > button:active {
-        transform: translateY(4px);
-        box-shadow: none;
+        transform: scale(0.98);
+        background: #000;
     }
 
     /* --- THE RESULT CARD (Obsidian Artifact) --- */
@@ -185,15 +198,30 @@ st.markdown("""
         line-height: 1.7;
     }
 
-    /* --- FOOTER RUNES (Decoration) --- */
-    .forge-runes {
-        text-align: center;
-        margin-top: 4rem;
+    /* --- FOOTER RUNES (Sequential Glow) --- */
+    .footer-container {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-top: 5rem;
+        position: relative;
+        z-index: 100;
+    }
+
+    .rune-span {
+        font-size: 1.5rem;
         color: var(--emerald-dim);
         opacity: 0.3;
-        letter-spacing: 2rem;
-        font-size: 1.2rem;
         user-select: none;
+        cursor: default;
+        
+        /* The Ripple Animation */
+        animation: rune-glow 4s infinite ease-in-out;
+    }
+
+    @keyframes rune-glow {
+        0%, 100% { color: var(--emerald-dim); opacity: 0.3; text-shadow: none; }
+        50% { color: var(--emerald-glow); opacity: 0.8; text-shadow: 0 0 10px var(--emerald-dim); }
     }
 
 </style>
@@ -245,15 +273,14 @@ st.page_link("home.py", label="< RETURN TO VAULT", use_container_width=False)
 st.markdown("<h1>THE NPC FORGE</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtext'>Inscribe the core concept to manifest a soul.</div>", unsafe_allow_html=True)
 
-# THE WORKSTATION (Input & Button)
-# Using a "Form" ensures the user can hit Enter to submit
+# THE WORKSTATION
 with st.form("forge_form"):
-    # Custom label via Markdown because we hid the default label in CSS
     st.markdown("<p style='font-family: Cinzel; color: #50c878; letter-spacing: 2px; font-size: 0.9rem; margin-bottom: 5px;'>CORE CONCEPT INSCRIPTION</p>", unsafe_allow_html=True)
     
     user_input = st.text_input("Concept", placeholder="e.g. A weary executioner who collects butterflies...")
     
-    submitted = st.form_submit_button("FORGE ENTITY")
+    # This button now looks like an ANVIL thanks to CSS
+    submitted = st.form_submit_button("STRIKE THE ANVIL")
 
 # -----------------------------------------------------------------------------
 # 5. GENERATION ENGINE
@@ -304,7 +331,7 @@ if submitted and user_input:
     except Exception as e:
         st.error(f"Save Failed: {e}")
 
-    # D. RENDER THE ARTIFACT (HTML Card)
+    # D. RENDER THE ARTIFACT
     st.markdown(f"""
     <div class="character-card">
         <div class="card-name">{char_data['Name']}</div>
@@ -326,5 +353,11 @@ if submitted and user_input:
     </div>
     """, unsafe_allow_html=True)
 
-# Footer Runes
-st.markdown("<div class='forge-runes'>ᚦ ᚱ ᛁ ᛉ ᛉ ᚨ ᚱ</div>", unsafe_allow_html=True)
+# Footer Runes (Animated)
+runes = ["ᚦ", "ᚱ", "ᛁ", "ᛉ", "ᛉ", "ᚨ", "ᚱ"]
+rune_html = "<div class='footer-container'>"
+for i, rune in enumerate(runes):
+    delay = i * 0.3
+    rune_html += f"<span class='rune-span' style='animation-delay: {delay}s'>{rune}</span>"
+rune_html += "</div>"
+st.markdown(rune_html, unsafe_allow_html=True)
