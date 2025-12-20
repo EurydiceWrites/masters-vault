@@ -14,7 +14,7 @@ import cloudinary.uploader
 st.set_page_config(page_title="The NPC Forge", layout="centered", page_icon="⚒️")
 
 # -----------------------------------------------------------------------------
-# 2. THE VISUAL ENGINE (The Obsidian Slab & Ghost Text)
+# 2. THE VISUAL ENGINE (Obsidian Slab & Split-Sentence Interaction)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -59,36 +59,30 @@ st.markdown("""
 
     /* --- THE IRON FORGE CONTAINER --- */
     [data-testid="stForm"] {
-        /* Background: Simulating dark, heavy metal without images */
         background: linear-gradient(135deg, var(--metal-dark) 0%, #000 100%);
-        
-        /* The Heavy Bevel Border */
         border: 1px solid #333;
         box-shadow: 
-            inset 1px 1px 0px rgba(255,255,255,0.1),  /* Top inner highlight */
-            inset -1px -1px 0px rgba(0,0,0,0.5),      /* Bottom inner shadow */
-            0 0 0 4px #0a0a0a,                        /* Outer dark ring */
-            0 10px 30px rgba(0,0,0,0.9);              /* Drop shadow */
+            inset 1px 1px 0px rgba(255,255,255,0.1), 
+            inset -1px -1px 0px rgba(0,0,0,0.5),      
+            0 0 0 4px #0a0a0a,                        
+            0 10px 30px rgba(0,0,0,0.9);              
             
-        padding: 0px !important; /* Remove padding so button hits the edges */
+        padding: 0px !important; 
         border-radius: 4px;
         margin-bottom: 2rem;
     }
 
-    /* --- THE INSCRIPTION AREA (Content Padding) --- */
-    /* We add padding back to the top part only */
+    /* --- CONTENT PADDING --- */
     [data-testid="stForm"] > div:nth-child(1) {
         padding: 3rem 2rem 2rem 2rem !important;
     }
 
-    /* --- GHOST INPUT FIELDS (Carved Slots) --- */
-    
-    /* 1. Base Input Styling */
+    /* --- GHOST INPUT FIELDS --- */
     .stTextInput > div > div > input {
         background-color: #050505 !important;
         border: 1px solid #333 !important;
         border-bottom: 1px solid #444 !important;
-        box-shadow: inset 0 5px 15px rgba(0,0,0,1) !important; /* Deep carved look */
+        box-shadow: inset 0 5px 15px rgba(0,0,0,1) !important;
         color: #d0d0d0 !important;
         font-family: 'Cormorant Garamond', serif;
         font-size: 1.4rem;
@@ -97,25 +91,25 @@ st.markdown("""
         transition: all 0.3s ease;
     }
 
-    /* 2. Ghost Text: Hidden by default */
+    /* GHOST TEXT LOGIC: Hidden by default */
     .stTextInput input::placeholder {
         color: transparent !important;
-        transition: color 0.4s ease-in-out;
+        transition: color 0.5s ease-in-out;
+        font-style: italic;
+        letter-spacing: 1px;
     }
 
-    /* 3. Ghost Text: Reveal on Hover or Focus */
+    /* REVEAL LOGIC: Visible on Hover or Focus */
     .stTextInput:hover input::placeholder, 
     .stTextInput input:focus::placeholder {
-        color: #444 !important; /* Subtle grey when revealed */
+        color: #444 !important; /* Ghostly Grey */
     }
 
-    /* 4. Focus State */
     .stTextInput > div > div > input:focus {
         border-color: var(--emerald-glow) !important;
         box-shadow: inset 0 5px 10px rgba(0,0,0,1), 0 0 15px rgba(80, 200, 120, 0.1) !important;
     }
     
-    /* Hide Labels */
     .stTextInput label { display: none; }
     [data-testid="InputInstructions"] { display: none !important; }
 
@@ -129,25 +123,23 @@ st.markdown("""
     .stButton > button {
         width: 100% !important;
         margin: 0 !important;
-        border-radius: 0 0 4px 4px !important; /* Match container corners */
+        border-radius: 0 0 4px 4px !important;
         background: linear-gradient(to bottom, #1a1a1a, #000) !important;
         border: none !important;
         border-top: 1px solid #333 !important;
         
-        /* Typography */
         font-family: 'Cinzel', serif !important;
         font-weight: 800 !important;
         letter-spacing: 6px !important;
         font-size: 1.2rem !important;
-        color: #555 !important; /* Dimmed state */
+        color: #555 !important;
         
-        height: 80px !important; /* Make it THICK */
+        height: 80px !important;
         transition: all 0.3s ease !important;
     }
 
-    /* HOVER STATE: The Furnace Ignites */
     .stButton > button:hover {
-        background: linear-gradient(to bottom, #0f2e1d, #05140d) !important; /* Deep Green Metal */
+        background: linear-gradient(to bottom, #0f2e1d, #05140d) !important;
         color: var(--emerald-glow) !important;
         border-top: 1px solid var(--emerald-glow) !important;
         text-shadow: 0 0 15px var(--emerald-glow);
@@ -178,7 +170,7 @@ st.markdown("""
     }
     
     /* --- NAVIGATION & FOOTER --- */
-    a[data-testid="stPageLink-NavLink"] { display: none; } /* Optional: Hide nav if unwanted */
+    a[data-testid="stPageLink-NavLink"] { display: none; }
     
     .footer-container {
         display: flex;
@@ -222,23 +214,25 @@ st.markdown("<div class='subtext'>Inscribe the soul. Strike the iron.</div>", un
 # THE OBSIDIAN SLAB CONTAINER
 with st.form("forge_form"):
     
-    # NEW IMMERSIVE LABEL
+    # 1. THE CALL (Label)
+    # This is always visible. It starts the sentence.
     st.markdown("""
         <p style='
             font-family: Cinzel; 
-            color: #444; 
+            color: #555; 
             text-align: center; 
             font-size: 1rem; 
             margin-bottom: 1rem; 
             letter-spacing: 4px; 
             text-transform: uppercase;
-            opacity: 0.7;'>
-            Whisper the Truth of the Soul
+            opacity: 0.8;'>
+            WHISPER THE DESIRE...
         </p>
     """, unsafe_allow_html=True)
     
-    # Input Area (Placeholder hidden until hover)
-    user_input = st.text_input("Concept", placeholder="e.g. A weary executioner who collects butterflies...")
+    # 2. THE RESPONSE (Ghost Text)
+    # This is invisible until hover. It completes the sentence.
+    user_input = st.text_input("Concept", placeholder="...AND THE VOID SHALL GIVE IT FORM.")
     
     # The Rune Button
     submitted = st.form_submit_button("STRIKE THE ANVIL")
@@ -301,7 +295,7 @@ if submitted and user_input:
     except Exception as e:
         st.error(f"Save Failed: {e}")
 
-    # RESULT CARD (Updated to match Slab Design)
+    # RESULT CARD
     st.markdown(f"""
     <div class="character-card">
         <div class="card-name">{char_data['Name']}</div>
