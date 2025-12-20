@@ -25,7 +25,6 @@ st.markdown("""
     }
 
     /* --- GLOBAL --- */
-    ::selection { background: var(--emerald-dim); color: var(--emerald-bright); }
     .stApp {
         background-color: #050505;
         background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #000 80%);
@@ -65,28 +64,24 @@ st.markdown("""
     }
     .stTextInput input::placeholder { color: #444 !important; font-style: italic; }
     .stTextInput:hover input { border-color: var(--emerald-glow) !important; }
-    .stTextInput label { display: none; }
 
-    /* --- ARCHIVE CARD (PREVIEW) --- */
+    /* --- ARCHIVE CARD (HTML Top Half) --- */
     .archive-card {
         background: #0e0e0e;
         border: 1px solid #222;
-        border-bottom: none; /* FLUSH WITH BUTTON */
+        border-bottom: none; /* Connects to button */
         border-top: 4px solid var(--emerald-dim);
         box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        transition: transform 0.3s ease;
         display: flex;
         flex-direction: column;
-        height: 600px; 
-        margin-bottom: 0px !important; 
-        border-radius: 4px 4px 0 0;
+        height: 600px; /* FIXED HEIGHT FOR ALIGNMENT */
+        margin-bottom: 0px !important;
     }
     .archive-card:hover {
         border-top: 4px solid var(--emerald-bright);
         box-shadow: 0 15px 50px rgba(0,0,0,1);
     }
 
-    /* 1. IMAGE */
     .img-frame { 
         width: 100%; 
         height: 400px; 
@@ -98,7 +93,6 @@ st.markdown("""
     .img-frame img { width: 100%; height: 100%; object-fit: cover; object-position: top; opacity: 0.95; transition: opacity 0.5s; }
     .img-frame:hover img { opacity: 1; transform: scale(1.02); }
 
-    /* 2. IDENTITY */
     .card-identity {
         padding: 1rem;
         text-align: center;
@@ -127,77 +121,78 @@ st.markdown("""
         opacity: 0.9;
     }
 
-    /* --- THE INSPECT BUTTON (SEAMLESS FOOTER) --- */
-    /* Removes all gaps to attach to card */
-    div[data-testid="column"] > div > div > div > div > div > button {
-        width: 100%;
-        background-color: #080808;
-        color: #666;
-        border: 1px solid #222;
-        border-top: 1px solid #1a1a1a;
-        border-radius: 0 0 4px 4px;
-        font-family: 'Cinzel', serif;
-        letter-spacing: 3px;
-        font-size: 0.9rem;
-        padding: 1rem;
-        margin-top: -16px; /* PULLS BUTTON UP TO TOUCH CARD */
-        transition: all 0.3s;
+    /* --- THE BUTTON OVERRIDE (Streamlit) --- */
+    /* This targets the actual button element */
+    div.stButton > button {
+        width: 100% !important;
+        border-radius: 0px !important; /* Square corners */
+        background-color: #0e0e0e !important;
+        color: #888 !important;
+        border: 1px solid #222 !important;
+        border-top: 1px solid #1a1a1a !important; /* Seamless connection */
+        font-family: 'Cinzel', serif !important; /* Theme Font */
+        letter-spacing: 2px !important;
+        font-size: 0.9rem !important;
+        padding: 1rem !important;
+        margin-top: 0px !important;
+        height: 60px !important; /* Fixed button height */
+        transition: all 0.3s ease !important;
     }
-    div[data-testid="column"] > div > div > div > div > div > button:hover {
-        color: var(--emerald-bright);
-        background-color: #151515;
-        border-color: #333;
-        text-shadow: 0 0 8px var(--emerald-dim);
+    div.stButton > button:hover {
+        color: var(--emerald-bright) !important;
+        border-color: #333 !important;
+        background-color: #151515 !important;
+        text-shadow: 0 0 8px var(--emerald-glow) !important;
+    }
+    div.stButton > button:focus {
+        border-color: var(--emerald-glow) !important;
+        color: var(--emerald-glow) !important;
     }
 
-    /* --- MODAL STYLING (THE TOME LAYOUT) --- */
+    /* --- MODAL STYLING (The Tome) --- */
+    /* Force Fonts inside the Pop-up */
     
-    /* Header (Right Side) */
-    .modal-header { text-align: left; border-bottom: 1px solid #333; padding-bottom: 1rem; margin-bottom: 1rem; }
-    .modal-name { font-family: 'Cinzel', serif; font-size: 2.8rem; color: #fff; margin: 0; line-height: 1; }
-    .modal-class { font-family: 'Cinzel', serif; font-size: 1rem; color: var(--emerald-bright); letter-spacing: 3px; text-transform: uppercase; margin-top: 10px; }
+    .modal-header { border-bottom: 1px solid #333; padding-bottom: 1rem; margin-bottom: 1rem; }
+    .modal-name { font-family: 'Cinzel', serif; font-size: 2.5rem; color: #fff; line-height: 1.1; margin-bottom: 5px;}
+    .modal-class { font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--emerald-bright); letter-spacing: 3px; text-transform: uppercase; }
     
-    /* Voice (Quote) */
     .modal-voice { 
         font-family: 'Cormorant Garamond', serif; 
         font-size: 1.4rem; 
         color: #e0e0e0; 
         font-style: italic;
         padding: 1.5rem;
-        background: #111;
-        border-left: 3px solid var(--emerald-glow);
-        margin-bottom: 2rem;
+        background: #0a0a0a;
+        border-left: 2px solid var(--emerald-glow);
+        margin-bottom: 1.5rem;
     }
     
-    /* Lore Text */
     .modal-lore { 
         font-family: 'Cormorant Garamond', serif; 
-        font-size: 1.15rem; 
+        font-size: 1.2rem; 
         color: #bbb; 
-        line-height: 1.8; 
+        line-height: 1.7; 
         text-align: justify; 
-        max-height: 400px;
-        overflow-y: auto;
-        padding-right: 15px;
     }
 
-    /* SCROLL INDICATOR ANIMATION */
-    .scroll-indicator {
-        text-align: center;
-        color: var(--emerald-glow);
-        font-size: 1.5rem;
-        margin-top: 1rem;
-        animation: bounce 2s infinite;
-        opacity: 0.7;
-    }
-    @keyframes bounce {
-        0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
-        40% {transform: translateY(-10px);}
-        60% {transform: translateY(-5px);}
+    .modal-visual {
+        font-family: 'Cormorant Garamond', serif; 
+        font-size: 0.95rem; 
+        color: #666; 
+        font-style: italic; 
+        margin-top: 10px;
+        border-top: 1px solid #222;
+        padding-top: 10px;
     }
 
-    /* Footer Meta */
-    .modal-meta { font-family: 'Lato', sans-serif; font-size: 0.7rem; color: #444; margin-top: 2rem; border-top: 1px solid #222; padding-top: 1rem;}
+    .modal-meta { 
+        font-family: 'Lato', sans-serif; 
+        font-size: 0.7rem; 
+        color: #444; 
+        margin-top: 2rem; 
+        border-top: 1px solid #222; 
+        padding-top: 1rem;
+    }
 
     /* Footer Runes */
     .footer-container { opacity: 0.3; text-align: center; margin-top: 4rem; padding-bottom: 2rem;}
@@ -251,28 +246,24 @@ except Exception as e:
     st.stop()
 
 # -----------------------------------------------------------------------------
-# 5. THE MODAL (POP UP FUNCTION) - NEW LAYOUT
+# 5. THE MODAL (POP UP FUNCTION)
 # -----------------------------------------------------------------------------
 @st.dialog("The Archive Opens...", width="large")
 def view_soul(row):
-    """
-    Renders the character sheet in a 2-column layout
-    """
     # Safe Image Handling
     img_src = row.get('Image_URL', '')
     if not str(img_src).startswith("http"):
         img_src = "https://via.placeholder.com/800x400?text=No+Visage"
 
-    # --- LAYOUT: 2 Columns (Image Left, Text Right) ---
     col1, col2 = st.columns([1, 1.4])
     
     with col1:
         st.image(img_src, use_container_width=True)
-        # Visual Description below image
-        st.markdown(f"<p style='color:#666; font-size:0.8rem; font-style:italic; margin-top:10px;'>{row['Visual_Desc']}</p>", unsafe_allow_html=True)
+        # Visual Description (Styled)
+        st.markdown(f"<div class='modal-visual'>{row['Visual_Desc']}</div>", unsafe_allow_html=True)
         
     with col2:
-        # Header
+        # Title Block
         st.markdown(f"""
             <div class="modal-header">
                 <div class="modal-name">{row['Name']}</div>
@@ -280,22 +271,17 @@ def view_soul(row):
             </div>
         """, unsafe_allow_html=True)
         
-        # Voice
+        # Voice Block
         st.markdown(f"""
             <div class="modal-voice">“{row['Greeting']}”</div>
         """, unsafe_allow_html=True)
         
-        # Lore with Scrollbar
+        # Lore Block
         st.markdown(f"""
             <div class="modal-lore">{row['Lore']}</div>
         """, unsafe_allow_html=True)
         
-        # SCROLL INDICATOR (The Bouncing Arrow)
-        st.markdown("""
-            <div class="scroll-indicator">⌄</div>
-        """, unsafe_allow_html=True)
-        
-        # Meta
+        # Meta Block
         st.markdown(f"""
             <div class="modal-meta">ACCESSION: {row.get('Timestamp', 'Unknown')}</div>
         """, unsafe_allow_html=True)
@@ -334,7 +320,7 @@ if not filtered_df.empty:
             img_src = "https://via.placeholder.com/400x500?text=No+Visage"
 
         with cols[col_index]:
-            # 1. THE VISUAL CARD
+            # 1. THE VISUAL CARD (Fixed Height HTML)
             html = ""
             html += '<div class="archive-card">'
             html += '<div class="img-frame">'
@@ -348,7 +334,8 @@ if not filtered_df.empty:
             
             st.markdown(html, unsafe_allow_html=True)
             
-            # 2. THE BUTTON (Seamless)
+            # 2. THE BUTTON (Styled to match)
+            # We use the rune ᛦ (Yr) which looks like a key/branch
             if st.button(f"INSPECT SOUL ᛦ", key=f"btn_{index}"):
                 view_soul(row)
 
