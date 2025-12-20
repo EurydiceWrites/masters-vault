@@ -173,11 +173,11 @@ col1, col2 = st.columns(2)
 
 # --- THE FIX: Pointing to the CORRECT file paths you have now ---
 with col1:
-    st.page_link("pages/1_the_forge.py", label="THE FORGE", use_container_width=True)
+    st.page_link("pages/2_the_forge.py", label="THE FORGE", use_container_width=True)
     st.markdown("<p style='text-align: center; color: #666; font-family: Cormorant Garamond; font-size: 1rem; margin-top: -15px;'>Strike the Iron</p>", unsafe_allow_html=True)
 
 with col2:
-    st.page_link("pages/2_library.py", label="THE ARCHIVES", use_container_width=True)
+    st.page_link("pages/3_library.py", label="THE ARCHIVES", use_container_width=True)
     st.markdown("<p style='text-align: center; color: #666; font-family: Cormorant Garamond; font-size: 1rem; margin-top: -15px;'>View the Souls</p>", unsafe_allow_html=True)
 
 # Footer
