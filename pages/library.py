@@ -75,7 +75,7 @@ st.markdown("""
         box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         margin-bottom: 2rem;
         transition: transform 0.3s ease;
-        height: 700px; /* Increased height for better visuals */
+        height: 850px; /* TALLER CARD */
         display: flex;
         flex-direction: column;
         overflow: hidden;
@@ -87,13 +87,13 @@ st.markdown("""
     }
 
     /* Card Components */
-    .card-header { background: #111; padding: 1rem; text-align: center; border-bottom: 1px solid #222; }
-    .card-name { font-family: 'Cinzel', serif; font-size: 1.6rem; color: #fff; letter-spacing: 2px; }
+    .card-header { background: #111; padding: 1.5rem; text-align: center; border-bottom: 1px solid #222; }
+    .card-name { font-family: 'Cinzel', serif; font-size: 1.6rem; color: #fff; letter-spacing: 2px; margin-bottom: 5px; }
     .card-class { font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--emerald-bright); letter-spacing: 1px; text-transform: uppercase; text-shadow: 0 0 5px rgba(102, 255, 153, 0.3); }
 
     .img-frame { 
         width: 100%; 
-        height: 250px; /* TALLER IMAGES */
+        height: 350px; /* MUCH TALLER IMAGE AREA */
         overflow: hidden; 
         border-bottom: 1px solid #222;
         position: relative;
@@ -109,21 +109,21 @@ st.markdown("""
     }
     .quote-text {
         font-family: 'Cormorant Garamond', serif;
-        font-size: 1.15rem;
+        font-size: 1.2rem;
         color: #d0d0d0;
         font-style: italic;
-        line-height: 1.3;
+        line-height: 1.4;
     }
 
     .lore-scroll {
         padding: 1.5rem;
         color: #999;
         font-family: 'Cormorant Garamond', serif;
-        font-size: 1.05rem;
+        font-size: 1.1rem;
         line-height: 1.6;
         overflow-y: auto; 
         flex-grow: 1;
-        text-align: left; /* LEFT ALIGNED FOR READABILITY */
+        text-align: left; /* FIXED ALIGNMENT */
     }
     /* Custom Scrollbar */
     .lore-scroll::-webkit-scrollbar { width: 6px; }
@@ -132,11 +132,11 @@ st.markdown("""
     .lore-scroll::-webkit-scrollbar-thumb:hover { background: var(--emerald-dim); }
 
     .footer-meta {
-        padding: 0.5rem;
+        padding: 0.8rem;
         background: #050505;
         text-align: center;
         font-family: 'Lato', sans-serif;
-        font-size: 0.7rem;
+        font-size: 0.75rem;
         color: #444;
         border-top: 1px solid #222;
     }
@@ -227,38 +227,37 @@ if not filtered_df.empty:
         # Safe Image Handling
         img_src = row.get('Image_URL', '')
         if not str(img_src).startswith("http"):
+            # Placeholder if image is missing/broken
             img_src = "https://via.placeholder.com/400x250?text=No+Visage"
 
-        # --- NUCLEAR OPTION: Line-by-Line HTML Construction ---
-        # This prevents Streamlit from interpreting indentation as a code block.
-        card_html = ""
-        card_html += f'<div class="archive-card">'
-        card_html += f'  <div class="card-header">'
-        card_html += f'    <div class="card-name">{row["Name"]}</div>'
-        card_html += f'    <div class="card-class">{row["Class"]}</div>'
-        card_html += f'  </div>'
+        # --- THE FIX: MANUAL STRING CONCATENATION ---
+        # This prevents Python from adding indentation to the string.
+        html = ""
+        html += '<div class="archive-card">'
+        html += '<div class="card-header">'
+        html += f'<div class="card-name">{row["Name"]}</div>'
+        html += f'<div class="card-class">{row["Class"]}</div>'
+        html += '</div>'
         
-        card_html += f'  <div class="img-frame">'
-        card_html += f'    <a href="{img_src}" target="_blank">'
-        card_html += f'      <img src="{img_src}" loading="lazy">'
-        card_html += f'    </a>'
-        card_html += f'  </div>'
+        html += '<div class="img-frame">'
+        html += f'<a href="{img_src}" target="_blank"><img src="{img_src}" loading="lazy"></a>'
+        html += '</div>'
         
-        card_html += f'  <div class="voice-snippet">'
-        card_html += f'    <div class="quote-text">“{row["Greeting"]}”</div>'
-        card_html += f'  </div>'
+        html += '<div class="voice-snippet">'
+        html += f'<div class="quote-text">“{row["Greeting"]}”</div>'
+        html += '</div>'
         
-        card_html += f'  <div class="lore-scroll">'
-        card_html += f'    {row["Lore"]}'
-        card_html += f'  </div>'
+        html += '<div class="lore-scroll">'
+        html += f'{row["Lore"]}'
+        html += '</div>'
         
-        card_html += f'  <div class="footer-meta">'
-        card_html += f'    ACCESSION: {row.get("Timestamp", "Unknown")}'
-        card_html += f'  </div>'
-        card_html += f'</div>'
+        html += '<div class="footer-meta">'
+        html += f'ACCESSION: {row.get("Timestamp", "Unknown")}'
+        html += '</div>'
+        html += '</div>'
         
         with cols[col_index]:
-            st.markdown(card_html, unsafe_allow_html=True)
+            st.markdown(html, unsafe_allow_html=True)
 
 else:
     st.markdown("<p style='text-align:center; color:#666;'>No souls answer to that name.</p>", unsafe_allow_html=True)
