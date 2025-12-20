@@ -27,8 +27,6 @@ st.markdown("""
         --stone-dark: #0e0e0e;
         --emerald-glow: #50c878;
         --emerald-dim: #2e5a44;
-        --iron-dark: #111;
-        --iron-light: #333;
     }
 
     /* --- BACKGROUND --- */
@@ -38,19 +36,6 @@ st.markdown("""
         color: #d0d0d0;
         font-family: 'Lato', sans-serif;
     }
-
-    /* --- NAVIGATION --- */
-    a[data-testid="stPageLink-NavLink"] {
-        background: transparent !important;
-        border: none !important;
-        padding: 0 !important;
-    }
-    a[data-testid="stPageLink-NavLink"] p {
-        color: #666;
-        font-family: 'Cinzel', serif;
-        font-size: 0.9rem;
-    }
-    a[data-testid="stPageLink-NavLink"]:hover p { color: var(--emerald-glow); }
 
     /* --- HEADER --- */
     h1 {
@@ -77,6 +62,16 @@ st.markdown("""
         padding-bottom: 2rem;
     }
 
+    /* --- NAVIGATION LINK --- */
+    a[data-testid="stPageLink-NavLink"] {
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+    }
+    a[data-testid="stPageLink-NavLink"] p {
+        color: #666;
+    }
+
     /* --- THE DARK ALTAR (Form Container) --- */
     [data-testid="stForm"] {
         background: #080808;
@@ -85,14 +80,6 @@ st.markdown("""
         border-radius: 4px;
         box-shadow: 0 20px 60px #000;
         position: relative;
-    }
-    
-    /* Screws/Rivets in corners */
-    [data-testid="stForm"]::before {
-        content: '+'; position: absolute; top: 10px; left: 15px; color: #333; font-family: 'Cinzel', serif;
-    }
-    [data-testid="stForm"]::after {
-        content: '+'; position: absolute; top: 10px; right: 15px; color: #333; font-family: 'Cinzel', serif;
     }
 
     /* --- INPUT FIELD --- */
@@ -104,34 +91,32 @@ st.markdown("""
         font-family: 'Lato', sans-serif;
         font-size: 1.1rem;
         padding: 1.5rem;
-        text-align: center; /* Center the typing */
+        text-align: center;
     }
-
     .stTextInput > div > div > input:focus {
         border-color: var(--emerald-dim) !important;
-        box-shadow: 0 0 15px rgba(80, 200, 120, 0.1);
     }
-    
     .stTextInput label { display: none; }
 
-    /* --- THE ANVIL BUTTON (CENTERED & SHAPED) --- */
+    /* --- THE ANVIL BUTTON (FORCED CENTERING) --- */
     
-    /* 1. Force the button container to center content */
+    /* 1. Target the button container to force Flex Center */
     .stButton {
-        display: flex;
-        justify-content: center;
+        display: flex !important;
+        justify-content: center !important;
+        width: 100% !important;
         margin-top: 2rem;
     }
 
-    /* 2. Shape the button like an ANVIL */
+    /* 2. Shape the button itself */
     .stButton > button {
-        width: 300px !important; /* Fixed width for shape stability */
-        height: 100px;
+        width: 300px !important;  /* Fixed width is required for the shape to look right */
+        height: 100px !important;
         background: radial-gradient(circle at 50% 0%, #3a3a3a 0%, #111 100%);
         color: #aaa;
         border: none;
         
-        /* THE ANVIL SILHOUETTE POLYGON */
+        /* THE ANVIL SILHOUETTE */
         clip-path: polygon(
             0% 0%, 100% 0%,    /* Top Face (Wide) */
             90% 40%, 90% 100%, /* Right Waist & Base */
@@ -143,10 +128,9 @@ st.markdown("""
         letter-spacing: 4px;
         font-size: 1.5rem;
         text-transform: uppercase;
-        padding-bottom: 10px; /* Push text up slightly */
+        padding-bottom: 10px;
         
-        /* Metallic styling */
-        box-shadow: inset 0 5px 10px rgba(255,255,255,0.1);
+        /* Transition */
         transition: all 0.2s ease;
     }
 
@@ -156,10 +140,6 @@ st.markdown("""
         text-shadow: 0 0 15px var(--emerald-glow);
         transform: scale(1.05);
     }
-    
-    .stButton > button:active {
-        transform: scale(0.95);
-    }
 
     /* --- RESULT CARD --- */
     .character-card {
@@ -168,7 +148,6 @@ st.markdown("""
         margin-top: 4rem;
         box-shadow: 0 0 50px #000;
     }
-    
     .card-name {
         font-family: 'Cinzel', serif;
         font-size: 2rem;
@@ -178,7 +157,6 @@ st.markdown("""
         border-bottom: 1px solid #222;
         letter-spacing: 3px;
     }
-    
     .visual-block {
         background-color: #080808;
         border-left: 2px solid var(--emerald-dim);
@@ -188,7 +166,6 @@ st.markdown("""
         margin: 1.5rem;
         font-family: 'Cormorant Garamond', serif;
     }
-    
     .lore-section {
         padding: 0 1.5rem 1.5rem 1.5rem;
         color: #888;
@@ -212,12 +189,11 @@ st.markdown("""
         0%, 100% { color: var(--emerald-dim); opacity: 0.3; text-shadow: none; }
         50% { color: var(--emerald-glow); opacity: 0.8; text-shadow: 0 0 10px var(--emerald-dim); }
     }
-
 </style>
 """, unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# 3. AUTH
+# 3. AUTH & LOGIC
 # -----------------------------------------------------------------------------
 def setup_auth():
     try:
@@ -248,10 +224,9 @@ st.markdown("<div class='subtext'>Inscribe the concept. Strike the anvil.</div>"
 with st.form("forge_form"):
     st.markdown("<p style='font-family: Cinzel; color: #444; text-align: center; font-size: 0.8rem; margin-bottom: 10px;'>INSCRIPTION</p>", unsafe_allow_html=True)
     
-    # Input
     user_input = st.text_input("Concept", placeholder="e.g. A weary executioner who collects butterflies...")
     
-    # The Anvil Button
+    # The Button - CSS will force this to center and look like an anvil
     submitted = st.form_submit_button("FORGE")
 
 # -----------------------------------------------------------------------------
