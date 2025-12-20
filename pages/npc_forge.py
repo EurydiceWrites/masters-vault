@@ -14,7 +14,7 @@ import cloudinary.uploader
 st.set_page_config(page_title="The NPC Forge", layout="centered", page_icon="⚒️")
 
 # -----------------------------------------------------------------------------
-# 2. THE VISUAL ENGINE
+# 2. THE VISUAL ENGINE (The Full Anvil)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -27,6 +27,7 @@ st.markdown("""
         --stone-dark: #0e0e0e;
         --emerald-glow: #50c878;
         --emerald-dim: #2e5a44;
+        --iron-gradient: linear-gradient(135deg, #2a2a2a 0%, #151515 50%, #0a0a0a 100%);
     }
 
     /* --- BACKGROUND --- */
@@ -57,88 +58,83 @@ st.markdown("""
         font-style: italic;
         color: #888;
         letter-spacing: 2px;
-        margin-bottom: 4rem; 
-        border-bottom: 1px solid #333;
-        padding-bottom: 2rem;
+        margin-bottom: 3rem; 
     }
 
-    /* --- NAVIGATION LINK --- */
+    /* --- NAVIGATION --- */
     a[data-testid="stPageLink-NavLink"] {
         background: transparent !important;
         border: none !important;
         padding: 0 !important;
     }
-    a[data-testid="stPageLink-NavLink"] p {
-        color: #666;
-    }
+    a[data-testid="stPageLink-NavLink"] p { color: #666; font-family: 'Cinzel', serif; font-size: 0.9rem; }
+    a[data-testid="stPageLink-NavLink"]:hover p { color: var(--emerald-glow); }
 
-    /* --- THE DARK ALTAR (Form Container) --- */
+    /* --- THE ANVIL CONTAINER (The Form) --- */
     [data-testid="stForm"] {
-        background: #080808;
-        border: 1px solid #222;
-        padding: 3rem;
-        border-radius: 4px;
-        box-shadow: 0 20px 60px #000;
-        position: relative;
+        background: var(--iron-gradient);
+        padding: 3rem 2rem 1rem 2rem; /* Extra top padding for the 'face' */
+        border: none;
+        
+        /* THE SHAPE: Wide Top, Narrow Waist, Wide Base */
+        clip-path: polygon(
+            0% 0%, 100% 0%,      /* Top Face */
+            95% 30%, 95% 70%,    /* Right Side Waist */
+            100% 100%, 0% 100%,  /* Base */
+            5% 70%, 5% 30%       /* Left Side Waist */
+        );
+        
+        /* Drop Shadow that follows the shape */
+        filter: drop-shadow(0 0 20px rgba(0,0,0,0.8));
     }
 
     /* --- INPUT FIELD --- */
     .stTextInput > div > div > input {
-        background-color: #000 !important; 
+        background-color: #080808 !important; 
         border: 1px solid #333 !important;
         border-top: 2px solid #000 !important;
         color: #e0e0e0 !important;
         font-family: 'Lato', sans-serif;
         font-size: 1.1rem;
-        padding: 1.5rem;
+        padding: 1rem;
         text-align: center;
+        margin-bottom: 1rem;
     }
     .stTextInput > div > div > input:focus {
         border-color: var(--emerald-dim) !important;
     }
     .stTextInput label { display: none; }
 
-    /* --- THE ANVIL BUTTON (FORCED CENTERING) --- */
-    
-    /* 1. Target the button container to force Flex Center */
+    /* --- THE BLACK FORGE BUTTON (The Base) --- */
     .stButton {
-        display: flex !important;
-        justify-content: center !important;
         width: 100% !important;
-        margin-top: 2rem;
+        margin-top: 1rem;
     }
 
-    /* 2. Shape the button itself */
     .stButton > button {
-        width: 300px !important;  /* Fixed width is required for the shape to look right */
-        height: 100px !important;
-        background: radial-gradient(circle at 50% 0%, #3a3a3a 0%, #111 100%);
-        color: #aaa;
-        border: none;
-        
-        /* THE ANVIL SILHOUETTE */
-        clip-path: polygon(
-            0% 0%, 100% 0%,    /* Top Face (Wide) */
-            90% 40%, 90% 100%, /* Right Waist & Base */
-            10% 100%, 10% 40%  /* Left Base & Waist */
-        );
-        
+        width: 100% !important;
+        background-color: #000 !important; /* Pure Black */
+        color: #666;
+        border: 1px solid #222;
+        padding: 1rem;
         font-family: 'Cinzel', serif;
         font-weight: 900;
         letter-spacing: 4px;
-        font-size: 1.5rem;
+        font-size: 1.2rem;
         text-transform: uppercase;
-        padding-bottom: 10px;
-        
-        /* Transition */
         transition: all 0.2s ease;
     }
 
     .stButton > button:hover {
         color: var(--emerald-glow);
-        background: radial-gradient(circle at 50% 0%, #4a5c52 0%, #0e1612 100%);
-        text-shadow: 0 0 15px var(--emerald-glow);
-        transform: scale(1.05);
+        border-color: var(--emerald-dim);
+        background-color: #050505 !important;
+        text-shadow: 0 0 10px var(--emerald-glow);
+    }
+    
+    .stButton > button:active {
+        background-color: #000 !important;
+        transform: translateY(2px);
     }
 
     /* --- RESULT CARD --- */
@@ -219,14 +215,16 @@ if not auth_success:
 st.page_link("home.py", label="< RETURN TO VAULT", use_container_width=False)
 
 st.markdown("<h1>THE NPC FORGE</h1>", unsafe_allow_html=True)
-st.markdown("<div class='subtext'>Inscribe the concept. Strike the anvil.</div>", unsafe_allow_html=True)
+st.markdown("<div class='subtext'>Inscribe the soul. Strike the iron.</div>", unsafe_allow_html=True)
 
+# THE ANVIL CONTAINER
 with st.form("forge_form"):
-    st.markdown("<p style='font-family: Cinzel; color: #444; text-align: center; font-size: 0.8rem; margin-bottom: 10px;'>INSCRIPTION</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-family: Cinzel; color: #444; text-align: center; font-size: 0.8rem; margin-bottom: 5px; opacity: 0.5;'>INSCRIPTION SURFACE</p>", unsafe_allow_html=True)
     
+    # Input Area (Top of Anvil)
     user_input = st.text_input("Concept", placeholder="e.g. A weary executioner who collects butterflies...")
     
-    # The Button - CSS will force this to center and look like an anvil
+    # The Black Button (Base of Anvil)
     submitted = st.form_submit_button("FORGE")
 
 # -----------------------------------------------------------------------------
@@ -234,7 +232,6 @@ with st.form("forge_form"):
 # -----------------------------------------------------------------------------
 if submitted and user_input:
     
-    # Text
     with st.spinner("Summoning the soul..."):
         try:
             if "GOOGLE_API_KEY" in st.secrets:
@@ -254,7 +251,6 @@ if submitted and user_input:
             st.error(f"Forging Failed: {e}")
             st.stop()
 
-    # Image
     with st.spinner("Conjuring the form..."):
         try:
             image_model = genai.GenerativeModel('models/gemini-3-pro-image-preview')
@@ -280,7 +276,6 @@ if submitted and user_input:
             st.error(f"Image Gen Failed: {e}")
             image_url = "https://via.placeholder.com/500?text=Error"
 
-    # Save
     try:
         sh = gc.open("Masters_Vault_Db")
         worksheet = sh.get_worksheet(0)
@@ -290,7 +285,6 @@ if submitted and user_input:
     except Exception as e:
         st.error(f"Save Failed: {e}")
 
-    # Render
     st.markdown(f"""
     <div class="character-card">
         <div class="card-name">{char_data['Name']}</div>
@@ -305,7 +299,6 @@ if submitted and user_input:
     </div>
     """, unsafe_allow_html=True)
 
-# Footer Runes
 runes = ["ᚦ", "ᚱ", "ᛁ", "ᛉ", "ᛉ", "ᚨ", "ᚱ"]
 rune_html = "<div class='footer-container'>"
 for i, rune in enumerate(runes):
