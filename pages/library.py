@@ -78,6 +78,8 @@ st.markdown("""
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        justify-content: space-between; 
+        min-height: 750px; 
     }
     .archive-card:hover {
         transform: translateY(-5px);
@@ -85,71 +87,91 @@ st.markdown("""
         box-shadow: 0 15px 50px rgba(0,0,0,1);
     }
 
-    /* 1. IMAGE (THE HERO) - NOW MUCH BIGGER */
+    /* 1. IMAGE (THE HERO) */
     .img-frame { 
         width: 100%; 
-        height: 400px; /* Massive Hero Image */
+        height: 450px; 
         overflow: hidden; 
         border-bottom: 1px solid #222;
         position: relative;
     }
-    .img-frame img { width: 100%; height: 100%; object-fit: cover; opacity: 0.9; transition: opacity 0.5s; }
+    .img-frame img { width: 100%; height: 100%; object-fit: cover; object-position: top; opacity: 0.95; transition: opacity 0.5s; }
     .img-frame:hover img { opacity: 1; transform: scale(1.02); }
 
     /* 2. IDENTITY (Title Area) */
     .card-identity {
-        padding: 1.5rem;
+        padding: 2rem 1.5rem;
         text-align: center;
         background: linear-gradient(180deg, #111 0%, #0e0e0e 100%);
-        border-bottom: 1px solid #222;
+        flex-grow: 1; 
     }
     .card-name { 
         font-family: 'Cinzel', serif; 
-        font-size: 1.8rem; 
+        font-size: 2rem; 
         color: #fff; 
         letter-spacing: 3px; 
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.8rem;
         text-shadow: 0 4px 10px #000;
+        line-height: 1.2;
     }
     .card-class { 
         font-family: 'Cinzel', serif; 
-        font-size: 0.85rem; 
+        font-size: 0.9rem; 
         color: var(--emerald-bright); 
         letter-spacing: 2px; 
         text-transform: uppercase; 
         opacity: 0.9;
     }
 
-    /* 3. THE EXPANDABLE SECTION (DETAILS TAG) */
+    /* 3. THE TOGGLE (Footer) */
     details {
-        background: #0a0a0a;
-        color: #888;
-        cursor: pointer;
-        transition: background 0.3s;
-    }
-    details[open] {
-        background: #050505; /* Darker when open */
+        background: #080808;
+        border-top: 1px solid #222;
+        margin-top: auto; 
     }
     
-    /* The Clickable Label */
     summary {
-        padding: 1rem;
+        padding: 1.5rem;
         text-align: center;
         font-family: 'Cinzel', serif;
-        font-size: 0.8rem;
-        letter-spacing: 2px;
+        font-size: 0.9rem;
+        letter-spacing: 3px;
         color: #555;
-        list-style: none; /* Hide default triangle */
-        outline: none;
-        border-top: 1px solid #222;
+        list-style: none;
+        cursor: pointer;
+        transition: all 0.3s;
     }
-    summary:hover { color: var(--emerald-glow); background: #111; }
-    summary::after { content: " ▼"; font-size: 0.7rem; }
-    details[open] summary::after { content: " ▲"; }
+    summary::-webkit-details-marker { display: none; } 
     
+    summary:hover { 
+        color: var(--emerald-bright); 
+        background: #151515;
+        text-shadow: 0 0 10px var(--emerald-dim);
+    }
+    
+    /* --- RUNE INDICATORS --- */
+    /* Closed state: ᛦ (Yr - Roots/Down) */
+    summary::after { 
+        content: " ᛦ"; 
+        font-size: 1.2rem; 
+        margin-left: 8px; 
+        vertical-align: middle; 
+        opacity: 0.7;
+    }
+    
+    /* Open state: ᛐ (Tyr - Spear/Up) */
+    details[open] summary::after { 
+        content: " ᛐ"; 
+        color: var(--emerald-bright);
+        text-shadow: 0 0 10px var(--emerald-bright);
+    }
+    
+    details[open] summary { border-bottom: 1px solid #222; color: var(--emerald-bright); }
+
     /* The Hidden Content */
     .hidden-content {
         padding: 0 1.5rem 1.5rem 1.5rem;
+        background: #0a0a0a;
         animation: fadeIn 0.5s;
     }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -162,7 +184,7 @@ st.markdown("""
     }
     .quote-text {
         font-family: 'Cormorant Garamond', serif;
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         color: #d0d0d0;
         font-style: italic;
     }
@@ -264,7 +286,7 @@ if not filtered_df.empty:
         
         img_src = row.get('Image_URL', '')
         if not str(img_src).startswith("http"):
-            img_src = "https://via.placeholder.com/400x400?text=No+Visage"
+            img_src = "https://via.placeholder.com/400x500?text=No+Visage"
 
         # --- LINE-BY-LINE HTML CONSTRUCTION ---
         html = ""
@@ -281,7 +303,7 @@ if not filtered_df.empty:
         html += f'<div class="card-class">{row["Class"]}</div>'
         html += '</div>'
         
-        # 3. DETAILS (Bottom - Expandable)
+        # 3. DETAILS (Bottom)
         html += '<details>'
         html += '<summary>INSPECT SOUL</summary>'
         html += '<div class="hidden-content">'
