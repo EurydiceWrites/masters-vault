@@ -23,191 +23,152 @@ st.markdown("""
 
     /* --- VARIABLES --- */
     :root {
-        --stone-bg: #1c1c1c;
-        --stone-dark: #0e0e0e;
+        --stone-bg: #111;
+        --metal-dark: #1a1a1a;
+        --metal-light: #2d2d2d;
         --emerald-glow: #50c878;
-        --emerald-dim: #2e5a44;
-        --text-main: #d0d0d0;
+        --emerald-dim: #1e3a2a;
     }
 
-    /* --- BACKGROUND --- */
+    /* --- PAGE BACKGROUND --- */
     .stApp {
-        background-color: var(--stone-dark);
-        /* Deep vignette to focus center */
-        background-image: radial-gradient(circle at 50% 30%, #222 0%, #000 90%);
-        color: var(--text-main);
-        font-family: 'Lato', sans-serif;
+        background-color: #050505;
+        background-image: radial-gradient(circle at 50% 0%, #1f2b24 0%, #000 80%);
     }
 
     /* --- HEADER --- */
     h1 {
         font-family: 'Cinzel', serif !important;
         text-transform: uppercase;
-        letter-spacing: 8px;
-        font-size: 3rem !important;
+        letter-spacing: 12px;
+        font-size: 3.5rem !important;
         color: var(--emerald-glow) !important;
-        text-shadow: 0 0 20px rgba(80, 200, 120, 0.4);
-        text-align: center;
+        text-shadow: 0 0 30px rgba(80, 200, 120, 0.4);
         margin-bottom: 0 !important;
+        text-align: center;
     }
 
     .subtext {
         text-align: center;
         font-family: 'Cormorant Garamond', serif;
         font-size: 1.2rem;
-        font-style: italic;
         color: #666;
-        letter-spacing: 2px;
-        margin-bottom: 3rem; 
+        font-style: italic;
+        margin-bottom: 3rem;
     }
 
-    /* --- NAVIGATION --- */
-    a[data-testid="stPageLink-NavLink"] {
-        background: transparent !important;
-        border: none !important;
-        padding: 0 !important;
-    }
-    a[data-testid="stPageLink-NavLink"] p { color: #555; font-family: 'Cinzel', serif; font-size: 0.9rem; transition: color 0.3s;}
-    a[data-testid="stPageLink-NavLink"]:hover p { color: var(--emerald-glow); }
-
-    /* --- THE OBSIDIAN SLAB (The Form Container) --- */
+    /* --- THE IRON FORGE CONTAINER --- */
     [data-testid="stForm"] {
-        background-color: #1a1a1a;
-        /* Subtle grit texture */
-        background-image: 
-            linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), 
-            linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-        background-size: 20px 20px;
+        /* Background: Simulating dark, heavy metal without images */
+        background: linear-gradient(135deg, var(--metal-dark) 0%, #000 100%);
         
-        /* The "Heavy Stone" Double Border */
-        border: 2px solid #333;
+        /* The Heavy Bevel Border */
+        border: 1px solid #333;
         box-shadow: 
-            0 0 0 6px #0e0e0e,           /* Outer black ring */
-            0 0 30px rgba(0,0,0,0.8);    /* Deep drop shadow */
-        
-        border-radius: 4px; /* Slight rounding, not sharp */
-        padding: 3rem 2.5rem !important; /* Luxury spacing */
+            inset 1px 1px 0px rgba(255,255,255,0.1),  /* Top inner highlight */
+            inset -1px -1px 0px rgba(0,0,0,0.5),      /* Bottom inner shadow */
+            0 0 0 4px #0a0a0a,                        /* Outer dark ring */
+            0 10px 30px rgba(0,0,0,0.9);              /* Drop shadow */
+            
+        padding: 0px !important; /* Remove padding so button hits the edges */
+        border-radius: 4px;
+        margin-bottom: 2rem;
     }
 
-    /* --- INPUT FIELD (The Carved Inscription) --- */
+    /* --- THE INSCRIPTION AREA (Content Padding) --- */
+    /* We add padding back to the top part only */
+    [data-testid="stForm"] > div:nth-child(1) {
+        padding: 3rem 2rem 2rem 2rem !important;
+    }
+
+    /* --- INPUT FIELDS (Carved Slots) --- */
     .stTextInput > div > div > input {
-        background-color: #0b0b0b !important; 
-        border: 1px solid #2a2a2a !important;
-        border-top: 1px solid #000 !important; /* Deepen top edge */
-        border-bottom: 1px solid #333 !important; /* Highlight bottom edge */
-        
-        /* INSET SHADOW makes it look carved into the stone */
-        box-shadow: inset 0 4px 8px rgba(0,0,0,0.8) !important;
-        
-        color: #e0e0e0 !important;
+        background-color: #050505 !important;
+        border: 1px solid #333 !important;
+        border-bottom: 1px solid #444 !important;
+        box-shadow: inset 0 5px 10px rgba(0,0,0,1) !important; /* Deep carved look */
+        color: #d0d0d0 !important;
         font-family: 'Cormorant Garamond', serif;
         font-size: 1.3rem;
-        padding: 1.5rem;
         text-align: center;
-        border-radius: 2px;
+        padding: 1rem;
     }
     .stTextInput > div > div > input:focus {
-        border-color: var(--emerald-dim) !important;
-        color: var(--emerald-glow) !important;
-        box-shadow: inset 0 4px 12px rgba(0,0,0,1), 0 0 10px rgba(80,200,120,0.1) !important;
+        border-color: var(--emerald-glow) !important;
+        box-shadow: inset 0 5px 10px rgba(0,0,0,1), 0 0 15px rgba(80, 200, 120, 0.1) !important;
     }
-    .stTextInput label { display: none; } /* Hide default label */
+    
+    /* Hide Labels */
+    .stTextInput label { display: none; }
     [data-testid="InputInstructions"] { display: none !important; }
 
-    /* --- THE BUTTON (The Rune Activation) --- */
-    /* Resetting the Anvil margins - we want a standard block now */
+    /* --- THE PRESSURE PLATE (Button) --- */
     .stButton {
         width: 100% !important;
-        margin-top: 2rem !important;
+        padding: 0 !important;
+        margin: 0 !important;
     }
 
     .stButton > button {
         width: 100% !important;
-        background: linear-gradient(180deg, #2a2a2a 0%, #151515 100%) !important;
-        border: 1px solid #444 !important;
-        border-bottom: 3px solid #000 !important; /* Heavy bottom for 3D feel */
-        color: #888 !important;
+        margin: 0 !important;
+        border-radius: 0 0 4px 4px !important; /* Match container corners */
+        background: linear-gradient(to bottom, #1a1a1a, #000) !important;
+        border: none !important;
+        border-top: 1px solid #333 !important;
         
+        /* Typography */
         font-family: 'Cinzel', serif !important;
-        font-weight: 700 !important;
-        letter-spacing: 4px !important;
-        font-size: 1.1rem !important;
-        padding: 1rem !important;
-        text-transform: uppercase !important;
+        font-weight: 800 !important;
+        letter-spacing: 6px !important;
+        font-size: 1.2rem !important;
+        color: #555 !important; /* Dimmed state */
+        
+        height: 80px !important; /* Make it THICK */
         transition: all 0.3s ease !important;
     }
 
-    /* HOVER: The Rune Glows */
+    /* HOVER STATE: The Furnace Ignites */
     .stButton > button:hover {
-        background: linear-gradient(180deg, #1f2e25 0%, #0e1a14 100%) !important;
-        border-color: var(--emerald-dim) !important;
+        background: linear-gradient(to bottom, #0f2e1d, #05140d) !important; /* Deep Green Metal */
         color: var(--emerald-glow) !important;
-        text-shadow: 0 0 10px var(--emerald-glow) !important;
-        box-shadow: 0 0 15px rgba(80, 200, 120, 0.2) !important;
-        transform: translateY(-1px);
+        border-top: 1px solid var(--emerald-glow) !important;
+        text-shadow: 0 0 15px var(--emerald-glow);
     }
     
     .stButton > button:active {
+        background: #000 !important;
+        color: #333 !important;
         transform: translateY(2px);
-        border-bottom: 1px solid #000 !important;
     }
 
     /* --- RESULT CARD --- */
     .character-card {
-        background: #111;
-        border: 1px solid #333;
-        border-top: 3px solid var(--emerald-dim); /* Color accent on top only */
-        margin-top: 4rem;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-        animation: fadein 1s;
-        position: relative;
+        background: #080808;
+        border: 1px solid #222;
+        box-shadow: 0 0 40px rgba(0,0,0,0.8);
+        border-left: 2px solid var(--emerald-dim);
+        padding-bottom: 1rem;
     }
-    @keyframes fadein { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
     .card-name {
+        background: #111;
+        color: #eee;
         font-family: 'Cinzel', serif;
-        font-size: 2.2rem;
-        color: #fff;
+        font-size: 1.8rem;
+        padding: 1rem;
         text-align: center;
-        padding: 2rem 1rem 1rem 1rem;
-        letter-spacing: 4px;
-        text-shadow: 0 4px 10px #000;
-    }
-    .visual-block {
-        background-color: #080808;
-        border-top: 1px solid #222;
         border-bottom: 1px solid #222;
-        padding: 1.5rem;
-        text-align: center;
-        font-style: italic;
-        color: #666;
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 1.1rem;
     }
-    .lore-section {
-        padding: 2rem;
-        color: #999;
-        line-height: 1.8;
-        font-size: 1.05rem;
-    }
-
-    /* --- FOOTER RUNES --- */
+    
+    /* --- NAVIGATION & FOOTER --- */
+    a[data-testid="stPageLink-NavLink"] { display: none; } /* Optional: Hide nav if unwanted */
+    
     .footer-container {
         display: flex;
         justify-content: center;
         gap: 2rem;
-        margin-top: 6rem;
-        padding-bottom: 2rem;
-    }
-    .rune-span {
-        font-size: 1.5rem;
-        color: #333;
-        cursor: default;
-        transition: color 0.5s;
-    }
-    .rune-span:hover {
-        color: var(--emerald-glow);
-        text-shadow: 0 0 10px var(--emerald-glow);
+        margin-top: 4rem;
+        opacity: 0.4;
     }
 </style>
 """, unsafe_allow_html=True)
