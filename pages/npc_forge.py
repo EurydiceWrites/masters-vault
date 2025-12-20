@@ -155,11 +155,11 @@ st.markdown("""
         display: block;
         opacity: 0.9;
         transition: all 0.5s ease;
-        cursor: zoom-in; /* Indicates clickability */
+        cursor: zoom-in;
     }
     .img-container img:hover {
         opacity: 1;
-        transform: scale(1.02); /* Slight zoom effect */
+        transform: scale(1.02);
     }
     .visual-caption {
         background: #080808;
@@ -320,31 +320,33 @@ if submitted and user_input:
     except Exception as e:
         st.error(f"Save Failed: {e}")
 
-    # RESULT CARD (RESTRUCTURED FOR NARRATIVE FLOW)
-    st.markdown(f"""
-    <div class="character-card">
-        <div class="card-header">
-            <div class="card-name">{char_data['Name']}</div>
-            <div class="card-class">{char_data['Class']}</div>
-        </div>
-        
-        <div class="img-container">
-            <a href="{image_url}" target="_blank">
-                <img src="{image_url}" title="Click to Expand">
-            </a>
-        </div>
-        <div class="visual-caption">"{char_data['Visual_Desc']}"</div>
-        
-        <div class="voice-section">
-            <div class="voice-quote">{char_data['Greeting']}</div>
-        </div>
-        
-        <div class="lore-section">
-            <span class="lore-label">Archive Record</span>
-            {char_data['Lore']}
-        </div>
+    # RESULT CARD (FIXED INDENTATION)
+    # The HTML block is intentionally un-indented to prevent Markdown from interpreting it as code.
+    html_block = f"""
+<div class="character-card">
+    <div class="card-header">
+        <div class="card-name">{char_data['Name']}</div>
+        <div class="card-class">{char_data['Class']}</div>
     </div>
-    """, unsafe_allow_html=True)
+    
+    <div class="img-container">
+        <a href="{image_url}" target="_blank">
+            <img src="{image_url}" title="Click to Expand">
+        </a>
+    </div>
+    <div class="visual-caption">"{char_data['Visual_Desc']}"</div>
+    
+    <div class="voice-section">
+        <div class="voice-quote">{char_data['Greeting']}</div>
+    </div>
+    
+    <div class="lore-section">
+        <span class="lore-label">Archive Record</span>
+        {char_data['Lore']}
+    </div>
+</div>
+"""
+    st.markdown(html_block, unsafe_allow_html=True)
 
 # FOOTER
 runes = ["ᚦ", "ᚱ", "ᛁ", "ᛉ", "ᛉ", "ᚨ", "ᚱ"]
