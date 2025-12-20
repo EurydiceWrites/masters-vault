@@ -14,7 +14,7 @@ import cloudinary.uploader
 st.set_page_config(page_title="The NPC Forge", layout="centered", page_icon="⚒️")
 
 # -----------------------------------------------------------------------------
-# 2. THE VISUAL ENGINE (The Obsidian Slab)
+# 2. THE VISUAL ENGINE (The Obsidian Slab & Ghost Text)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -81,18 +81,35 @@ st.markdown("""
         padding: 3rem 2rem 2rem 2rem !important;
     }
 
-    /* --- INPUT FIELDS (Carved Slots) --- */
+    /* --- GHOST INPUT FIELDS (Carved Slots) --- */
+    
+    /* 1. Base Input Styling */
     .stTextInput > div > div > input {
         background-color: #050505 !important;
         border: 1px solid #333 !important;
         border-bottom: 1px solid #444 !important;
-        box-shadow: inset 0 5px 10px rgba(0,0,0,1) !important; /* Deep carved look */
+        box-shadow: inset 0 5px 15px rgba(0,0,0,1) !important; /* Deep carved look */
         color: #d0d0d0 !important;
         font-family: 'Cormorant Garamond', serif;
-        font-size: 1.3rem;
+        font-size: 1.4rem;
         text-align: center;
-        padding: 1rem;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
     }
+
+    /* 2. Ghost Text: Hidden by default */
+    .stTextInput input::placeholder {
+        color: transparent !important;
+        transition: color 0.4s ease-in-out;
+    }
+
+    /* 3. Ghost Text: Reveal on Hover or Focus */
+    .stTextInput:hover input::placeholder, 
+    .stTextInput input:focus::placeholder {
+        color: #444 !important; /* Subtle grey when revealed */
+    }
+
+    /* 4. Focus State */
     .stTextInput > div > div > input:focus {
         border-color: var(--emerald-glow) !important;
         box-shadow: inset 0 5px 10px rgba(0,0,0,1), 0 0 15px rgba(80, 200, 120, 0.1) !important;
@@ -204,9 +221,23 @@ st.markdown("<div class='subtext'>Inscribe the soul. Strike the iron.</div>", un
 
 # THE OBSIDIAN SLAB CONTAINER
 with st.form("forge_form"):
-    st.markdown("<p style='font-family: Cinzel; color: #555; text-align: center; font-size: 0.9rem; margin-bottom: 1rem; letter-spacing: 2px;'>INSCRIPTION SURFACE</p>", unsafe_allow_html=True)
     
-    # Input Area (Now visually 'Carved' into the slab)
+    # NEW IMMERSIVE LABEL
+    st.markdown("""
+        <p style='
+            font-family: Cinzel; 
+            color: #444; 
+            text-align: center; 
+            font-size: 1rem; 
+            margin-bottom: 1rem; 
+            letter-spacing: 4px; 
+            text-transform: uppercase;
+            opacity: 0.7;'>
+            Whisper the Truth of the Soul
+        </p>
+    """, unsafe_allow_html=True)
+    
+    # Input Area (Placeholder hidden until hover)
     user_input = st.text_input("Concept", placeholder="e.g. A weary executioner who collects butterflies...")
     
     # The Rune Button
