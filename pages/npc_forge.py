@@ -1,155 +1,294 @@
 import streamlit as st
 import google.generativeai as genai
 from google.oauth2 import service_account
-from PIL import Image
 import io
 import gspread
 import json
 import datetime
 import cloudinary
 import cloudinary.uploader
-import pandas as pd
 
-# --- PAGE CONFIG ---
-st.set_page_config(page_title="NPC Forge", page_icon="🛡️", layout="wide")
-st.title("🛡️ NPC Forge")
-st.caption("The Character Foundry (Gemini 3 Pro + Cloudinary + DB)")
+# -----------------------------------------------------------------------------
+# 1. SETUP & CONFIG
+# -----------------------------------------------------------------------------
+st.set_page_config(page_title="Master's Vault", layout="centered", page_icon="⚔️")
 
-# --- 1. AUTHENTICATION (The Fix) ---
-try:
-    # We define the EXACT permissions we need
-    SCOPES = [
-        "https://www.googleapis.com/auth/spreadsheets",
-        "https://www.googleapis.com/auth/drive"
-    ]
+# -----------------------------------------------------------------------------
+# 2. THE VISUAL ENGINE (CSS INJECTION)
+# -----------------------------------------------------------------------------
+st.markdown("""
+<style>
+    /* --- FONTS --- */
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Lato:wght@400;700&display=swap');
 
-    if "gcp_service_account" in st.secrets:
-        service_account_info = st.secrets["gcp_service_account"]
-        # Create credentials with the specific SCOPES
-        creds = service_account.Credentials.from_service_account_info(
-            service_account_info,
-            scopes=SCOPES
-        )
-        gc = gspread.authorize(creds)
-    else:
-        st.error("🚨 Service Account Secrets missing.")
+    /* --- VARIABLES --- */
+    :root {
+        --stone-bg: #1c1c1c; /* Solid Dark Stone */
+        --stone-dark: #111111;
+        --emerald-glow: #50c878;
+        --emerald-dim: #2e5a44;
+        --text-main: #d0d0d0;
+        --border-color: #3a3a3a;
+    }
+
+    /* --- BACKGROUND (Solid Stone, No Sci-Fi Stars) --- */
+    .stApp {
+        background-color: var(--stone-dark);
+        background-image: radial-gradient(circle at center, #252525 0%, #0a0a0a 100%);
+        color: var(--text-main);
+        font-family: 'Lato', sans-serif;
+    }
+
+    /* --- HEADER (The Inscription) --- */
+    h1 {
+        font-family: 'Cinzel', serif !important;
+        text-transform: uppercase;
+        letter-spacing: 8px;
+        font-size: 3.5rem !important;
+        color: var(--emerald-glow) !important;
+        text-shadow: 0 5px 15px rgba(0,0,0,0.8);
+        text-align: center;
+        margin-bottom: 2rem !important; /* SEPARATION */
+        border-bottom: 1px solid var(--emerald-dim);
+        padding-bottom: 2rem;
+    }
+
+    /* --- THE RUNES (Decorative Separation) --- */
+    .rune-divider {
+        font-size: 1.2rem;
+        color: #444; /* Darker, etched look */
+        text-align: center;
+        letter-spacing: 2rem;
+        margin-bottom: 4rem; /* MASSIVE SPACE HERE */
+        font-family: sans-serif;
+        text-shadow: 0 1px 0 rgba(255,255,255,0.1);
+    }
+
+    /* --- SUBTEXT (Fantasy Flavor) --- */
+    .subtext {
+        text-align: center;
+        font-family: 'Cinzel', serif;
+        font-size: 0.9rem;
+        color: #666;
+        letter-spacing: 3px;
+        margin-bottom: 3rem; 
+        text-transform: uppercase;
+    }
+
+    /* --- INPUT FIELDS (Carved Stone Block) --- */
+    .stTextInput > div > div > input {
+        background-color: #222 !important; 
+        border: 2px solid #333 !important; /* Physical border, not glowing */
+        border-top: 4px solid #111 !important; /* Shadow effect */
+        color: #e0e0e0 !important;
+        font-family: 'Lato', sans-serif;
+        font-size: 1.1rem;
+        padding: 15px;
+        border-radius: 4px;
+        box-shadow: inset 0 5px 10px rgba(0,0,0,0.5); /* Inner shadow for depth */
+    }
+
+    .stTextInput > div > div > input:focus {
+        border-color: var(--emerald-dim) !important;
+        background-color: #252525 !important;
+    }
+
+    /* Label Styling */
+    .stTextInput label {
+        color: #888 !important;
+        font-family: 'Cinzel', serif !important;
+        letter-spacing: 1px;
+        margin-bottom: 15px;
+    }
+
+    /* --- BUTTONS (Physical Tablet) --- */
+    .stButton > button {
+        width: 100%;
+        background-color: #1a2e25; /* Dark Emerald Stone */
+        color: #ccc;
+        border: 1px solid #2e5a44;
+        border-bottom: 4px solid #11221a; /* 3D Effect */
+        padding: 1rem;
+        font-family: 'Cinzel', serif;
+        font-weight: 700;
+        letter-spacing: 3px;
+        transition: all 0.2s ease;
+        border-radius: 4px;
+        margin-top: 29px; /* Aligns with input box */
+        text-transform: uppercase;
+    }
+
+    .stButton > button:hover {
+        background-color: #2e5a44;
+        color: #fff;
+        transform: translateY(2px); /* Physical press effect */
+        border-bottom: 2px solid #11221a;
+    }
+    
+    /* --- CHARACTER CARD (Parchment/Stone Style) --- */
+    .character-card {
+        background-color: #181818;
+        border: 1px solid #333;
+        padding: 40px;
+        margin-top: 5rem; /* DISTANCE from input */
+        box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        border-radius: 4px;
+    }
+    
+    .card-name {
+        font-family: 'Cinzel', serif;
+        font-size: 2.5rem;
+        color: #e0e0e0;
+        text-align: center;
+        border-bottom: 1px solid #333;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+        letter-spacing: 2px;
+    }
+    
+    .visual-block {
+        background-color: #111;
+        border-left: 4px solid var(--emerald-dim);
+        padding: 20px;
+        font-style: italic;
+        color: #bbb;
+        margin: 20px 0;
+        line-height: 1.6;
+    }
+
+</style>
+""", unsafe_allow_html=True)
+
+# -----------------------------------------------------------------------------
+# 3. AUTH & LOGIC
+# -----------------------------------------------------------------------------
+def setup_auth():
+    try:
+        SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+        
+        if "gcp_service_account" in st.secrets:
+            creds = service_account.Credentials.from_service_account_info(
+                st.secrets["gcp_service_account"], scopes=SCOPES
+            )
+            gc = gspread.authorize(creds)
+        else:
+            return None, None, "Missing Google Secrets"
+
+        if "cloudinary" in st.secrets:
+            cloudinary.config(
+                cloud_name = st.secrets["cloudinary"]["cloud_name"],
+                api_key = st.secrets["cloudinary"]["api_key"],
+                api_secret = st.secrets["cloudinary"]["api_secret"],
+                secure = True
+            )
+        
+        if "GOOGLE_API_KEY" in st.secrets:
+            genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+            
+        return gc, True, "Success"
+    except Exception as e:
+        return None, False, str(e)
+
+# -----------------------------------------------------------------------------
+# 4. MAIN LAYOUT
+# -----------------------------------------------------------------------------
+def main():
+    gc, auth_success, auth_msg = setup_auth()
+
+    if not auth_success:
+        st.error(f"System Failure: {auth_msg}")
         st.stop()
 
-    # Cloudinary Auth
-    if "cloudinary" in st.secrets:
-        cloudinary.config(
-            cloud_name = st.secrets["cloudinary"]["cloud_name"],
-            api_key = st.secrets["cloudinary"]["api_key"],
-            api_secret = st.secrets["cloudinary"]["api_secret"],
-            secure = True
-        )
+    # --- HEADER SECTION ---
+    # 1. The Title
+    st.markdown("<h1>THE MASTER'S VAULT</h1>", unsafe_allow_html=True)
     
-    # Gemini API Auth
-    if "GOOGLE_API_KEY" in st.secrets:
-        genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-        
-except Exception as e:
-    st.error(f"Configuration Error: {e}")
-    st.stop()
+    # 2. The Subtext (Now Fantasy Themed)
+    st.markdown("<div class='subtext'>THE FORGE AWAITS YOUR COMMAND</div>", unsafe_allow_html=True)
 
-# --- INTERFACE ---
-col1, col2 = st.columns([1, 1.5])
+    # 3. The Divider (Visual separation)
+    st.markdown("<div class='rune-divider'>ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈ</div>", unsafe_allow_html=True)
 
-with col1:
-    st.markdown("### 1. The Concept")
-    user_input = st.text_area("Describe the character:", height=150, placeholder="E.g., A paranoid alchemist...")
-    summon_btn = st.button("Manifest Character", type="primary", use_container_width=True)
-
-if summon_btn and user_input:
+    # --- INPUT SECTION ---
+    col1, col2 = st.columns([3, 1])
     
-    character_data = None
-    image_url = "No Image"
-
-    # --- A. GENERATE TEXT (Gemini 3 Pro) ---
+    # Fix for the Indentation Error: Ensure everything inside 'with' is indented
+    with col1:
+        user_input = st.text_input("CORE CONCEPT", placeholder="e.g. A weary knight with a rusted shield...")
+    
     with col2:
-        with st.spinner("Summoning the backstory (Gemini 3 Pro)..."):
+        # Button text updated to "SUMMON CREATION"
+        generate_btn = st.button("SUMMON CREATION")
+
+    # --- GENERATION LOGIC ---
+    if generate_btn and user_input:
+        
+        # A. Text Generation
+        with st.spinner("Forging..."):
             try:
-                # STRICT MODEL SELECTION: Gemini 3 Pro Preview
                 text_model = genai.GenerativeModel('models/gemini-3-pro-preview')
-                
-                text_prompt = text_prompt = f"""
-    You are a gritty, Dark Fantasy creative assistant for a Dungeon Master.
-    
-    INSTRUCTIONS:
-    1.  **Role:** Generate a detailed NPC description based on this concept: "{user_input}".
-    2.  **Name:** Provide a **Norse-inspired name**, but strictly make it **easy to pronounce** (avoid excessive consonants or confusing spellings).
-    3.  **Tone:** Dark, gritty, realistic. No "high fantasy" whimsy[cite: 28].
-    4.  **Visuals:** Focus heavily on physical appearance (scars, armor texture, lighting) to help visualize the character[cite: 18].
-    5.  **RESTRICTIONS:** Do NOT generate combat stats (HP, AC, CR). Narrative only.
-    
-    6.  **FORMAT:** Return ONLY raw JSON with these exact keys:
-        {{
-            "Name": "Name here",
-            "Class": "Class/Role (e.g. Shield Maiden)",
-            "Visual_Desc": "3-4 sentences describing appearance, weapons, and grit.",
-            "Lore": "A brief, dark backstory involving their motive.",
-            "Greeting": "One sentence of dialogue they might say."
-        }}
-    """
+                text_prompt = f"""
+                Role: Dark Fantasy DM Assistant.
+                Task: Create a detailed NPC based on: "{user_input}".
+                Rules: Norse-inspired name (EASY to pronounce). Dark, gritty tone. No Stats.
+                Format: JSON with keys: Name, Class, Visual_Desc, Lore, Greeting.
+                """
                 text_response = text_model.generate_content(text_prompt)
                 clean_json = text_response.text.replace("```json", "").replace("```", "").strip()
-                character_data = json.loads(clean_json)
-                
-                st.subheader(f"📜 {character_data['Name']}")
-                st.caption(f"Class: {character_data['Class']}")
-                st.write(f"**Lore:** {character_data['Lore']}")
-                st.info(f"**Greeting:** \"{character_data['Greeting']}\"")
+                char_data = json.loads(clean_json)
             except Exception as e:
-                st.error(f"Lore Generation Failed: {e}")
+                st.error(f"Text Gen Failed: {e}")
                 st.stop()
 
-    # --- B. GENERATE & UPLOAD IMAGE (Gemini 3 Pro Image) ---
-    with col1:
-        st.markdown("---")
-        with st.spinner("Conjuring the form..."):
+        # B. Image Generation
+        with st.spinner("Summoning Visuals..."):
             try:
-                # STRICT MODEL SELECTION: Gemini 3 Pro Image
                 image_model = genai.GenerativeModel('models/gemini-3-pro-image-preview')
-                
-                desc = character_data.get("Visual_Desc", user_input)
-                # Updated to enforce Norse aesthetic, gritty texture, and photo-realism
-                image_prompt = f"A hyper-realistic photograph of a dark fantasy character, {desc}. Norse mythology aesthetic, gritty textures, dramatic cinematic lighting, 8k resolution, highly detailed, and a setting the fits the context"
-                
-                img_response = image_model.generate_content(image_prompt)
+                img_prompt = f"Hyper-realistic photograph, dark fantasy, {char_data['Visual_Desc']}, Norse aesthetic, gritty, 8k, cinematic lighting."
+                img_response = image_model.generate_content(img_prompt)
                 
                 if img_response.parts:
-                    # 1. Get Data
-                    img_data = img_response.parts[0].inline_data.data
-                    
-                    # 2. Upload to Cloudinary
-                    upload_result = cloudinary.uploader.upload(io.BytesIO(img_data), folder="masters_vault_npcs")
+                    img_bytes = img_response.parts[0].inline_data.data
+                    upload_result = cloudinary.uploader.upload(io.BytesIO(img_bytes), folder="masters_vault_npcs")
                     image_url = upload_result.get("secure_url")
-                    
-                    # 3. Show
-                    st.image(image_url, caption=character_data['Name'], use_container_width=True)
                 else:
-                    st.warning("Visual manifestation failed.")
+                    image_url = "https://via.placeholder.com/500?text=Manifestation+Failed"
             except Exception as e:
-                st.error(f"Image Error: {e}")
+                st.error(f"Image Gen Failed: {e}")
+                image_url = "https://via.placeholder.com/500?text=Error"
 
-    # --- C. SAVE TO DB ---
-    if character_data:
+        # C. Save to DB
         try:
-            # Connects to Masters_Vault_Db
             sh = gc.open("Masters_Vault_Db")
             worksheet = sh.get_worksheet(0)
-            
-            row_data = [
-                character_data['Name'],
-                character_data['Class'],
-                character_data['Lore'],
-                character_data['Greeting'],
-                character_data['Visual_Desc'],
-                image_url,
-                str(datetime.datetime.now())
-            ]
+            row_data = [char_data['Name'], char_data['Class'], char_data['Lore'], char_data['Greeting'], char_data['Visual_Desc'], image_url, str(datetime.datetime.now())]
             worksheet.append_row(row_data)
-            st.toast("Saved to Vault!", icon="💾")
-        except Exception as sheet_error:
-            st.error(f"Database Error: {sheet_error}")
-            st.warning("Double check: Did you share 'Masters_Vault_Db' with the robot email?")
+            st.toast("Saved to the Vault", icon="⚔️")
+        except Exception as e:
+            st.error(f"Save Failed: {e}")
+
+        # D. HTML Injection for the Card
+        st.markdown(f"""
+        <div class="character-card">
+            <div class="card-name">{char_data['Name']}</div>
+            
+            <div style="border: 4px solid #111; padding: 0; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
+                <img src="{image_url}" style="width: 100%; display: block; opacity: 1.0;">
+            </div>
+            
+            <div class="visual-block">
+                <span style="font-size: 0.7rem; color: #50c878; display: block; margin-bottom: 8px; font-family: Cinzel; letter-spacing: 2px;">VISUAL DESCRIPTION</span>
+                {char_data['Visual_Desc']}
+            </div>
+            
+            <div style="margin-top: 30px; font-size: 0.95rem; line-height: 1.6; color: #aaa;">
+                <strong style="color: #50c878; font-family: Cinzel;">CLASS:</strong> {char_data['Class']}<br><br>
+                <strong style="color: #50c878; font-family: Cinzel;">GREETING:</strong> "{char_data['Greeting']}"<br><br>
+                <strong style="color: #50c878; font-family: Cinzel;">LORE:</strong><br>
+                {char_data['Lore']}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+if __name__ == "__main__":
+    main()
