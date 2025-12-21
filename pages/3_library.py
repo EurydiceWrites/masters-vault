@@ -24,6 +24,7 @@ st.markdown("""
         --emerald-dim: #1e3a2a;
         --destruct-red: #8b0000;
         --destruct-bright: #ff4500;
+        --nav-gold: #d4af37; /* Divine Gold */
     }
 
     /* --- GLOBAL --- */
@@ -55,6 +56,23 @@ st.markdown("""
         color: #888;
         font-style: italic;
         margin-bottom: 3rem;
+    }
+
+    /* --- NAVIGATION LINK (GOLD HOVER) --- */
+    a[data-testid="stPageLink-NavLink"] {
+        background: transparent !important;
+        border: none !important;
+    }
+    a[data-testid="stPageLink-NavLink"] p {
+        color: #666;
+        font-family: 'Cinzel', serif;
+        font-size: 0.9rem;
+        transition: color 0.3s, text-shadow 0.3s;
+    }
+    /* THE GOLD UPDATE */
+    a[data-testid="stPageLink-NavLink"]:hover p { 
+        color: var(--nav-gold) !important;
+        text-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
     }
 
     /* --- SEARCH BAR --- */
@@ -101,7 +119,7 @@ st.markdown("""
         width: 100%; 
         height: 100%; 
         object-fit: cover; 
-        object-position: top center; /* Fixes Headless Gorm */
+        object-position: top center; 
         opacity: 0.95; 
         transition: opacity 0.5s; 
     }
@@ -130,7 +148,7 @@ st.markdown("""
         text-shadow: 0 4px 10px #000;
         line-height: 1.2;
         display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-        min-height: 3.4rem; /* Reserve space */
+        min-height: 3.4rem; 
         display: flex; align-items: center; justify-content: center;
     }
 
@@ -148,7 +166,6 @@ st.markdown("""
     }
 
     /* --- BUTTON STYLES --- */
-    /* Primary (Inspect / Save) - Emerald Glow */
     button[kind="primary"] {
         background: transparent !important; border: none !important; color: #555 !important;
         font-family: 'Cinzel', serif !important; font-size: 1.1rem !important; padding: 0 !important;
@@ -159,16 +176,15 @@ st.markdown("""
         color: var(--emerald-bright) !important; text-shadow: 0 0 15px var(--emerald-glow);
         transform: scale(1.05); background: transparent !important;
     }
-    
-    /* Secondary (Burn / Tag Icon) - Red/Orange Glow */
+
     button[kind="secondary"] {
         background: transparent !important; border: none !important; color: #444 !important;
         font-size: 1.5rem !important; padding: 0 !important; height: 60px !important;
         width: 100% !important; transition: all 0.4s ease !important; box-shadow: none !important;
     }
     button[kind="secondary"]:hover {
-        color: var(--destruct-bright) !important; text-shadow: 0 0 10px var(--destruct-red);
-        transform: scale(1.2) rotate(0deg); background: transparent !important;
+        color: var(--destruct-bright) !important;
+        transform: scale(1.2); background: transparent !important;
     }
 
     /* --- MODAL STYLING --- */
@@ -217,13 +233,10 @@ except Exception as e:
     st.stop()
 
 # -----------------------------------------------------------------------------
-# 5. THE MODAL (POP UP FUNCTION) - CLEAN (No Edits)
+# 5. THE MODAL (POP UP FUNCTION) - CLEAN
 # -----------------------------------------------------------------------------
 @st.dialog("The Archive Opens...", width="large")
 def view_soul(row, index_in_sheet):
-    """
-    Shows pure details. Edits happen in the popover.
-    """
     img_src = row.get('Image_URL', '')
     if not str(img_src).startswith("http"):
         img_src = "https://via.placeholder.com/800x400?text=No+Visage"
@@ -258,7 +271,9 @@ def view_soul(row, index_in_sheet):
 # -----------------------------------------------------------------------------
 # 6. LAYOUT & GRID
 # -----------------------------------------------------------------------------
+# --- GOLD NAVIGATION ARROW ---
 st.page_link("1_the_vault.py", label="< RETURN TO HALL", use_container_width=False)
+
 st.markdown("<h1>THE ARCHIVES OF THE LOST</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtext'>That which is remembered, lives forever.</div>", unsafe_allow_html=True)
 
@@ -311,7 +326,6 @@ if not filtered_df.empty:
         if not str(img_src).startswith("http"):
             img_src = "https://via.placeholder.com/400x500?text=No+Visage"
 
-        # --- CLOUDINARY AI FACE CROP (HIGH RES) ---
         if "cloudinary" in img_src and "/upload/" in img_src:
             img_src = img_src.replace("/upload/", "/upload/c_fill,g_face,w_800,h_600/")
 
@@ -323,13 +337,11 @@ if not filtered_df.empty:
             html += '</div>'
             html += '<div class="card-identity">'
             
-            # Identity Top: Name + Class
             html += '<div class="identity-top">'
             html += f'<div class="card-name">{row["Name"]}</div>'
             html += f'<div class="card-class">{row["Class"]}</div>'
             html += '</div>'
             
-            # Identity Bottom: Pill Tag
             if row.get('Campaign'):
                  html += f'<div class="tag-pill">{row["Campaign"]}</div>'
             else:
@@ -339,24 +351,21 @@ if not filtered_df.empty:
             html += '</div>' 
             st.markdown(html, unsafe_allow_html=True)
             
-            # FLOATING ACTIONS (3 COLUMNS)
-            # Layout: 60% Inspect | 20% Edit Tags | 20% Burn
+            # ACTIONS
             b_col1, b_col2, b_col3 = st.columns([0.6, 0.2, 0.2])
             
             with b_col1:
-                # INSPECT - Uses 'Primary' (Emerald Glow)
                 if st.button(f"INSPECT ᛦ", key=f"inspect_{index}", type="primary", use_container_width=True):
                     view_soul(row, index)
             
-            # --- QUICK EDIT POPOVER (The Quill) ---
+            # QUICK EDIT (Quill)
             with b_col2:
-                # Uses a Popover with Quill Icon
                 with st.popover("✒️", use_container_width=True):
                     st.caption(f"Inscribe Tags: {row['Name']}")
                     p_campaign = st.text_input("Campaign", value=row.get('Campaign', ''), key=f"pc_{index}")
                     p_faction = st.text_input("Faction", value=row.get('Faction', ''), key=f"pf_{index}")
                     
-                    # SAVE BUTTON - Uses 'Primary' (Emerald Glow)
+                    # SAVE = Primary (Emerald)
                     if st.button("Save", key=f"psave_{index}", type="primary"):
                         try:
                             sheet_row = index + 2
@@ -368,7 +377,6 @@ if not filtered_df.empty:
                             st.error(f"Error: {e}")
 
             with b_col3:
-                # BURN - Uses 'Secondary' (Red/Orange Glow)
                 if st.button("ᚺ", key=f"burn_{index}", type="secondary", use_container_width=True, help="Burn Soul"):
                     try:
                         worksheet.delete_rows(index + 2)
