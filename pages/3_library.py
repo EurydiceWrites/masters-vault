@@ -69,8 +69,8 @@ st.markdown("""
 
     header[data-testid="stHeader"] { background: transparent; }
 
-    /* --- UNIFIED INPUT FIELDS (Search + Popover) --- */
-    /* Forces ALL text inputs to match the theme */
+    /* --- UNIFIED INPUT FIELDS (LEFT ALIGNED) --- */
+    /* Forces ALL text inputs (Search & Popover) to match the theme */
     div[data-baseweb="input"] > div {
         background-color: #0e0e0e !important;
         border: 1px solid #333 !important;
@@ -78,6 +78,13 @@ st.markdown("""
         color: #e0e0e0 !important;
         font-family: 'Cinzel', serif !important;
     }
+    
+    /* CRITICAL FIX: Left Align Text for proper form feel */
+    input[type="text"] {
+        text-align: left !important; 
+        padding-left: 15px !important;
+    }
+
     /* Focus State - Emerald Glow */
     div[data-baseweb="input"] > div:focus-within {
         border-color: var(--emerald-glow) !important;
@@ -179,7 +186,7 @@ st.markdown("""
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     
-    /* --- PROCEDURAL PILLS (SIMPLE & CLEAN) --- */
+    /* --- PILLS (PROCEDURAL TEXTURE) --- */
     .pill-container {
         display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; width: 100%;
         margin-top: 0.5rem;
@@ -258,7 +265,6 @@ st.markdown("""
     }
 
     /* --- MODAL STYLING --- */
-    /* Target the dialog content */
     div[role="dialog"] {
         background-color: #0e0e0e !important;
         border: 1px solid #333 !important;
@@ -450,9 +456,7 @@ if not filtered_df.empty:
             # QUICK EDIT (Quill)
             with b_col2:
                 with st.popover("✒️", use_container_width=True):
-                    # No caption needed with clear headers
-                    
-                    # CLEAN HEADERS
+                    # Clean Headers
                     st.markdown("<span style='color:#888; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px; border-bottom:1px solid #333; display:block; margin-bottom:4px;'>CAMPAIGN</span>", unsafe_allow_html=True)
                     p_campaign = st.text_input("Campaign", value=row.get('Campaign', ''), key=f"pc_{index}", label_visibility="collapsed")
                     
