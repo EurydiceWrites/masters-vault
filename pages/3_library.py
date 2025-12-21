@@ -24,9 +24,13 @@ st.markdown("""
         --emerald-dim: #1e3a2a;
         --destruct-red: #8b0000;
         --destruct-bright: #ff4500;
-        --nav-gold: #d4af37; /* Divine Gold */
+        --nav-gold: #d4af37; 
         --gold-glow: rgba(212, 175, 55, 0.6);
-        --stone-grey: #888;
+        
+        /* Tag Colors */
+        --tag-stone: #888;       /* Campaign */
+        --tag-purple: #9d4edd;   /* Faction (Amethyst) */
+        --tag-purple-dim: #2e1a47; 
     }
 
     /* --- GLOBAL --- */
@@ -87,7 +91,7 @@ st.markdown("""
         box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         display: flex;
         flex-direction: column;
-        height: 540px !important; /* Adjusted for pills */
+        height: 540px !important; 
         margin-bottom: 0px !important;
         overflow: hidden;
     }
@@ -136,29 +140,29 @@ st.markdown("""
         margin-top: 0.5rem;
     }
 
-    /* Base Pill Shape (Shared) */
+    /* Base Pill Shape */
     .pill-base {
         display: inline-block;
-        background: #151515; /* Dark neutral background */
+        background: #151515; 
         font-family: 'Lato', sans-serif;
         font-size: 0.65rem;
         text-transform: uppercase;
         letter-spacing: 1px;
         padding: 4px 12px;
-        border-radius: 12px; /* Smooth pill shape */
-        min-width: 60px; /* Uniform width minimum */
+        border-radius: 12px; 
+        min-width: 60px;
     }
 
-    /* Variant 1: Campaign (Grey Theme) */
+    /* Variant 1: Campaign (Stone Grey) */
     .pill-campaign {
         border: 1px solid #444;
-        color: #999;
+        color: var(--tag-stone);
     }
 
-    /* Variant 2: Faction (Green Theme) */
+    /* Variant 2: Faction (Amethyst Purple) */
     .pill-faction {
-        border: 1px solid #1e3a2a;
-        color: #50c878;
+        border: 1px solid var(--tag-purple-dim);
+        color: var(--tag-purple);
     }
 
     /* --- BUTTONS --- */
@@ -359,13 +363,11 @@ if not filtered_df.empty:
             html += f'<div class="card-class">{row["Class"]}</div>'
             html += '</div>'
             
-            # --- DUAL PILLS ---
+            # --- DUAL PILLS (COLOR CODED) ---
             html += '<div class="pill-container">'
             if row.get('Campaign'):
-                 # Campaign = Grey Pill
                  html += f'<div class="pill-base pill-campaign">{row["Campaign"]}</div>'
             if row.get('Faction'):
-                 # Faction = Green Pill
                  html += f'<div class="pill-base pill-faction">{row["Faction"]}</div>'
             if not row.get('Campaign') and not row.get('Faction'):
                  html += f'<div class="pill-base pill-campaign" style="opacity:0;">EMPTY</div>'
@@ -387,11 +389,13 @@ if not filtered_df.empty:
                 with st.popover("✒️", use_container_width=True):
                     st.caption(f"Inscribe Tags: {row['Name']}")
                     
-                    # COLOR CODED INPUTS (Learning Aid)
-                    st.markdown("<span style='color:#999; font-size:0.8rem; font-family:Cinzel;'>CAMPAIGN (GREY)</span>", unsafe_allow_html=True)
+                    # COLOR CODED INPUT HEADERS (Learning Aid)
+                    # Campaign = Stone Grey
+                    st.markdown("<span style='color:#888; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px;'>CAMPAIGN (GREY)</span>", unsafe_allow_html=True)
                     p_campaign = st.text_input("Campaign", value=row.get('Campaign', ''), key=f"pc_{index}", label_visibility="collapsed")
                     
-                    st.markdown("<span style='color:#50c878; font-size:0.8rem; font-family:Cinzel;'>FACTION (GREEN)</span>", unsafe_allow_html=True)
+                    # Faction = Amethyst Purple
+                    st.markdown("<span style='color:#9d4edd; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px;'>FACTION (PURPLE)</span>", unsafe_allow_html=True)
                     p_faction = st.text_input("Faction", value=row.get('Faction', ''), key=f"pf_{index}", label_visibility="collapsed")
                     
                     if st.button("Save", key=f"psave_{index}", type="primary"):
