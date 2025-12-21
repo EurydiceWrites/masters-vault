@@ -25,6 +25,7 @@ st.markdown("""
         --destruct-red: #8b0000;
         --destruct-bright: #ff4500;
         --nav-gold: #d4af37; /* Divine Gold */
+        --gold-glow: rgba(212, 175, 55, 0.6);
     }
 
     /* --- GLOBAL --- */
@@ -58,10 +59,10 @@ st.markdown("""
         margin-bottom: 3rem;
     }
 
-    /* --- NAVIGATION LINK (GOLD HOVER) --- */
+    /* --- NAVIGATION LINK --- */
     a[data-testid="stPageLink-NavLink"] { background: transparent !important; border: none !important; }
-    a[data-testid="stPageLink-NavLink"] p { color: #666; font-family: 'Cinzel', serif; font-size: 0.9rem; transition: color 0.3s, text-shadow 0.3s; }
-    a[data-testid="stPageLink-NavLink"]:hover p { color: var(--nav-gold) !important; text-shadow: 0 0 10px rgba(212, 175, 55, 0.6); }
+    a[data-testid="stPageLink-NavLink"] p { color: #666; font-family: 'Cinzel', serif; font-size: 0.9rem; transition: color 0.3s; }
+    a[data-testid="stPageLink-NavLink"]:hover p { color: var(--nav-gold) !important; text-shadow: 0 0 10px var(--gold-glow); }
 
     /* --- SEARCH BAR --- */
     .stTextInput > div > div > input {
@@ -76,7 +77,7 @@ st.markdown("""
         letter-spacing: 2px;
     }
 
-    /* --- ARCHIVE CARD (GRID LOCK) --- */
+    /* --- ARCHIVE CARD --- */
     .archive-card {
         background: #0e0e0e;
         border: 1px solid #222;
@@ -85,7 +86,7 @@ st.markdown("""
         box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         display: flex;
         flex-direction: column;
-        height: 520px !important; /* FIXED HEIGHT */
+        height: 520px !important;
         margin-bottom: 0px !important;
         overflow: hidden;
     }
@@ -96,48 +97,30 @@ st.markdown("""
 
     /* Image Frame */
     .img-frame { 
-        width: 100%; 
-        height: 300px; 
-        overflow: hidden; 
-        border-bottom: 1px solid #222; 
-        position: relative; 
-        flex-shrink: 0;
+        width: 100%; height: 300px; overflow: hidden; 
+        border-bottom: 1px solid #222; position: relative; flex-shrink: 0;
     }
     .img-frame img { 
-        width: 100%; 
-        height: 100%; 
-        object-fit: cover; 
-        object-position: top center; 
-        opacity: 0.95; 
-        transition: opacity 0.5s; 
+        width: 100%; height: 100%; object-fit: cover; object-position: top center; 
+        opacity: 0.95; transition: opacity 0.5s; 
     }
     .img-frame:hover img { opacity: 1; transform: scale(1.02); }
 
     /* Identity Section */
     .card-identity {
-        padding: 1rem 0.5rem; 
-        text-align: center;
+        padding: 1rem 0.5rem; text-align: center;
         background: linear-gradient(180deg, #111 0%, #0e0e0e 100%);
-        flex-grow: 1; 
-        display: flex; 
-        flex-direction: column; 
-        justify-content: space-between; 
-        align-items: center;
-        gap: 0.5rem;
+        flex-grow: 1; display: flex; flex-direction: column; 
+        justify-content: space-between; align-items: center; gap: 0.5rem;
     }
 
     .identity-top { width: 100%; display: flex; flex-direction: column; gap: 0.2rem; }
 
     .card-name { 
-        font-family: 'Cinzel', serif; 
-        font-size: 1.4rem; 
-        color: #fff; 
-        letter-spacing: 1px; 
-        text-shadow: 0 4px 10px #000;
-        line-height: 1.2;
+        font-family: 'Cinzel', serif; font-size: 1.4rem; color: #fff; letter-spacing: 1px; 
+        text-shadow: 0 4px 10px #000; line-height: 1.2;
         display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-        min-height: 3.4rem; 
-        display: flex; align-items: center; justify-content: center;
+        min-height: 3.4rem; display: flex; align-items: center; justify-content: center;
     }
 
     .card-class { 
@@ -146,15 +129,13 @@ st.markdown("""
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     
-    /* Pill Tag */
     .tag-pill {
         display: inline-block; background: #1a1a1a; border: 1px solid #333; color: #666;
         font-family: 'Lato', sans-serif; font-size: 0.65rem; text-transform: uppercase;
         letter-spacing: 1px; padding: 4px 12px; border-radius: 12px; margin-top: 0.5rem;
     }
 
-    /* --- BUTTON STYLES --- */
-    /* Primary (Inspect / Save) - Emerald Glow */
+    /* --- BUTTON CLASS 1: PRIMARY (EMERALD) --- */
     button[kind="primary"] {
         background: transparent !important; border: none !important; color: #555 !important;
         font-family: 'Cinzel', serif !important; font-size: 1.1rem !important; padding: 0 !important;
@@ -166,7 +147,7 @@ st.markdown("""
         transform: scale(1.05); background: transparent !important;
     }
 
-    /* Secondary (Burn / Default) - Red/Orange Glow */
+    /* --- BUTTON CLASS 2: SECONDARY (RED) --- */
     button[kind="secondary"] {
         background: transparent !important; border: none !important; color: #444 !important;
         font-size: 1.5rem !important; padding: 0 !important; height: 60px !important;
@@ -177,23 +158,26 @@ st.markdown("""
         transform: scale(1.2); background: transparent !important;
     }
 
-    /* --- THE POPOVER OVERRIDE (FIXING THE RED ARROW) --- */
-    /* We force the Popover Button to ignore the "Secondary=Red" rule */
+    /* --- BUTTON CLASS 3: DIVINE (GOLD POPOVER) --- */
+    /* Target the button inside the popover container */
     [data-testid="stPopover"] > button {
-        color: var(--nav-gold) !important;
-        border-color: transparent !important;
+        background: transparent !important;
+        border: none !important;
+        color: #555 !important; /* Default Dim */
+        height: 60px !important;
+        width: 100% !important;
+        transition: all 0.3s ease !important;
     }
-    /* On Hover: Glow Gold, not Red */
+    /* When Hovered: Turn Gold */
     [data-testid="stPopover"] > button:hover {
         color: var(--nav-gold) !important;
-        text-shadow: 0 0 10px rgba(212, 175, 55, 0.8) !important;
-        transform: scale(1.2) !important;
-        background: transparent !important;
+        text-shadow: 0 0 10px var(--gold-glow) !important;
+        transform: scale(1.1) !important;
     }
-    /* Force the Icon SVG to be Gold */
+    /* Force the SVG Icon (Arrow) to match text color */
     [data-testid="stPopover"] > button svg {
-        fill: var(--nav-gold) !important;
-        stroke: var(--nav-gold) !important;
+        fill: currentColor !important;
+        stroke: currentColor !important;
     }
 
     /* --- MODAL STYLING --- */
@@ -283,7 +267,6 @@ def view_soul(row, index_in_sheet):
 # -----------------------------------------------------------------------------
 # 6. LAYOUT & GRID
 # -----------------------------------------------------------------------------
-# --- GOLD NAVIGATION ARROW ---
 st.page_link("1_the_vault.py", label="< RETURN TO HALL", use_container_width=False)
 
 st.markdown("<h1>THE ARCHIVES OF THE LOST</h1>", unsafe_allow_html=True)
@@ -367,17 +350,17 @@ if not filtered_df.empty:
             b_col1, b_col2, b_col3 = st.columns([0.6, 0.2, 0.2])
             
             with b_col1:
+                # CLASS 1: PRIMARY (Inspect)
                 if st.button(f"INSPECT ᛦ", key=f"inspect_{index}", type="primary", use_container_width=True):
                     view_soul(row, index)
             
-            # QUICK EDIT (Quill - Gold)
             with b_col2:
+                # CLASS 3: DIVINE (Gold Popover)
                 with st.popover("✒️", use_container_width=True):
                     st.caption(f"Inscribe Tags: {row['Name']}")
                     p_campaign = st.text_input("Campaign", value=row.get('Campaign', ''), key=f"pc_{index}")
                     p_faction = st.text_input("Faction", value=row.get('Faction', ''), key=f"pf_{index}")
                     
-                    # SAVE = Primary (Emerald)
                     if st.button("Save", key=f"psave_{index}", type="primary"):
                         try:
                             sheet_row = index + 2
@@ -389,6 +372,7 @@ if not filtered_df.empty:
                             st.error(f"Error: {e}")
 
             with b_col3:
+                # CLASS 2: SECONDARY (Burn)
                 if st.button("ᚺ", key=f"burn_{index}", type="secondary", use_container_width=True, help="Burn Soul"):
                     try:
                         worksheet.delete_rows(index + 2)
