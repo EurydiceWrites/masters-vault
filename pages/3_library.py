@@ -135,7 +135,7 @@ st.markdown("""
         letter-spacing: 1px; padding: 4px 12px; border-radius: 12px; margin-top: 0.5rem;
     }
 
-    /* --- BUTTON CLASS 1: PRIMARY (EMERALD) --- */
+    /* --- BUTTON CLASS 1: PRIMARY (INSPECT) --- */
     button[kind="primary"] {
         background: transparent !important; border: none !important; color: #555 !important;
         font-family: 'Cinzel', serif !important; font-size: 1.1rem !important; padding: 0 !important;
@@ -147,7 +147,8 @@ st.markdown("""
         transform: scale(1.05); background: transparent !important;
     }
 
-    /* --- BUTTON CLASS 2: SECONDARY (RED) --- */
+    /* --- BUTTON CLASS 2: SECONDARY (BURN ONLY) --- */
+    /* This rule makes Secondary buttons Red by default */
     button[kind="secondary"] {
         background: transparent !important; border: none !important; color: #444 !important;
         font-size: 1.5rem !important; padding: 0 !important; height: 60px !important;
@@ -155,29 +156,32 @@ st.markdown("""
     }
     button[kind="secondary"]:hover {
         color: var(--destruct-bright) !important;
+        text-shadow: 0 0 10px var(--destruct-red) !important;
         transform: scale(1.2); background: transparent !important;
     }
 
-    /* --- BUTTON CLASS 3: DIVINE (GOLD POPOVER) --- */
-    /* Target the button inside the popover container */
-    [data-testid="stPopover"] > button {
+    /* --- BUTTON CLASS 3: DIVINE (GOLD POPOVER OVERRIDE) --- */
+    /* WE USE !important TO CRUSH THE RED HOVER EFFECT */
+    
+    div[data-testid="stPopover"] button {
+        color: var(--nav-gold) !important;
+        border-color: transparent !important;
         background: transparent !important;
-        border: none !important;
-        color: #555 !important; /* Default Dim */
-        height: 60px !important;
-        width: 100% !important;
-        transition: all 0.3s ease !important;
     }
-    /* When Hovered: Turn Gold */
-    [data-testid="stPopover"] > button:hover {
+    
+    div[data-testid="stPopover"] button:hover {
         color: var(--nav-gold) !important;
         text-shadow: 0 0 10px var(--gold-glow) !important;
-        transform: scale(1.1) !important;
+        transform: scale(1.2) !important;
+        background: transparent !important;
+        /* Explicitly reset the Red settings */
+        box-shadow: none !important;
     }
-    /* Force the SVG Icon (Arrow) to match text color */
-    [data-testid="stPopover"] > button svg {
-        fill: currentColor !important;
-        stroke: currentColor !important;
+
+    /* Force the Icon SVG to be Gold */
+    div[data-testid="stPopover"] button svg {
+        fill: var(--nav-gold) !important;
+        color: var(--nav-gold) !important;
     }
 
     /* --- MODAL STYLING --- */
