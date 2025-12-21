@@ -27,10 +27,9 @@ st.markdown("""
         --nav-gold: #d4af37; 
         --gold-glow: rgba(212, 175, 55, 0.6);
         
-        /* Material Colors */
-        --text-stone: #666;      /* Etched Grey */
-        --text-metal: #e0e0e0;   /* Polished Silver */
-        --border-metal: #888;    /* Steel Edge */
+        /* Material Text Colors */
+        --text-stone: #6a6a6a;   /* Deep Warm Grey */
+        --text-metal: #b0c4de;   /* Light Steel Blue */
     }
 
     /* --- GLOBAL --- */
@@ -134,40 +133,43 @@ st.markdown("""
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     
-    /* --- MATERIAL PILLS --- */
+    /* --- TEXTURE PILLS --- */
     .pill-container {
-        display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; width: 100%;
+        display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; width: 100%;
         margin-top: 0.5rem;
     }
 
-    /* Shared Shape */
+    /* Shared Geometry */
     .pill-base {
         display: inline-block;
         font-family: 'Lato', sans-serif;
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        padding: 4px 12px;
-        border-radius: 4px; /* Sharper corners for a harder look */
-        min-width: 60px;
+        letter-spacing: 2px; 
+        padding: 6px 14px;
+        border-radius: 4px;
+        border: none !important; 
     }
 
     /* TEXTURE 1: STONE (Campaign) */
-    /* Matte, flat, dark, etched text */
+    /* Concept: "Hewn from Rock" - Matte, Recessed */
     .pill-stone {
-        background: #111; /* Pitch black/stone */
-        border: 1px solid #333; /* Dark dull border */
-        color: var(--text-stone); /* Dim grey text */
-        box-shadow: inset 0 0 5px #000; /* Inset shadow to look carved */
+        background: #181818; 
+        color: var(--text-stone); 
+        /* Heavy INSET shadow makes it look carved IN */
+        box-shadow: inset 2px 2px 5px rgba(0,0,0,1), inset -1px -1px 2px rgba(255,255,255,0.05);
     }
 
     /* TEXTURE 2: METAL (Faction) */
-    /* Shiny, Gradient, Silver Text */
+    /* Concept: "Forged Steel" - Shiny, Raised */
     .pill-metal {
-        background: linear-gradient(145deg, #2a2a2a, #111); /* Metallic sheen gradient */
-        border: 1px solid var(--border-metal); /* Bright steel border */
-        color: var(--text-metal); /* Bright silver text */
-        text-shadow: 0 0 2px rgba(255,255,255,0.3); /* Slight metallic glow */
+        /* Diagonal Gradient simulates light reflection */
+        background: linear-gradient(135deg, #2a2a2a 0%, #3d3d3d 50%, #2a2a2a 100%);
+        color: var(--text-metal);
+        /* Subtle DROP shadow makes it look pinned ON */
+        box-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+        /* Slight text shadow for glow */
+        text-shadow: 0 0 2px rgba(176, 196, 222, 0.3);
     }
 
     /* --- BUTTONS --- */
@@ -368,13 +370,13 @@ if not filtered_df.empty:
             html += f'<div class="card-class">{row["Class"]}</div>'
             html += '</div>'
             
-            # --- STONE & METAL PILLS ---
+            # --- TEXTURE PILLS (STONE & METAL) ---
             html += '<div class="pill-container">'
             if row.get('Campaign'):
-                 # STONE: Dark, Matte, Etched
+                 # STONE: Hewn, Matte
                  html += f'<div class="pill-base pill-stone">{row["Campaign"]}</div>'
             if row.get('Faction'):
-                 # METAL: Shiny, Silver, Bright
+                 # METAL: Forged, Shiny
                  html += f'<div class="pill-base pill-metal">{row["Faction"]}</div>'
             if not row.get('Campaign') and not row.get('Faction'):
                  html += f'<div class="pill-base pill-stone" style="opacity:0;">EMPTY</div>'
@@ -396,11 +398,11 @@ if not filtered_df.empty:
                 with st.popover("✒️", use_container_width=True):
                     st.caption(f"Inscribe Tags: {row['Name']}")
                     
-                    # TEXTURE CODED INPUT HEADERS
-                    st.markdown("<span style='color:#666; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px;'>CAMPAIGN (STONE)</span>", unsafe_allow_html=True)
+                    # TEXTURE CODED HEADERS (Learning Aid)
+                    st.markdown("<span style='color:#6a6a6a; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px;'>CAMPAIGN (STONE)</span>", unsafe_allow_html=True)
                     p_campaign = st.text_input("Campaign", value=row.get('Campaign', ''), key=f"pc_{index}", label_visibility="collapsed")
                     
-                    st.markdown("<span style='color:#ccc; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px; text-shadow: 0 0 5px #fff;'>FACTION (METAL)</span>", unsafe_allow_html=True)
+                    st.markdown("<span style='color:#b0c4de; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px;'>FACTION (METAL)</span>", unsafe_allow_html=True)
                     p_faction = st.text_input("Faction", value=row.get('Faction', ''), key=f"pf_{index}", label_visibility="collapsed")
                     
                     if st.button("Save", key=f"psave_{index}", type="primary"):
