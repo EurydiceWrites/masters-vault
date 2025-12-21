@@ -69,10 +69,16 @@ st.markdown("""
         font-size: 0.9rem;
         transition: color 0.3s, text-shadow 0.3s;
     }
-    /* THE GOLD UPDATE */
     a[data-testid="stPageLink-NavLink"]:hover p { 
         color: var(--nav-gold) !important;
         text-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+    }
+
+    /* --- POPOVER ARROW (GOLD) --- */
+    /* Targets the SVG arrow inside the popover button */
+    [data-testid="stPopover"] > button svg {
+        fill: var(--nav-gold) !important;
+        color: var(--nav-gold) !important;
     }
 
     /* --- SEARCH BAR --- */
@@ -166,6 +172,7 @@ st.markdown("""
     }
 
     /* --- BUTTON STYLES --- */
+    /* Primary (Inspect / Save) - Emerald Glow */
     button[kind="primary"] {
         background: transparent !important; border: none !important; color: #555 !important;
         font-family: 'Cinzel', serif !important; font-size: 1.1rem !important; padding: 0 !important;
@@ -177,6 +184,7 @@ st.markdown("""
         transform: scale(1.05); background: transparent !important;
     }
 
+    /* Secondary (Burn / Tag Icon) - Red/Orange Glow */
     button[kind="secondary"] {
         background: transparent !important; border: none !important; color: #444 !important;
         font-size: 1.5rem !important; padding: 0 !important; height: 60px !important;
@@ -237,6 +245,9 @@ except Exception as e:
 # -----------------------------------------------------------------------------
 @st.dialog("The Archive Opens...", width="large")
 def view_soul(row, index_in_sheet):
+    """
+    Shows pure details. Edits happen in the popover.
+    """
     img_src = row.get('Image_URL', '')
     if not str(img_src).startswith("http"):
         img_src = "https://via.placeholder.com/800x400?text=No+Visage"
