@@ -70,7 +70,7 @@ st.markdown("""
         letter-spacing: 2px;
     }
 
-    /* --- ARCHIVE CARD --- */
+    /* --- ARCHIVE CARD (GEOMETRY LOCK) --- */
     .archive-card {
         background: #0e0e0e;
         border: 1px solid #222;
@@ -79,33 +79,92 @@ st.markdown("""
         box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         display: flex;
         flex-direction: column;
-        height: 550px; 
+        /* FIXED HEIGHT to ensure alignment across rows */
+        height: 560px !important; 
         margin-bottom: 0px !important;
+        overflow: hidden;
     }
     .archive-card:hover {
         border-top: 4px solid var(--emerald-bright);
         box-shadow: 0 15px 50px rgba(0,0,0,1);
     }
 
+    /* Image Frame - Strictly 320px */
     .img-frame { 
-        width: 100%; height: 380px; overflow: hidden; 
-        border-bottom: 1px solid #222; position: relative; flex-shrink: 0;
+        width: 100%; 
+        height: 320px; 
+        overflow: hidden; 
+        border-bottom: 1px solid #222; 
+        position: relative; 
+        flex-shrink: 0;
     }
-    .img-frame img { width: 100%; height: 100%; object-fit: cover; object-position: top; opacity: 0.95; transition: opacity 0.5s; }
+    .img-frame img { 
+        width: 100%; 
+        height: 100%; 
+        object-fit: cover; /* Ensures image fills box without stretching */
+        object-position: top; 
+        opacity: 0.95; 
+        transition: opacity 0.5s; 
+    }
     .img-frame:hover img { opacity: 1; transform: scale(1.02); }
 
+    /* Identity Section - Strictly 240px remaining */
     .card-identity {
-        padding: 1rem; text-align: center;
+        padding: 1rem 0.5rem; 
+        text-align: center;
         background: linear-gradient(180deg, #111 0%, #0e0e0e 100%);
-        flex-grow: 1; display: flex; flex-direction: column; justify-content: center;
+        flex-grow: 1; 
+        display: flex; 
+        flex-direction: column; 
+        justify-content: flex-start; /* Align content to top */
+        gap: 0.5rem;
     }
+
+    /* Name: Limit to 2 lines, overflow ellipsis */
     .card-name { 
-        font-family: 'Cinzel', serif; font-size: 1.5rem; color: #fff; 
-        letter-spacing: 1px; margin-bottom: 0.5rem; text-shadow: 0 4px 10px #000;
+        font-family: 'Cinzel', serif; 
+        font-size: 1.4rem; 
+        color: #fff; 
+        letter-spacing: 1px; 
+        text-shadow: 0 4px 10px #000;
+        line-height: 1.2;
+        
+        /* Truncate logic */
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        height: 3.4rem; /* Fixed height for 2 lines */
     }
+
+    /* Class: Limit to 1 line */
     .card-class { 
-        font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--emerald-bright); 
-        letter-spacing: 2px; text-transform: uppercase; opacity: 0.9;
+        font-family: 'Cinzel', serif; 
+        font-size: 0.8rem; 
+        color: var(--emerald-bright); 
+        letter-spacing: 2px; 
+        text-transform: uppercase; 
+        opacity: 0.9;
+        
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Pill Tag for Campaign */
+    .tag-pill {
+        display: inline-block;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        color: #888;
+        font-family: 'Lato', sans-serif;
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 2px 8px;
+        border-radius: 12px;
+        margin-top: auto; /* Pushes to bottom of container */
+        align-self: center;
     }
 
     /* --- FLOATING BUTTON STYLES --- */
@@ -247,15 +306,13 @@ st.sidebar.header("📜 Filter Archives")
 if not df.empty:
     campaigns = ["All"]
     if 'Campaign' in df.columns:
-        # FIX: We forcibly convert 'x' to string 'str(x)' before checking conditions
-        # This prevents the TypeError when sorting a mix of Strings and Empty/NaN values
+        # Sort fix for mixed types
         unique_cams = sorted([str(x) for x in df['Campaign'].unique() if str(x).strip() != "" and str(x).lower() != "nan"])
         campaigns.extend(unique_cams)
     sel_campaign = st.sidebar.selectbox("Campaign", campaigns)
     
     factions = ["All"]
     if 'Faction' in df.columns:
-        # FIX: Same fix applied here
         unique_facs = sorted([str(x) for x in df['Faction'].unique() if str(x).strip() != "" and str(x).lower() != "nan"])
         factions.extend(unique_facs)
     sel_faction = st.sidebar.selectbox("Faction", factions)
@@ -269,12 +326,10 @@ search_query = st.text_input("Search the Archives", placeholder="Speak the name,
 filtered_df = df.copy()
 
 if sel_campaign != "All":
-    # Ensure column is string type for comparison safety
     filtered_df['Campaign'] = filtered_df['Campaign'].astype(str)
     filtered_df = filtered_df[filtered_df['Campaign'] == sel_campaign]
 
 if sel_faction != "All":
-    # Ensure column is string type for comparison safety
     filtered_df['Faction'] = filtered_df['Faction'].astype(str)
     filtered_df = filtered_df[filtered_df['Faction'] == sel_faction]
 
@@ -305,8 +360,12 @@ if not filtered_df.empty:
             html += '<div class="card-identity">'
             html += f'<div class="card-name">{row["Name"]}</div>'
             html += f'<div class="card-class">{row["Class"]}</div>'
+            
+            # --- PILL LABEL FIX ---
+            # Instead of loose text, we render a "Pill" if a campaign tag exists
             if row.get('Campaign'):
-                 html += f'<div style="color:#444; font-size:0.7rem; margin-top:5px; font-family:Lato;">{row["Campaign"]}</div>'
+                 html += f'<div class="tag-pill">{row["Campaign"]}</div>'
+            
             html += '</div>'
             html += '</div>' 
             st.markdown(html, unsafe_allow_html=True)
