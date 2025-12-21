@@ -44,7 +44,6 @@ st.markdown("""
         border-right: 1px solid #1e3a2a; 
     }
     
-    /* Custom Sidebar Header */
     .sidebar-header {
         font-family: 'Cinzel', serif;
         color: var(--emerald-bright);
@@ -59,35 +58,41 @@ st.markdown("""
         text-shadow: 0 0 10px var(--emerald-dim);
     }
 
-    /* Sidebar Dropdowns - Square & Dark */
     [data-testid="stSidebar"] div[data-baseweb="select"] > div {
         background-color: #111 !important;
         border: 1px solid #333 !important;
         color: #ddd !important;
         font-family: 'Cinzel', serif !important;
-        border-radius: 0px !important; /* Sharp Edges */
+        border-radius: 0px !important; 
     }
 
     header[data-testid="stHeader"] { background: transparent; }
 
-    /* --- UNIFIED INPUT FIELDS (THE NAVY KILLER) --- */
+    /* --- AGGRESSIVE INPUT OVERRIDE (THE FIX) --- */
+    /* This targets every possible layer of the input box to kill the Navy Blue */
     
-    /* 1. Target the 'Base Input' Container (The Navy Box) */
+    /* 1. The Outer Wrapper */
+    div[data-baseweb="input"] {
+        background-color: #0e0e0e !important;
+        border-radius: 0px !important;
+    }
+
+    /* 2. The Inner Container (Base Input) */
     div[data-baseweb="base-input"] {
         background-color: #0e0e0e !important;
         border: 1px solid #333 !important;
         border-radius: 0px !important;
     }
 
-    /* 2. Target the Input Text Itself */
-    input[data-baseweb="input"] {
+    /* 3. The Input Element Itself */
+    input.st-ai, input.st-ah, input[type="text"] {
+        background-color: transparent !important;
         color: #e0e0e0 !important;
         font-family: 'Cinzel', serif !important;
-        text-align: left !important; /* FORCE LEFT ALIGN */
-        background-color: transparent !important; /* Let the dark container show */
+        text-align: left !important; /* Force Left Alignment */
     }
 
-    /* 3. Handle Focus State (Emerald Glow) */
+    /* 4. Focus State */
     div[data-baseweb="base-input"]:focus-within {
         border-color: var(--emerald-glow) !important;
         box-shadow: 0 0 8px var(--emerald-dim) !important;
@@ -98,7 +103,7 @@ st.markdown("""
         background-color: #080808 !important; /* Pitch Black */
         border: 1px solid #444 !important;
         box-shadow: 0 15px 40px rgba(0,0,0,0.9);
-        border-radius: 0px; /* Square */
+        border-radius: 0px; 
     }
 
     /* --- TOAST STYLING --- */
@@ -189,7 +194,7 @@ st.markdown("""
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     
-    /* --- PILLS (PROCEDURAL TEXTURE) --- */
+    /* --- PILLS (PROCEDURAL) --- */
     .pill-container {
         display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; width: 100%;
         margin-top: 0.5rem;
@@ -207,7 +212,7 @@ st.markdown("""
         min-width: 70px;
     }
 
-    /* STONE (Speckled) */
+    /* STONE */
     .pill-stone {
         background-color: #151515;
         background-image: radial-gradient(#000 15%, transparent 16%), radial-gradient(#000 15%, transparent 16%);
@@ -217,7 +222,7 @@ st.markdown("""
         box-shadow: inset 0 0 4px #000; 
     }
 
-    /* METAL (Brushed - DARKENED) */
+    /* METAL */
     .pill-metal {
         background-color: #151515; 
         background-image: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px);
@@ -326,9 +331,6 @@ except Exception as e:
 # -----------------------------------------------------------------------------
 @st.dialog("The Archive Opens...", width="large")
 def view_soul(row, index_in_sheet):
-    """
-    Shows pure details. Edits happen in the popover.
-    """
     img_src = row.get('Image_URL', '')
     if not str(img_src).startswith("http"):
         img_src = "https://via.placeholder.com/800x400?text=No+Visage"
@@ -369,7 +371,6 @@ st.markdown("<h1>THE ARCHIVES OF THE LOST</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtext'>That which is remembered, lives forever.</div>", unsafe_allow_html=True)
 
 # --- SIDEBAR FILTERS ---
-# Replaced cheap header with styled one
 st.sidebar.markdown('<div class="sidebar-header">Filter Archives</div>', unsafe_allow_html=True)
 
 if not df.empty:
@@ -436,13 +437,11 @@ if not filtered_df.empty:
             html += f'<div class="card-class">{row["Class"]}</div>'
             html += '</div>'
             
-            # --- PILLS (PROCEDURAL) ---
+            # --- PILLS ---
             html += '<div class="pill-container">'
             if row.get('Campaign'):
-                 # STONE
                  html += f'<div class="pill-base pill-stone">{row["Campaign"]}</div>'
             if row.get('Faction'):
-                 # METAL
                  html += f'<div class="pill-base pill-metal">{row["Faction"]}</div>'
             if not row.get('Campaign') and not row.get('Faction'):
                  html += f'<div class="pill-base pill-stone" style="opacity:0;">EMPTY</div>'
@@ -462,16 +461,15 @@ if not filtered_df.empty:
             # QUICK EDIT (Quill)
             with b_col2:
                 with st.popover("✒️", use_container_width=True):
-                    # Clean Headers - No extra text, just category
                     st.markdown("<span style='color:#888; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px; border-bottom:1px solid #333; display:block; margin-bottom:4px;'>CAMPAIGN</span>", unsafe_allow_html=True)
                     p_campaign = st.text_input("Campaign", value=row.get('Campaign', ''), key=f"pc_{index}", label_visibility="collapsed")
                     
-                    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True) # Spacer
+                    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True) 
 
                     st.markdown("<span style='color:#8a9ba8; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px; border-bottom:1px solid #4a5568; display:block; margin-bottom:4px;'>FACTION</span>", unsafe_allow_html=True)
                     p_faction = st.text_input("Faction", value=row.get('Faction', ''), key=f"pf_{index}", label_visibility="collapsed")
                     
-                    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True) # Spacer
+                    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True) 
 
                     if st.button("Save", key=f"psave_{index}", type="primary"):
                         try:
