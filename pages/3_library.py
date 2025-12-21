@@ -79,7 +79,7 @@ st.markdown("""
         box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         display: flex;
         flex-direction: column;
-        height: 550px; /* Reduced slightly to fit buttons below */
+        height: 550px; 
         margin-bottom: 0px !important;
     }
     .archive-card:hover {
@@ -108,46 +108,49 @@ st.markdown("""
         letter-spacing: 2px; text-transform: uppercase; opacity: 0.9;
     }
 
-    /* --- BUTTON STYLES --- */
+    /* --- FLOATING BUTTON STYLES --- */
     
-    /* 1. PRIMARY BUTTON (The Inspect Bar) */
-    /* We use [kind="primary"] to target the Inspect button specifically */
+    /* 1. PRIMARY BUTTON (INSPECT - Floating Emerald) */
     button[kind="primary"] {
-        width: 100% !important;
-        border-radius: 0px !important;
-        background-color: #0e0e0e !important;
-        color: #888 !important;
-        border: 1px solid #222 !important;
-        border-top: 1px solid #1a1a1a !important; 
+        background: transparent !important;
+        border: none !important;
+        color: #555 !important; /* Dim initially */
         font-family: 'Cinzel', serif !important;
-        font-size: 0.9rem !important;
-        padding: 1rem !important;
+        font-size: 1.1rem !important;
+        padding: 0 !important;
         height: 60px !important;
+        width: 100% !important;
         transition: all 0.3s ease !important;
+        box-shadow: none !important; /* Remove any default shadow */
     }
     button[kind="primary"]:hover {
         color: var(--emerald-bright) !important;
-        border-color: #333 !important;
-        background-color: #151515 !important;
-        box-shadow: 0 0 15px rgba(80, 200, 120, 0.1);
+        text-shadow: 0 0 15px var(--emerald-glow);
+        transform: scale(1.05); /* Slight grow */
+        background: transparent !important;
+    }
+    button[kind="primary"]:focus {
+        color: var(--emerald-bright) !important;
+        outline: none !important;
+        border: none !important;
     }
 
-    /* 2. SECONDARY BUTTON (The Floating Burn Rune) */
-    /* We use [kind="secondary"] to target the Destroy button */
+    /* 2. SECONDARY BUTTON (BURN - Floating Red) */
     button[kind="secondary"] {
         background: transparent !important;
         border: none !important;
-        color: #444 !important; /* Dark Red/Grey initially */
+        color: #444 !important; /* Dim initially */
         font-size: 1.5rem !important;
         padding: 0 !important;
         height: 60px !important;
         width: 100% !important;
         transition: all 0.4s ease !important;
+        box-shadow: none !important;
     }
     button[kind="secondary"]:hover {
-        color: var(--destruct-bright) !important; /* Glows Red */
-        transform: scale(1.2) rotate(180deg); /* Subtle spin/grow effect */
+        color: var(--destruct-bright) !important; 
         text-shadow: 0 0 10px var(--destruct-red);
+        transform: scale(1.2) rotate(180deg); /* Spin effect */
         background: transparent !important;
     }
     button[kind="secondary"]:focus {
@@ -160,22 +163,11 @@ st.markdown("""
     .modal-header { border-bottom: 1px solid #333; padding-bottom: 1rem; margin-bottom: 1rem; }
     .modal-name { font-family: 'Cinzel', serif; font-size: 2.5rem; color: #fff; line-height: 1.1; margin-bottom: 5px;}
     .modal-class { font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--emerald-bright); letter-spacing: 3px; text-transform: uppercase; }
-    
-    .modal-voice { 
-        font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: #e0e0e0; font-style: italic;
-        padding: 1.5rem; background: #0a0a0a; border-left: 2px solid var(--emerald-glow); margin-bottom: 1.5rem;
-    }
-    
-    .modal-lore { 
-        font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: #bbb; line-height: 1.7; text-align: justify; 
-    }
+    .modal-voice { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: #e0e0e0; font-style: italic; padding: 1.5rem; background: #0a0a0a; border-left: 2px solid var(--emerald-glow); margin-bottom: 1.5rem; }
+    .modal-lore { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: #bbb; line-height: 1.7; text-align: justify; }
+    .modal-visual { font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; color: #666; font-style: italic; margin-top: 10px; border-top: 1px solid #222; padding-top: 10px; }
 
-    .modal-visual {
-        font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; color: #666; font-style: italic; 
-        margin-top: 10px; border-top: 1px solid #222; padding-top: 10px;
-    }
-
-    /* Footer Runes */
+    /* Footer */
     .footer-container { opacity: 0.3; text-align: center; margin-top: 4rem; padding-bottom: 2rem;}
     .rune-span { margin: 0 10px; font-size: 1.2rem; color: #444; cursor: default; }
 
@@ -193,10 +185,7 @@ try:
         )
         gc = gspread.authorize(creds)
     else:
-        # Fallback for local testing
-        creds = service_account.Credentials.from_service_account_file(
-            "service_account.json", scopes=SCOPES
-        )
+        creds = service_account.Credentials.from_service_account_file("service_account.json", scopes=SCOPES)
         gc = gspread.authorize(creds)
 except Exception as e:
     st.error(f"🚨 Connection Error: {e}")
@@ -214,32 +203,27 @@ try:
     if df.empty:
         st.info("The Library is empty.")
         st.stop()
-
 except Exception as e:
     st.error(f"Could not read from Vault: {e}")
     st.stop()
 
 # -----------------------------------------------------------------------------
-# 5. THE MODAL (POP UP FUNCTION) - CLICKABLE IMAGE VERSION
+# 5. THE MODAL (POP UP FUNCTION)
 # -----------------------------------------------------------------------------
 @st.dialog("The Archive Opens...", width="large")
 def view_soul(row):
-    # Safe Image Handling
     img_src = row.get('Image_URL', '')
     if not str(img_src).startswith("http"):
         img_src = "https://via.placeholder.com/800x400?text=No+Visage"
 
     col1, col2 = st.columns([1, 1.4])
-    
     with col1:
-        # --- CLICKABLE IMAGE HACK ---
         st.markdown(f"""
         <style>
             .img-zoom-container {{ position: relative; overflow: hidden; border: 1px solid #333; border-radius: 2px; transition: border-color 0.3s; }}
             .img-zoom-container:hover {{ border-color: #50c878; }}
             .overlay-icon {{ position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 4px 8px; font-size: 0.8rem; border-radius: 4px; pointer-events: none; }}
         </style>
-        
         <div class="img-zoom-container">
             <a href="{img_src}" target="_blank" title="Open High-Res Version">
                 <img src="{img_src}" style="width: 100%; display: block;">
@@ -247,8 +231,6 @@ def view_soul(row):
             </a>
         </div>
         """, unsafe_allow_html=True)
-        
-        # Visual Description
         st.markdown(f"<div class='modal-visual'>{row['Visual_Desc']}</div>", unsafe_allow_html=True)
         
     with col2:
@@ -262,18 +244,15 @@ def view_soul(row):
             <div class="modal-meta">ACCESSION: {row.get('Timestamp', 'Unknown')}</div>
         """, unsafe_allow_html=True)
 
-
 # -----------------------------------------------------------------------------
 # 6. LAYOUT & GRID
 # -----------------------------------------------------------------------------
 st.page_link("1_the_vault.py", label="< RETURN TO HALL", use_container_width=False)
-
 st.markdown("<h1>THE ARCHIVES OF THE LOST</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtext'>That which is remembered, lives forever.</div>", unsafe_allow_html=True)
 
 # --- SEARCH ---
 search_query = st.text_input("Search the Archives", placeholder="Speak the name, class, or secret...")
-
 if search_query:
     mask = (
         df['Name'].astype(str).str.contains(search_query, case=False) |
@@ -287,17 +266,13 @@ else:
 # --- GRID ---
 if not filtered_df.empty:
     cols = st.columns(3)
-    
-    # Reverse order to show newest first
     for index, row in filtered_df.iloc[::-1].iterrows():
         col_index = index % 3
-        
         img_src = row.get('Image_URL', '')
         if not str(img_src).startswith("http"):
             img_src = "https://via.placeholder.com/400x500?text=No+Visage"
 
         with cols[col_index]:
-            # 1. THE VISUAL CARD (Fixed Height HTML)
             html = ""
             html += '<div class="archive-card">'
             html += '<div class="img-frame">'
@@ -308,21 +283,19 @@ if not filtered_df.empty:
             html += f'<div class="card-class">{row["Class"]}</div>'
             html += '</div>'
             html += '</div>' 
-            
             st.markdown(html, unsafe_allow_html=True)
             
-            # 2. THE BUTTONS (Action Row)
-            # Layout: 80% Inspect | 20% Burn
-            b_col1, b_col2 = st.columns([0.85, 0.15])
+            # FLOATING ACTIONS
+            # 80% for Inspect Text | 20% for Burn Rune
+            b_col1, b_col2 = st.columns([0.8, 0.2])
             
             with b_col1:
-                # INSPECT = Primary Type (Solid Box)
+                # Primary = Floating Text (Emerald)
                 if st.button(f"INSPECT ᛦ", key=f"inspect_{index}", type="primary", use_container_width=True):
                     view_soul(row)
             
             with b_col2:
-                # BURN = Secondary Type (Floating Rune)
-                # Rune: ᚺ (Hagalaz - Destruction/Hail)
+                # Secondary = Floating Rune (Red)
                 if st.button("ᚺ", key=f"burn_{index}", type="secondary", use_container_width=True, help="Permanently Burn from Archives"):
                     try:
                         worksheet.delete_rows(index + 2)
@@ -330,7 +303,6 @@ if not filtered_df.empty:
                         st.rerun()
                     except Exception as e:
                         st.error(f"The soul resists: {e}")
-
 else:
     st.markdown("<p style='text-align:center; color:#666;'>No souls answer to that name.</p>", unsafe_allow_html=True)
 
