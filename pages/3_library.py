@@ -26,6 +26,10 @@ st.markdown("""
         --destruct-bright: #ff4500;
         --nav-gold: #d4af37; 
         --gold-glow: rgba(212, 175, 55, 0.6);
+        
+        /* Text Colors for Real Textures */
+        --text-stone: #a0a0a0; 
+        --text-metal: #b0c4de; 
     }
 
     /* --- GLOBAL --- */
@@ -129,7 +133,7 @@ st.markdown("""
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     
-    /* --- REAL TEXTURE PILLS --- */
+    /* --- REAL TEXTURE PILLS (WITH FIX) --- */
     .pill-container {
         display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; width: 100%;
         margin-top: 0.5rem;
@@ -137,35 +141,53 @@ st.markdown("""
 
     .pill-base {
         display: inline-block;
-        font-family: 'Cinzel', serif; /* Use serif for that engraved look */
-        font-size: 0.75rem; /* Slightly larger */
+        position: relative; /* Needed for overlay */
+        font-family: 'Cinzel', serif; 
+        font-size: 0.65rem; 
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 1px; 
-        padding: 8px 16px;
+        padding: 6px 14px;
         border-radius: 4px;
         background-size: cover;
         background-position: center;
-        /* Default Shadow */
-        box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        overflow: hidden; /* Clips the inner content */
+        border: 1px solid rgba(255,255,255,0.1);
+        z-index: 1;
+        min-width: 70px;
+    }
+    
+    /* This pseudo-element darkens the texture behind the text */
+    .pill-base::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        z-index: -1;
+        /* Default darkening for readability */
+        background: rgba(0,0,0,0.4); 
     }
 
-    /* TEXTURE 1: STONE (The URL is the generated image) */
+    /* TEXTURE 1: STONE */
     .pill-stone {
-        background-image: url('https://lh3.googleusercontent.com/pw/AP1GczO_Z8l5v1n-l6oQ1j5z6k8m9n0p2q3r4s5t6u7v8w9x0y1z2a3b4c5d6e7f=w600-h200-no'); 
-        color: #ddd; 
-        text-shadow: 1px 1px 2px #000;
-        border: 1px solid #444;
+        /* Placeholder URL - Replace with your Base64 or Image Link */
+        background-image: url('https://www.transparenttextures.com/patterns/black-rock.png');
+        background-color: #222;
+        color: var(--text-stone); 
+        border-color: #444;
     }
 
-    /* TEXTURE 2: METAL (The URL is the generated image) */
+    /* TEXTURE 2: METAL (THE FIX) */
     .pill-metal {
-        background-image: url('https://lh3.googleusercontent.com/pw/AP1GczM_Z8l5v1n-l6oQ1j5z6k8m9n0p2q3r4s5t6u7v8w9x0y1z2a3b4c5d6e7f=w600-h200-no');
-        /* We use a gradient overlay to make sure text is readable if image fails */
-        background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), repeating-linear-gradient(45deg, #555 0%, #777 10%, #555 20%);
-        color: #fff;
-        text-shadow: 0 0 3px rgba(0,0,0,0.8);
-        border: 1px solid #888;
+        /* Placeholder URL - Replace with your Base64 or Image Link */
+        background-image: url('https://www.transparenttextures.com/patterns/brushed-alum.png');
+        background-color: #333;
+        color: var(--text-metal);
+        border-color: #666;
+    }
+    
+    /* CRITICAL FIX: Darken the Metal pill specifically */
+    .pill-metal::before {
+        background: rgba(0,0,0,0.7) !important; /* Heavy tint to kill the shine */
     }
 
     /* --- BUTTONS --- */
@@ -369,10 +391,8 @@ if not filtered_df.empty:
             # --- REAL TEXTURE PILLS ---
             html += '<div class="pill-container">'
             if row.get('Campaign'):
-                 # STONE PILL
                  html += f'<div class="pill-base pill-stone">{row["Campaign"]}</div>'
             if row.get('Faction'):
-                 # METAL PILL
                  html += f'<div class="pill-base pill-metal">{row["Faction"]}</div>'
             if not row.get('Campaign') and not row.get('Faction'):
                  html += f'<div class="pill-base pill-stone" style="opacity:0;">EMPTY</div>'
@@ -394,11 +414,11 @@ if not filtered_df.empty:
                 with st.popover("✒️", use_container_width=True):
                     st.caption(f"Inscribe Tags: {row['Name']}")
                     
-                    # TEXTURE CODED HEADERS (Learning Aid)
-                    st.markdown("<span style='color:#888; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px; border-bottom:1px solid #333;'>CAMPAIGN (STONE)</span>", unsafe_allow_html=True)
+                    # TEXTURE CODED HEADERS (With Learning Aid)
+                    st.markdown("<span style='color:#a0a0a0; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px; border-bottom:1px solid #444;'>CAMPAIGN (STONE)</span>", unsafe_allow_html=True)
                     p_campaign = st.text_input("Campaign", value=row.get('Campaign', ''), key=f"pc_{index}", label_visibility="collapsed")
                     
-                    st.markdown("<span style='color:#d0d0d0; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px; text-shadow:0 0 5px rgba(255,255,255,0.3); border-bottom:1px solid #666;'>FACTION (METAL)</span>", unsafe_allow_html=True)
+                    st.markdown("<span style='color:#b0c4de; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px; border-bottom:1px solid #666;'>FACTION (METAL)</span>", unsafe_allow_html=True)
                     p_faction = st.text_input("Faction", value=row.get('Faction', ''), key=f"pf_{index}", label_visibility="collapsed")
                     
                     if st.button("Save", key=f"psave_{index}", type="primary"):
