@@ -307,7 +307,7 @@ def view_soul(row):
 # -----------------------------------------------------------------------------
 # 6. LAYOUT & GRID
 # -----------------------------------------------------------------------------
-st.page_link("home.py", label="< RETURN TO HALL", use_container_width=False)
+st.page_link("1_the_vault.py", label="< RETURN TO HALL", use_container_width=False)
 
 st.markdown("<h1>THE ARCHIVES OF THE LOST</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtext'>That which is remembered, lives forever.</div>", unsafe_allow_html=True)
