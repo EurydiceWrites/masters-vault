@@ -29,7 +29,7 @@ st.markdown("""
         
         /* Balanced Text Colors */
         --text-stone: #888;      /* Warm Matte Grey */
-        --text-metal: #8a9ba8;   /* Cool Steel Grey (Darkened to match Stone) */
+        --text-metal: #8a9ba8;   /* Cool Steel Grey */
     }
 
     /* --- GLOBAL --- */
@@ -44,44 +44,60 @@ st.markdown("""
         border-right: 1px solid #1e3a2a; 
     }
     
-    /* Sidebar Headers */
-    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
-        font-family: 'Cinzel', serif !important;
-        color: var(--emerald-bright) !important;
+    /* Custom Sidebar Header Style */
+    .sidebar-header {
+        font-family: 'Cinzel', serif;
+        color: var(--emerald-bright);
         text-transform: uppercase;
         letter-spacing: 2px;
-        font-size: 1.2rem !important;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        margin-top: 2rem;
+        border-bottom: 1px solid var(--emerald-dim);
+        padding-bottom: 0.5rem;
     }
 
-    /* Sidebar Dropdowns (Selectbox) */
+    /* Sidebar Dropdowns */
     [data-testid="stSidebar"] div[data-baseweb="select"] > div {
         background-color: #111 !important;
-        border-color: #333 !important;
+        border: 1px solid #333 !important;
         color: #ddd !important;
-        font-family: 'Cinzel', serif;
+        font-family: 'Cinzel', serif !important;
     }
-    
-    /* Sidebar Navigation Links */
-    [data-testid="stSidebarNav"] { font-family: 'Cinzel', serif; padding-top: 2rem; }
-    
+
     header[data-testid="stHeader"] { background: transparent; }
 
     /* --- POPOVER MENU STYLING --- */
-    /* The container that pops up */
-    [data-testid="stPopoverBody"] {
+    /* The container */
+    div[data-testid="stPopoverBody"] {
         background-color: #0a0a0a !important;
         border: 1px solid #333 !important;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.8);
-        color: #ddd !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.9);
     }
-    
+
+    /* Input Fields INSIDE Popover (and Global) */
+    /* Force them to look like the rest of the UI: Square, Dark, Serif */
+    input[type="text"] {
+        background-color: #111 !important;
+        border: 1px solid #333 !important;
+        border-radius: 0px !important; /* Square edges */
+        color: #e0e0e0 !important;
+        font-family: 'Cinzel', serif !important;
+        font-size: 0.9rem !important;
+    }
+    input[type="text"]:focus {
+        border-color: var(--emerald-glow) !important;
+        box-shadow: 0 0 5px var(--emerald-dim) !important;
+    }
+
     /* --- TOAST STYLING --- */
     div[data-testid="stToast"] {
         background-color: #0e0e0e !important;
-        border: 1px solid var(--emerald-dim) !important;
+        border: 1px solid #333 !important;
         border-left: 4px solid var(--emerald-glow) !important;
-        color: #fff !important;
+        color: #eee !important;
         font-family: 'Cinzel', serif !important;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.8);
     }
 
     /* --- HEADER --- */
@@ -108,25 +124,6 @@ st.markdown("""
     a[data-testid="stPageLink-NavLink"] { background: transparent !important; border: none !important; }
     a[data-testid="stPageLink-NavLink"] p { color: #666; font-family: 'Cinzel', serif; font-size: 0.9rem; transition: color 0.3s; }
     a[data-testid="stPageLink-NavLink"]:hover p { color: var(--nav-gold) !important; text-shadow: 0 0 10px var(--gold-glow); }
-
-    /* --- SEARCH BAR & INPUTS --- */
-    .stTextInput > div > div > input {
-        background-color: #0a0a0a !important;
-        border: 1px solid #333 !important;
-        border-bottom: 2px solid var(--emerald-dim) !important;
-        color: #e0e0e0 !important;
-        font-family: 'Cinzel', serif;
-        font-size: 1rem;
-        padding: 1rem;
-        letter-spacing: 1px;
-    }
-    
-    /* Special styling for the MAIN search bar vs Popover inputs */
-    /* We target the main search by its placeholder (trick) or context */
-    /* For now, generic is fine, but let's center the main search text */
-    div[data-testid="stTextInput"] input {
-        text-align: center;
-    }
 
     /* --- ARCHIVE CARD --- */
     .archive-card {
@@ -180,7 +177,7 @@ st.markdown("""
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     
-    /* --- BALANCED PROCEDURAL PILLS --- */
+    /* --- PILLS (BALANCED) --- */
     .pill-container {
         display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; width: 100%;
         margin-top: 0.5rem;
@@ -198,7 +195,7 @@ st.markdown("""
         min-width: 70px;
     }
 
-    /* TEXTURE 1: STONE (Speckled) */
+    /* STONE (Speckled) */
     .pill-stone {
         background-color: #151515;
         background-image: radial-gradient(#000 15%, transparent 16%), radial-gradient(#000 15%, transparent 16%);
@@ -208,7 +205,7 @@ st.markdown("""
         box-shadow: inset 0 0 4px #000; 
     }
 
-    /* TEXTURE 2: METAL (Brushed - DARKENED) */
+    /* METAL (Brushed - DARKENED) */
     .pill-metal {
         background-color: #151515; 
         background-image: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px);
@@ -351,7 +348,8 @@ st.markdown("<h1>THE ARCHIVES OF THE LOST</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtext'>That which is remembered, lives forever.</div>", unsafe_allow_html=True)
 
 # --- SIDEBAR FILTERS ---
-st.sidebar.header("📜 Filter Archives")
+# Replaced standard header with custom CSS styled markdown
+st.sidebar.markdown('<div class="sidebar-header">Filter Archives</div>', unsafe_allow_html=True)
 
 if not df.empty:
     campaigns = ["All"]
@@ -420,10 +418,10 @@ if not filtered_df.empty:
             # --- TEXTURE PILLS ---
             html += '<div class="pill-container">'
             if row.get('Campaign'):
-                 # STONE (Speckled)
+                 # STONE
                  html += f'<div class="pill-base pill-stone">{row["Campaign"]}</div>'
             if row.get('Faction'):
-                 # METAL (Brushed)
+                 # METAL
                  html += f'<div class="pill-base pill-metal">{row["Faction"]}</div>'
             if not row.get('Campaign') and not row.get('Faction'):
                  html += f'<div class="pill-base pill-stone" style="opacity:0;">EMPTY</div>'
@@ -445,13 +443,17 @@ if not filtered_df.empty:
                 with st.popover("✒️", use_container_width=True):
                     st.caption(f"Inscribe Tags: {row['Name']}")
                     
-                    # TEXTURE CODED HEADERS (Learning Aid)
-                    st.markdown("<span style='color:#888; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px; border-bottom:1px solid #333;'>CAMPAIGN (STONE)</span>", unsafe_allow_html=True)
+                    # CLEANED HEADERS (No labels, just unified style)
+                    st.markdown("<span style='color:#888; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px; border-bottom:1px solid #333; display:block; margin-bottom:4px;'>CAMPAIGN</span>", unsafe_allow_html=True)
                     p_campaign = st.text_input("Campaign", value=row.get('Campaign', ''), key=f"pc_{index}", label_visibility="collapsed")
                     
-                    st.markdown("<span style='color:#8a9ba8; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px; border-bottom:1px solid #4a5568;'>FACTION (METAL)</span>", unsafe_allow_html=True)
+                    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True) # Spacer
+
+                    st.markdown("<span style='color:#8a9ba8; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px; border-bottom:1px solid #4a5568; display:block; margin-bottom:4px;'>FACTION</span>", unsafe_allow_html=True)
                     p_faction = st.text_input("Faction", value=row.get('Faction', ''), key=f"pf_{index}", label_visibility="collapsed")
                     
+                    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True) # Spacer
+
                     if st.button("Save", key=f"psave_{index}", type="primary"):
                         try:
                             sheet_row = index + 2
