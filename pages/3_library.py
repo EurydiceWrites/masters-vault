@@ -44,7 +44,7 @@ st.markdown("""
         border-right: 1px solid #1e3a2a; 
     }
     
-    /* Custom Sidebar Header */
+    /* Custom Sidebar Header - REPLACES THE SCROLL EMOJI */
     .sidebar-header {
         font-family: 'Cinzel', serif;
         color: var(--emerald-bright);
@@ -56,39 +56,41 @@ st.markdown("""
         border-bottom: 1px solid var(--emerald-dim);
         padding-bottom: 0.5rem;
         text-align: center;
+        text-shadow: 0 0 10px var(--emerald-dim);
     }
 
-    /* Sidebar Dropdowns */
+    /* Sidebar Dropdowns - Square & Dark */
     [data-testid="stSidebar"] div[data-baseweb="select"] > div {
         background-color: #111 !important;
         border: 1px solid #333 !important;
         color: #ddd !important;
         font-family: 'Cinzel', serif !important;
-        border-radius: 2px !important;
+        border-radius: 0px !important; /* Sharp Edges */
     }
 
     header[data-testid="stHeader"] { background: transparent; }
 
-    /* --- UNIFIED INPUT FIELDS (LEFT ALIGNED) --- */
-    /* Forces ALL text inputs (Search & Popover) to match the theme */
+    /* --- UNIFIED INPUT FIELDS (Search + Popover) --- */
+    /* Forces ALL text inputs to match the theme: Dark, Square, Serif */
     div[data-baseweb="input"] > div {
         background-color: #0e0e0e !important;
         border: 1px solid #333 !important;
-        border-radius: 2px !important; /* Square edges */
+        border-radius: 0px !important; /* Square edges */
         color: #e0e0e0 !important;
         font-family: 'Cinzel', serif !important;
     }
     
-    /* CRITICAL FIX: Left Align Text for proper form feel */
+    /* Text Inside Inputs */
     input[type="text"] {
-        text-align: left !important; 
-        padding-left: 15px !important;
+        font-family: 'Cinzel', serif !important;
+        font-size: 0.9rem !important;
+        letter-spacing: 1px !important;
     }
 
     /* Focus State - Emerald Glow */
     div[data-baseweb="input"] > div:focus-within {
         border-color: var(--emerald-glow) !important;
-        box-shadow: 0 0 5px var(--emerald-dim) !important;
+        box-shadow: 0 0 8px var(--emerald-dim) !important;
     }
     
     /* --- POPOVER MENU CONTAINER --- */
@@ -96,7 +98,7 @@ st.markdown("""
         background-color: #080808 !important; /* Pitch Black */
         border: 1px solid #444 !important;
         box-shadow: 0 15px 40px rgba(0,0,0,0.9);
-        border-radius: 2px;
+        border-radius: 0px; /* Square */
     }
 
     /* --- TOAST STYLING --- */
@@ -107,6 +109,7 @@ st.markdown("""
         color: #eee !important;
         font-family: 'Cinzel', serif !important;
         box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+        border-radius: 0px;
     }
 
     /* --- HEADER --- */
@@ -186,7 +189,7 @@ st.markdown("""
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     
-    /* --- PILLS (PROCEDURAL TEXTURE) --- */
+    /* --- PILLS (PROCEDURAL) --- */
     .pill-container {
         display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; width: 100%;
         margin-top: 0.5rem;
@@ -229,6 +232,7 @@ st.markdown("""
         font-family: 'Cinzel', serif !important; font-size: 1.1rem !important; padding: 0 !important;
         height: 60px !important; width: 100% !important; transition: all 0.3s ease !important;
         box-shadow: none !important;
+        border-radius: 0px !important; /* Square */
     }
     button[kind="primary"]:hover {
         color: var(--emerald-bright) !important; text-shadow: 0 0 15px var(--emerald-glow);
@@ -239,6 +243,7 @@ st.markdown("""
         background: transparent !important; border: none !important; color: #444 !important;
         font-size: 1.5rem !important; padding: 0 !important; height: 60px !important;
         width: 100% !important; transition: all 0.4s ease !important; box-shadow: none !important;
+        border-radius: 0px !important; /* Square */
     }
     button[kind="secondary"]:hover {
         color: var(--destruct-bright) !important;
@@ -269,6 +274,7 @@ st.markdown("""
         background-color: #0e0e0e !important;
         border: 1px solid #333 !important;
         box-shadow: 0 0 50px rgba(0,0,0,0.9);
+        border-radius: 0px;
     }
 
     .modal-header { border-bottom: 1px solid #333; padding-bottom: 1rem; margin-bottom: 1rem; }
@@ -456,7 +462,7 @@ if not filtered_df.empty:
             # QUICK EDIT (Quill)
             with b_col2:
                 with st.popover("✒️", use_container_width=True):
-                    # Clean Headers
+                    # Clean Headers - No extra text, just category
                     st.markdown("<span style='color:#888; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px; border-bottom:1px solid #333; display:block; margin-bottom:4px;'>CAMPAIGN</span>", unsafe_allow_html=True)
                     p_campaign = st.text_input("Campaign", value=row.get('Campaign', ''), key=f"pc_{index}", label_visibility="collapsed")
                     
