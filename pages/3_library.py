@@ -32,7 +32,7 @@ st.markdown("""
         --text-metal: #8a9ba8;   /* Cool Steel Grey */
     }
 
-    /* --- GLOBAL --- */
+    /* --- GLOBAL BACKGROUND --- */
     .stApp {
         background-color: #050505;
         background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #000 80%);
@@ -44,7 +44,7 @@ st.markdown("""
         border-right: 1px solid #1e3a2a; 
     }
     
-    /* Custom Sidebar Header Style */
+    /* Custom Sidebar Header */
     .sidebar-header {
         font-family: 'Cinzel', serif;
         color: var(--emerald-bright);
@@ -55,6 +55,7 @@ st.markdown("""
         margin-top: 2rem;
         border-bottom: 1px solid var(--emerald-dim);
         padding-bottom: 0.5rem;
+        text-align: center;
     }
 
     /* Sidebar Dropdowns */
@@ -63,31 +64,32 @@ st.markdown("""
         border: 1px solid #333 !important;
         color: #ddd !important;
         font-family: 'Cinzel', serif !important;
+        border-radius: 2px !important;
     }
 
     header[data-testid="stHeader"] { background: transparent; }
 
-    /* --- POPOVER MENU STYLING --- */
-    /* The container */
-    div[data-testid="stPopoverBody"] {
-        background-color: #0a0a0a !important;
+    /* --- UNIFIED INPUT FIELDS (Search + Popover) --- */
+    /* Forces ALL text inputs to match the theme */
+    div[data-baseweb="input"] > div {
+        background-color: #0e0e0e !important;
         border: 1px solid #333 !important;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.9);
-    }
-
-    /* Input Fields INSIDE Popover (and Global) */
-    /* Force them to look like the rest of the UI: Square, Dark, Serif */
-    input[type="text"] {
-        background-color: #111 !important;
-        border: 1px solid #333 !important;
-        border-radius: 0px !important; /* Square edges */
+        border-radius: 2px !important; /* Square edges */
         color: #e0e0e0 !important;
         font-family: 'Cinzel', serif !important;
-        font-size: 0.9rem !important;
     }
-    input[type="text"]:focus {
+    /* Focus State - Emerald Glow */
+    div[data-baseweb="input"] > div:focus-within {
         border-color: var(--emerald-glow) !important;
         box-shadow: 0 0 5px var(--emerald-dim) !important;
+    }
+    
+    /* --- POPOVER MENU CONTAINER --- */
+    div[data-testid="stPopoverBody"] {
+        background-color: #080808 !important; /* Pitch Black */
+        border: 1px solid #444 !important;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.9);
+        border-radius: 2px;
     }
 
     /* --- TOAST STYLING --- */
@@ -177,7 +179,7 @@ st.markdown("""
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     
-    /* --- PILLS (BALANCED) --- */
+    /* --- PROCEDURAL PILLS (SIMPLE & CLEAN) --- */
     .pill-container {
         display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; width: 100%;
         margin-top: 0.5rem;
@@ -256,6 +258,13 @@ st.markdown("""
     }
 
     /* --- MODAL STYLING --- */
+    /* Target the dialog content */
+    div[role="dialog"] {
+        background-color: #0e0e0e !important;
+        border: 1px solid #333 !important;
+        box-shadow: 0 0 50px rgba(0,0,0,0.9);
+    }
+
     .modal-header { border-bottom: 1px solid #333; padding-bottom: 1rem; margin-bottom: 1rem; }
     .modal-name { font-family: 'Cinzel', serif; font-size: 2.5rem; color: #fff; line-height: 1.1; margin-bottom: 5px;}
     .modal-class { font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--emerald-bright); letter-spacing: 3px; text-transform: uppercase; }
@@ -348,7 +357,7 @@ st.markdown("<h1>THE ARCHIVES OF THE LOST</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtext'>That which is remembered, lives forever.</div>", unsafe_allow_html=True)
 
 # --- SIDEBAR FILTERS ---
-# Replaced standard header with custom CSS styled markdown
+# Replaced cheap header with styled one
 st.sidebar.markdown('<div class="sidebar-header">Filter Archives</div>', unsafe_allow_html=True)
 
 if not df.empty:
@@ -415,7 +424,7 @@ if not filtered_df.empty:
             html += f'<div class="card-class">{row["Class"]}</div>'
             html += '</div>'
             
-            # --- TEXTURE PILLS ---
+            # --- PILLS (PROCEDURAL) ---
             html += '<div class="pill-container">'
             if row.get('Campaign'):
                  # STONE
@@ -441,9 +450,9 @@ if not filtered_df.empty:
             # QUICK EDIT (Quill)
             with b_col2:
                 with st.popover("✒️", use_container_width=True):
-                    st.caption(f"Inscribe Tags: {row['Name']}")
+                    # No caption needed with clear headers
                     
-                    # CLEANED HEADERS (No labels, just unified style)
+                    # CLEAN HEADERS
                     st.markdown("<span style='color:#888; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px; border-bottom:1px solid #333; display:block; margin-bottom:4px;'>CAMPAIGN</span>", unsafe_allow_html=True)
                     p_campaign = st.text_input("Campaign", value=row.get('Campaign', ''), key=f"pc_{index}", label_visibility="collapsed")
                     
