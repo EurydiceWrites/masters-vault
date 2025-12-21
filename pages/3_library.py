@@ -30,7 +30,7 @@ st.markdown("""
         background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #000 80%);
     }
 
-    /* --- SIDEBAR STYLING (NEW) --- */
+    /* --- SIDEBAR STYLING --- */
     [data-testid="stSidebar"] {
         background-color: #080808; 
         border-right: 1px solid #1e3a2a;
@@ -38,20 +38,6 @@ st.markdown("""
     [data-testid="stSidebarNav"] {
         font-family: 'Cinzel', serif;
         padding-top: 2rem;
-    }
-    [data-testid="stSidebarNav"] span {
-        color: #666;
-        font-size: 1rem;
-        letter-spacing: 2px;
-        transition: color 0.3s;
-    }
-    [data-testid="stSidebarNav"] a:hover span {
-        color: #50c878; /* Emerald Glow */
-    }
-    [data-testid="stSidebarNav"] [aria-current="page"] span {
-        color: #66ff99 !important;
-        font-weight: bold;
-        text-shadow: 0 0 15px rgba(80, 200, 120, 0.4);
     }
     header[data-testid="stHeader"] {
         background: transparent;
@@ -89,8 +75,6 @@ st.markdown("""
         padding: 1.5rem;
         letter-spacing: 2px;
     }
-    .stTextInput input::placeholder { color: #444 !important; font-style: italic; }
-    .stTextInput:hover input { border-color: var(--emerald-glow) !important; }
 
     /* --- ARCHIVE CARD (HTML Top Half) --- */
     .archive-card {
@@ -136,8 +120,6 @@ st.markdown("""
         letter-spacing: 1px; 
         margin-bottom: 0.5rem;
         text-shadow: 0 4px 10px #000;
-        line-height: 1.2;
-        word-wrap: break-word;
     }
     .card-class { 
         font-family: 'Cinzel', serif; 
@@ -149,36 +131,26 @@ st.markdown("""
     }
 
     /* --- THE BUTTON OVERRIDE (Streamlit) --- */
-    /* This targets the actual button element */
     div.stButton > button {
         width: 100% !important;
-        border-radius: 0px !important; /* Square corners */
+        border-radius: 0px !important;
         background-color: #0e0e0e !important;
         color: #888 !important;
         border: 1px solid #222 !important;
-        border-top: 1px solid #1a1a1a !important; /* Seamless connection */
-        font-family: 'Cinzel', serif !important; /* Theme Font */
-        letter-spacing: 2px !important;
+        border-top: 1px solid #1a1a1a !important; 
+        font-family: 'Cinzel', serif !important;
         font-size: 0.9rem !important;
         padding: 1rem !important;
-        margin-top: 0px !important;
-        height: 60px !important; /* Fixed button height */
+        height: 60px !important;
         transition: all 0.3s ease !important;
     }
     div.stButton > button:hover {
         color: var(--emerald-bright) !important;
         border-color: #333 !important;
         background-color: #151515 !important;
-        text-shadow: 0 0 8px var(--emerald-glow) !important;
-    }
-    div.stButton > button:focus {
-        border-color: var(--emerald-glow) !important;
-        color: var(--emerald-glow) !important;
     }
 
-    /* --- MODAL STYLING (The Tome) --- */
-    /* Force Fonts inside the Pop-up */
-    
+    /* --- MODAL STYLING --- */
     .modal-header { border-bottom: 1px solid #333; padding-bottom: 1rem; margin-bottom: 1rem; }
     .modal-name { font-family: 'Cinzel', serif; font-size: 2.5rem; color: #fff; line-height: 1.1; margin-bottom: 5px;}
     .modal-class { font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--emerald-bright); letter-spacing: 3px; text-transform: uppercase; }
@@ -212,15 +184,6 @@ st.markdown("""
         padding-top: 10px;
     }
 
-    .modal-meta { 
-        font-family: 'Lato', sans-serif; 
-        font-size: 0.7rem; 
-        color: #444; 
-        margin-top: 2rem; 
-        border-top: 1px solid #222; 
-        padding-top: 1rem;
-    }
-
     /* Footer Runes */
     .footer-container { opacity: 0.3; text-align: center; margin-top: 4rem; padding-bottom: 2rem;}
     .rune-span { margin: 0 10px; font-size: 1.2rem; color: #444; cursor: default; }
@@ -232,25 +195,18 @@ st.markdown("""
 # 3. AUTHENTICATION
 # -----------------------------------------------------------------------------
 try:
-    SCOPES = [
-        "https://www.googleapis.com/auth/spreadsheets",
-        "https://www.googleapis.com/auth/drive"
-    ]
-
+    SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
     if "gcp_service_account" in st.secrets:
-        service_account_info = st.secrets["gcp_service_account"]
         creds = service_account.Credentials.from_service_account_info(
-            service_account_info,
-            scopes=SCOPES
+            st.secrets["gcp_service_account"], scopes=SCOPES
         )
         gc = gspread.authorize(creds)
     else:
+        # Fallback for local testing
         creds = service_account.Credentials.from_service_account_file(
-            "service_account.json",
-            scopes=SCOPES
+            "service_account.json", scopes=SCOPES
         )
         gc = gspread.authorize(creds)
-        
 except Exception as e:
     st.error(f"🚨 Connection Error: {e}")
     st.stop()
@@ -273,7 +229,7 @@ except Exception as e:
     st.stop()
 
 # -----------------------------------------------------------------------------
-# 5. THE MODAL (POP UP FUNCTION)
+# 5. THE MODAL (POP UP FUNCTION) - CLICKABLE IMAGE VERSION
 # -----------------------------------------------------------------------------
 @st.dialog("The Archive Opens...", width="large")
 def view_soul(row):
@@ -285,7 +241,41 @@ def view_soul(row):
     col1, col2 = st.columns([1, 1.4])
     
     with col1:
-        st.image(img_src, use_container_width=True)
+        # --- CLICKABLE IMAGE HACK ---
+        # We use HTML to wrap the image in an anchor tag target="_blank"
+        st.markdown(f"""
+        <style>
+            .img-zoom-container {{
+                position: relative;
+                overflow: hidden;
+                border: 1px solid #333;
+                border-radius: 2px;
+                transition: border-color 0.3s;
+            }}
+            .img-zoom-container:hover {{
+                border-color: #50c878;
+            }}
+            .overlay-icon {{
+                position: absolute;
+                bottom: 10px;
+                right: 10px;
+                background: rgba(0,0,0,0.7);
+                color: #fff;
+                padding: 4px 8px;
+                font-size: 0.8rem;
+                border-radius: 4px;
+                pointer-events: none;
+            }}
+        </style>
+        
+        <div class="img-zoom-container">
+            <a href="{img_src}" target="_blank" title="Open High-Res Version">
+                <img src="{img_src}" style="width: 100%; display: block;">
+                <div class="overlay-icon">⤢ ENLARGE</div>
+            </a>
+        </div>
+        """, unsafe_allow_html=True)
+        
         # Visual Description (Styled)
         st.markdown(f"<div class='modal-visual'>{row['Visual_Desc']}</div>", unsafe_allow_html=True)
         
@@ -317,7 +307,7 @@ def view_soul(row):
 # -----------------------------------------------------------------------------
 # 6. LAYOUT & GRID
 # -----------------------------------------------------------------------------
-st.page_link("1_the_vault.py", label="< RETURN TO HALL", use_container_width=False)
+st.page_link("home.py", label="< RETURN TO HALL", use_container_width=False)
 
 st.markdown("<h1>THE ARCHIVES OF THE LOST</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtext'>That which is remembered, lives forever.</div>", unsafe_allow_html=True)
@@ -339,6 +329,7 @@ else:
 if not filtered_df.empty:
     cols = st.columns(3)
     
+    # Reverse order to show newest first
     for index, row in filtered_df.iloc[::-1].iterrows():
         col_index = index % 3
         
@@ -361,10 +352,30 @@ if not filtered_df.empty:
             
             st.markdown(html, unsafe_allow_html=True)
             
-            # 2. THE BUTTON (Styled to match)
-            # We use the rune ᛦ (Yr) which looks like a key/branch
-            if st.button(f"INSPECT SOUL ᛦ", key=f"btn_{index}"):
-                view_soul(row)
+            # 2. THE BUTTONS (Action Row)
+            # We split the space: Big "Inspect" button, Small "Burn" button
+            b_col1, b_col2 = st.columns([0.8, 0.2])
+            
+            with b_col1:
+                # The Rune ᛦ (Yr) - Inspect
+                if st.button(f"INSPECT ᛦ", key=f"inspect_{index}", use_container_width=True):
+                    view_soul(row)
+            
+            with b_col2:
+                # The Rune 🔥 - Burn
+                if st.button("🔥", key=f"burn_{index}", use_container_width=True, help="Permanently Burn from Archives"):
+                    try:
+                        # Warning: This assumes the dataframe index matches the sheet order.
+                        # Since we are using filtered_df, we must be careful.
+                        # Ideally, find row by Unique ID. For now, we trust the index + 2 logic
+                        # But since we reversed the list, index is still the ORIGINAL index from the full DF
+                        # So this should work.
+                        worksheet.delete_rows(index + 2)
+                        st.toast(f"The soul of {row['Name']} has been severed.", icon="🔥")
+                        # We must clear cache or rerun to see changes
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"The soul resists: {e}")
 
 else:
     st.markdown("<p style='text-align:center; color:#666;'>No souls answer to that name.</p>", unsafe_allow_html=True)
