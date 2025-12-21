@@ -219,20 +219,16 @@ def view_soul(row, index_in_sheet):
         st.markdown("---")
         st.caption("EDIT ARCHIVE TAGS")
         
-        # We need unique keys for these inputs so they don't clash if modal reopens
+        # Unique Keys to prevent conflicts
         new_campaign = st.text_input("Campaign", value=row.get('Campaign', ''), key=f"ec_{index_in_sheet}")
         new_faction = st.text_input("Faction", value=row.get('Faction', ''), key=f"ef_{index_in_sheet}")
         
         if st.button("BIND NEW TAGS", key=f"update_{index_in_sheet}"):
             try:
-                # Update Google Sheet
-                # Campaign is Column 8 (H), Faction is Column 9 (I)
-                # Row is index_in_sheet + 2 (1 for header, 1 for 1-based indexing)
+                # Update Google Sheet (Columns H=8, I=9)
                 sheet_row = index_in_sheet + 2
-                
-                worksheet.update_cell(sheet_row, 8, new_campaign) # Col H
-                worksheet.update_cell(sheet_row, 9, new_faction)  # Col I
-                
+                worksheet.update_cell(sheet_row, 8, new_campaign)
+                worksheet.update_cell(sheet_row, 9, new_faction)
                 st.success("Archive Updated.")
                 st.rerun()
             except Exception as e:
@@ -251,13 +247,16 @@ st.sidebar.header("📜 Filter Archives")
 if not df.empty:
     campaigns = ["All"]
     if 'Campaign' in df.columns:
-        unique_cams = sorted([x for x in df['Campaign'].unique() if str(x).strip() != ""])
+        # FIX: We forcibly convert 'x' to string 'str(x)' before checking conditions
+        # This prevents the TypeError when sorting a mix of Strings and Empty/NaN values
+        unique_cams = sorted([str(x) for x in df['Campaign'].unique() if str(x).strip() != "" and str(x).lower() != "nan"])
         campaigns.extend(unique_cams)
     sel_campaign = st.sidebar.selectbox("Campaign", campaigns)
     
     factions = ["All"]
     if 'Faction' in df.columns:
-        unique_facs = sorted([x for x in df['Faction'].unique() if str(x).strip() != ""])
+        # FIX: Same fix applied here
+        unique_facs = sorted([str(x) for x in df['Faction'].unique() if str(x).strip() != "" and str(x).lower() != "nan"])
         factions.extend(unique_facs)
     sel_faction = st.sidebar.selectbox("Faction", factions)
 else:
@@ -270,9 +269,13 @@ search_query = st.text_input("Search the Archives", placeholder="Speak the name,
 filtered_df = df.copy()
 
 if sel_campaign != "All":
+    # Ensure column is string type for comparison safety
+    filtered_df['Campaign'] = filtered_df['Campaign'].astype(str)
     filtered_df = filtered_df[filtered_df['Campaign'] == sel_campaign]
 
 if sel_faction != "All":
+    # Ensure column is string type for comparison safety
+    filtered_df['Faction'] = filtered_df['Faction'].astype(str)
     filtered_df = filtered_df[filtered_df['Faction'] == sel_faction]
 
 if search_query:
@@ -287,7 +290,6 @@ if search_query:
 if not filtered_df.empty:
     cols = st.columns(3)
     # Iterate with ORIGINAL INDEX to ensure deletes/updates target correct row
-    # We flip list for display, but keep track of original index
     for index, row in filtered_df.iloc[::-1].iterrows():
         col_index = index % 3
         img_src = row.get('Image_URL', '')
@@ -303,7 +305,6 @@ if not filtered_df.empty:
             html += '<div class="card-identity">'
             html += f'<div class="card-name">{row["Name"]}</div>'
             html += f'<div class="card-class">{row["Class"]}</div>'
-            # Optional: Show Campaign on Card
             if row.get('Campaign'):
                  html += f'<div style="color:#444; font-size:0.7rem; margin-top:5px; font-family:Lato;">{row["Campaign"]}</div>'
             html += '</div>'
@@ -314,7 +315,6 @@ if not filtered_df.empty:
             b_col1, b_col2 = st.columns([0.8, 0.2])
             with b_col1:
                 if st.button(f"INSPECT ᛦ", key=f"inspect_{index}", type="primary", use_container_width=True):
-                    # Pass the ORIGINAL index so we can save edits
                     view_soul(row, index)
             with b_col2:
                 if st.button("ᚺ", key=f"burn_{index}", type="secondary", use_container_width=True, help="Permanently Burn from Archives"):
