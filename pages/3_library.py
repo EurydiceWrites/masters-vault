@@ -148,6 +148,7 @@ st.markdown("""
     }
 
     /* --- BUTTON STYLES --- */
+    /* Primary (Inspect / Save) - Emerald Glow */
     button[kind="primary"] {
         background: transparent !important; border: none !important; color: #555 !important;
         font-family: 'Cinzel', serif !important; font-size: 1.1rem !important; padding: 0 !important;
@@ -158,16 +159,16 @@ st.markdown("""
         color: var(--emerald-bright) !important; text-shadow: 0 0 15px var(--emerald-glow);
         transform: scale(1.05); background: transparent !important;
     }
-
-    /* Secondary (Burn/Tag) */
+    
+    /* Secondary (Burn / Tag Icon) - Red/Orange Glow */
     button[kind="secondary"] {
         background: transparent !important; border: none !important; color: #444 !important;
         font-size: 1.5rem !important; padding: 0 !important; height: 60px !important;
         width: 100% !important; transition: all 0.4s ease !important; box-shadow: none !important;
     }
     button[kind="secondary"]:hover {
-        color: var(--destruct-bright) !important;
-        transform: scale(1.2); background: transparent !important;
+        color: var(--destruct-bright) !important; text-shadow: 0 0 10px var(--destruct-red);
+        transform: scale(1.2) rotate(0deg); background: transparent !important;
     }
 
     /* --- MODAL STYLING --- */
@@ -216,12 +217,12 @@ except Exception as e:
     st.stop()
 
 # -----------------------------------------------------------------------------
-# 5. THE MODAL (POP UP FUNCTION) - EDITABLE
+# 5. THE MODAL (POP UP FUNCTION) - CLEAN (No Edits)
 # -----------------------------------------------------------------------------
 @st.dialog("The Archive Opens...", width="large")
 def view_soul(row, index_in_sheet):
     """
-    Shows details AND allows editing of Campaign/Faction.
+    Shows pure details. Edits happen in the popover.
     """
     img_src = row.get('Image_URL', '')
     if not str(img_src).startswith("http"):
@@ -304,7 +305,6 @@ if search_query:
 # --- GRID ---
 if not filtered_df.empty:
     cols = st.columns(3)
-    # Iterate with ORIGINAL INDEX to ensure deletes/updates target correct row
     for index, row in filtered_df.iloc[::-1].iterrows():
         col_index = index % 3
         img_src = row.get('Image_URL', '')
@@ -344,27 +344,31 @@ if not filtered_df.empty:
             b_col1, b_col2, b_col3 = st.columns([0.6, 0.2, 0.2])
             
             with b_col1:
+                # INSPECT - Uses 'Primary' (Emerald Glow)
                 if st.button(f"INSPECT ᛦ", key=f"inspect_{index}", type="primary", use_container_width=True):
                     view_soul(row, index)
             
-            # --- QUICK EDIT POPOVER ---
+            # --- QUICK EDIT POPOVER (The Quill) ---
             with b_col2:
-                # Uses a Popover (Mini Menu)
-                with st.popover("🏷️", use_container_width=True):
-                    st.caption(f"Edit Tags: {row['Name']}")
+                # Uses a Popover with Quill Icon
+                with st.popover("✒️", use_container_width=True):
+                    st.caption(f"Inscribe Tags: {row['Name']}")
                     p_campaign = st.text_input("Campaign", value=row.get('Campaign', ''), key=f"pc_{index}")
                     p_faction = st.text_input("Faction", value=row.get('Faction', ''), key=f"pf_{index}")
-                    if st.button("Save", key=f"psave_{index}"):
+                    
+                    # SAVE BUTTON - Uses 'Primary' (Emerald Glow)
+                    if st.button("Save", key=f"psave_{index}", type="primary"):
                         try:
                             sheet_row = index + 2
                             worksheet.update_cell(sheet_row, 8, p_campaign)
                             worksheet.update_cell(sheet_row, 9, p_faction)
-                            st.toast("Tags Updated", icon="🏷️")
+                            st.toast("Resonance Inscribed", icon="✒️")
                             st.rerun()
                         except Exception as e:
                             st.error(f"Error: {e}")
 
             with b_col3:
+                # BURN - Uses 'Secondary' (Red/Orange Glow)
                 if st.button("ᚺ", key=f"burn_{index}", type="secondary", use_container_width=True, help="Burn Soul"):
                     try:
                         worksheet.delete_rows(index + 2)
