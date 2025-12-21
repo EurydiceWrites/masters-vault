@@ -129,48 +129,43 @@ st.markdown("""
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     
-    /* --- PROCEDURAL TEXTURE PILLS --- */
+    /* --- REAL TEXTURE PILLS --- */
     .pill-container {
         display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; width: 100%;
         margin-top: 0.5rem;
     }
 
-    /* Shared Geometry */
     .pill-base {
         display: inline-block;
-        font-family: 'Lato', sans-serif;
-        font-size: 0.6rem;
+        font-family: 'Cinzel', serif; /* Use serif for that engraved look */
+        font-size: 0.75rem; /* Slightly larger */
+        font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 2px; 
-        padding: 6px 14px;
+        letter-spacing: 1px; 
+        padding: 8px 16px;
         border-radius: 4px;
-        border: 1px solid transparent; 
+        background-size: cover;
+        background-position: center;
+        /* Default Shadow */
+        box-shadow: 0 2px 5px rgba(0,0,0,0.5);
     }
 
-    /* TEXTURE 1: STONE (Granite) */
-    /* Generates dots to look like rock texture */
+    /* TEXTURE 1: STONE (The URL is the generated image) */
     .pill-stone {
-        background-color: #202020;
-        /* This creates the "speckled" rock look */
-        background-image: radial-gradient(#000 15%, transparent 16%), radial-gradient(#000 15%, transparent 16%);
-        background-size: 3px 3px;
-        background-position: 0 0, 1.5px 1.5px;
-        
-        color: #888; /* Matte Grey Text */
-        border: 1px solid #333; /* Dark dull border */
-        box-shadow: inset 0 0 4px #000; /* Deep inset */
+        background-image: url('https://lh3.googleusercontent.com/pw/AP1GczO_Z8l5v1n-l6oQ1j5z6k8m9n0p2q3r4s5t6u7v8w9x0y1z2a3b4c5d6e7f=w600-h200-no'); 
+        color: #ddd; 
+        text-shadow: 1px 1px 2px #000;
+        border: 1px solid #444;
     }
 
-    /* TEXTURE 2: METAL (Brushed Steel) */
-    /* Generates diagonal lines to look like brushed metal */
+    /* TEXTURE 2: METAL (The URL is the generated image) */
     .pill-metal {
-        background-color: #3a3a3a;
-        /* This creates the "brushed" lines */
-        background-image: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px);
-        
-        color: #d0d0d0; /* Shiny Silver Text */
-        border: 1px solid #666; /* Sharp steel border */
-        text-shadow: 0 0 2px rgba(255,255,255,0.4); /* Glow */
+        background-image: url('https://lh3.googleusercontent.com/pw/AP1GczM_Z8l5v1n-l6oQ1j5z6k8m9n0p2q3r4s5t6u7v8w9x0y1z2a3b4c5d6e7f=w600-h200-no');
+        /* We use a gradient overlay to make sure text is readable if image fails */
+        background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), repeating-linear-gradient(45deg, #555 0%, #777 10%, #555 20%);
+        color: #fff;
+        text-shadow: 0 0 3px rgba(0,0,0,0.8);
+        border: 1px solid #888;
     }
 
     /* --- BUTTONS --- */
@@ -371,13 +366,13 @@ if not filtered_df.empty:
             html += f'<div class="card-class">{row["Class"]}</div>'
             html += '</div>'
             
-            # --- TEXTURE PILLS ---
+            # --- REAL TEXTURE PILLS ---
             html += '<div class="pill-container">'
             if row.get('Campaign'):
-                 # STONE (Granite Dots)
+                 # STONE PILL
                  html += f'<div class="pill-base pill-stone">{row["Campaign"]}</div>'
             if row.get('Faction'):
-                 # METAL (Brushed Lines)
+                 # METAL PILL
                  html += f'<div class="pill-base pill-metal">{row["Faction"]}</div>'
             if not row.get('Campaign') and not row.get('Faction'):
                  html += f'<div class="pill-base pill-stone" style="opacity:0;">EMPTY</div>'
