@@ -79,8 +79,8 @@ st.markdown("""
         box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         display: flex;
         flex-direction: column;
-        /* FIXED HEIGHT to ensure alignment across rows */
-        height: 560px !important; 
+        /* FIXED HEIGHT: We use 500px to keep it compact */
+        height: 500px !important; 
         margin-bottom: 0px !important;
         overflow: hidden;
     }
@@ -89,10 +89,10 @@ st.markdown("""
         box-shadow: 0 15px 50px rgba(0,0,0,1);
     }
 
-    /* Image Frame - Strictly 320px */
+    /* Image Frame - 280px is the sweet spot for portraits */
     .img-frame { 
         width: 100%; 
-        height: 320px; 
+        height: 280px; 
         overflow: hidden; 
         border-bottom: 1px solid #222; 
         position: relative; 
@@ -101,14 +101,15 @@ st.markdown("""
     .img-frame img { 
         width: 100%; 
         height: 100%; 
-        object-fit: cover; /* Ensures image fills box without stretching */
-        object-position: top; 
+        object-fit: cover; 
+        /* CRITICAL FIX: Anchor image to TOP (Head) instead of CENTER (Torso) */
+        object-position: top center; 
         opacity: 0.95; 
         transition: opacity 0.5s; 
     }
     .img-frame:hover img { opacity: 1; transform: scale(1.02); }
 
-    /* Identity Section - Strictly 240px remaining */
+    /* Identity Section - Fills the rest */
     .card-identity {
         padding: 1rem 0.5rem; 
         text-align: center;
@@ -116,28 +117,33 @@ st.markdown("""
         flex-grow: 1; 
         display: flex; 
         flex-direction: column; 
-        justify-content: flex-start; /* Align content to top */
-        gap: 0.5rem;
+        justify-content: flex-start; 
+        gap: 0.2rem;
     }
 
-    /* Name: Limit to 2 lines, overflow ellipsis */
+    /* Name: RESERVED SPACE for 2 lines */
     .card-name { 
         font-family: 'Cinzel', serif; 
-        font-size: 1.4rem; 
+        font-size: 1.3rem; 
         color: #fff; 
         letter-spacing: 1px; 
         text-shadow: 0 4px 10px #000;
         line-height: 1.2;
         
-        /* Truncate logic */
+        /* Force 2 lines of height even if text is short */
+        min-height: 3.2rem; 
+        display: flex;
+        align-items: center; /* Center text vertically in that space */
+        justify-content: center;
+        
+        /* Cut off if longer than 2 lines */
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        height: 3.4rem; /* Fixed height for 2 lines */
     }
 
-    /* Class: Limit to 1 line */
+    /* Class: Simple 1 line */
     .card-class { 
         font-family: 'Cinzel', serif; 
         font-size: 0.8rem; 
@@ -145,25 +151,28 @@ st.markdown("""
         letter-spacing: 2px; 
         text-transform: uppercase; 
         opacity: 0.9;
+        margin-bottom: 0.5rem;
         
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
     
-    /* Pill Tag for Campaign */
+    /* Pill Tag - Pushed to bottom */
     .tag-pill {
         display: inline-block;
         background: #1a1a1a;
         border: 1px solid #333;
-        color: #888;
+        color: #666;
         font-family: 'Lato', sans-serif;
-        font-size: 0.6rem;
+        font-size: 0.65rem;
         text-transform: uppercase;
         letter-spacing: 1px;
-        padding: 2px 8px;
+        padding: 4px 12px;
         border-radius: 12px;
-        margin-top: auto; /* Pushes to bottom of container */
+        
+        /* Auto margin pushes it to the bottom of the flex container */
+        margin-top: auto; 
         align-self: center;
     }
 
@@ -362,7 +371,6 @@ if not filtered_df.empty:
             html += f'<div class="card-class">{row["Class"]}</div>'
             
             # --- PILL LABEL FIX ---
-            # Instead of loose text, we render a "Pill" if a campaign tag exists
             if row.get('Campaign'):
                  html += f'<div class="tag-pill">{row["Campaign"]}</div>'
             
