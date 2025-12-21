@@ -20,7 +20,7 @@ if "last_concept" not in st.session_state:
     st.session_state.last_concept = ""
 
 # -----------------------------------------------------------------------------
-# 2. THE VISUAL ENGINE (Unified Library Theme)
+# 2. THE VISUAL ENGINE (The Void Theme)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -87,24 +87,56 @@ st.markdown("""
     a[data-testid="stPageLink-NavLink"] p { color: #666; font-family: 'Cinzel', serif; font-size: 0.9rem; transition: color 0.3s; }
     a[data-testid="stPageLink-NavLink"]:hover p { color: var(--nav-gold) !important; text-shadow: 0 0 10px var(--emerald-glow); }
 
-    /* --- THE NAVY KILLER (Input Field Override) --- */
+    /* --- THE VOID INPUT (Specific Overrides) --- */
+    
+    /* 1. Target the Outer Container */
     div[data-baseweb="input"] {
         background-color: #000000 !important; /* PITCH BLACK */
         border: 1px solid #333 !important;
         border-radius: 0px !important;
+        padding: 10px;
     }
+
+    /* 2. Target the Inner 'Base Input' */
     div[data-baseweb="base-input"] {
-        background-color: #000000 !important;
+        background-color: transparent !important;
         border: none !important;
-        border-radius: 0px !important;
     }
+
+    /* 3. Target the Text Itself */
     input.st-ai, input.st-ah, input[type="text"] {
         background-color: transparent !important;
         color: #e0e0e0 !important;
         font-family: 'Cormorant Garamond', serif !important;
-        font-size: 1.2rem !important;
-        text-align: center !important; /* Center the wish */
+        font-size: 1.5rem !important;
+        text-align: center !important; 
+        font-style: italic;
     }
+    
+    /* 4. THE GHOST PLACEHOLDER (Hidden until hover) */
+    input::placeholder {
+        color: transparent !important; /* Invisible by default */
+        transition: color 0.5s ease-in-out;
+        font-family: 'Cinzel', serif !important;
+        font-size: 1rem !important;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+    
+    /* Reveal on Hover or Focus */
+    div[data-baseweb="input"]:hover input::placeholder {
+        color: #444 !important; /* Faint grey on hover */
+    }
+    div[data-baseweb="base-input"]:focus-within input::placeholder {
+        color: #333 !important;
+    }
+
+    /* 5. REMOVE "PRESS ENTER" Instructions */
+    div[data-testid="InputInstructions"] {
+        display: none !important;
+    }
+
+    /* 6. The Label (The "Call") */
     label p {
         font-family: 'Cinzel', serif !important;
         font-size: 1.2rem !important;
@@ -112,10 +144,13 @@ st.markdown("""
         text-align: center !important;
         letter-spacing: 2px !important;
         width: 100%;
+        margin-bottom: 10px !important;
     }
-    div[data-baseweb="base-input"]:focus-within {
-        border: 1px solid var(--emerald-glow) !important;
-        box-shadow: 0 0 15px rgba(80, 200, 120, 0.2) !important;
+
+    /* Focus Glow */
+    div[data-baseweb="input"]:focus-within {
+        border-color: var(--emerald-glow) !important;
+        box-shadow: 0 0 20px rgba(80, 200, 120, 0.2) !important;
     }
 
     /* --- BUTTONS --- */
@@ -127,9 +162,9 @@ st.markdown("""
         color: #888 !important;
         font-family: 'Cinzel', serif !important;
         font-weight: 700 !important;
-        letter-spacing: 2px !important;
-        font-size: 1rem !important;
-        height: 60px !important;
+        letter-spacing: 6px !important;
+        font-size: 1.2rem !important;
+        height: 70px !important;
         transition: all 0.5s ease !important;
         margin-top: 1rem;
     }
@@ -272,6 +307,7 @@ def forge_npc(concept, tone):
         if auth_success:
             sh = gc.open("Masters_Vault_Db")
             worksheet = sh.get_worksheet(0)
+            # Simple save: Name, Class, Lore, Greeting, Visual, Image, Time
             row_data = [
                 char_data['Name'], 
                 char_data['Class'], 
@@ -300,13 +336,14 @@ st.markdown("<div class='subtext'>Inscribe the soul. Strike the iron.</div>", un
 # --- SIDEBAR FILTERS ---
 st.sidebar.markdown('<div class="sidebar-header">The Forge</div>', unsafe_allow_html=True)
 
-# --- THE INPUT (CALL & RESPONSE + Z-PATTERN) ---
+# --- THE INPUT (Z-PATTERN & CALL/RESPONSE) ---
 with st.form("forge_form"):
     
-    # 1. The Call (Label) and Response (Help)
+    # 1. The Call (Label)
+    # The placeholder acts as the response (hidden until hover/focus)
     user_input = st.text_input(
         label="WHISPER YOUR DESIRES...", 
-        help="...and the void shall give it form."
+        placeholder="...and the void shall give it form."
     )
     
     # 2. Layout for Button (Z-Pattern Alignment)
