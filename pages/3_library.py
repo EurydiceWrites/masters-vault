@@ -26,10 +26,6 @@ st.markdown("""
         --destruct-bright: #ff4500;
         --nav-gold: #d4af37; 
         --gold-glow: rgba(212, 175, 55, 0.6);
-        
-        /* Material Text Colors */
-        --text-stone: #6a6a6a;   /* Deep Warm Grey */
-        --text-metal: #b0c4de;   /* Light Steel Blue */
     }
 
     /* --- GLOBAL --- */
@@ -133,7 +129,7 @@ st.markdown("""
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     
-    /* --- TEXTURE PILLS --- */
+    /* --- PROCEDURAL TEXTURE PILLS --- */
     .pill-container {
         display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; width: 100%;
         margin-top: 0.5rem;
@@ -148,28 +144,33 @@ st.markdown("""
         letter-spacing: 2px; 
         padding: 6px 14px;
         border-radius: 4px;
-        border: none !important; 
+        border: 1px solid transparent; 
     }
 
-    /* TEXTURE 1: STONE (Campaign) */
-    /* Concept: "Hewn from Rock" - Matte, Recessed */
+    /* TEXTURE 1: STONE (Granite) */
+    /* Generates dots to look like rock texture */
     .pill-stone {
-        background: #181818; 
-        color: var(--text-stone); 
-        /* Heavy INSET shadow makes it look carved IN */
-        box-shadow: inset 2px 2px 5px rgba(0,0,0,1), inset -1px -1px 2px rgba(255,255,255,0.05);
+        background-color: #202020;
+        /* This creates the "speckled" rock look */
+        background-image: radial-gradient(#000 15%, transparent 16%), radial-gradient(#000 15%, transparent 16%);
+        background-size: 3px 3px;
+        background-position: 0 0, 1.5px 1.5px;
+        
+        color: #888; /* Matte Grey Text */
+        border: 1px solid #333; /* Dark dull border */
+        box-shadow: inset 0 0 4px #000; /* Deep inset */
     }
 
-    /* TEXTURE 2: METAL (Faction) */
-    /* Concept: "Forged Steel" - Shiny, Raised */
+    /* TEXTURE 2: METAL (Brushed Steel) */
+    /* Generates diagonal lines to look like brushed metal */
     .pill-metal {
-        /* Diagonal Gradient simulates light reflection */
-        background: linear-gradient(135deg, #2a2a2a 0%, #3d3d3d 50%, #2a2a2a 100%);
-        color: var(--text-metal);
-        /* Subtle DROP shadow makes it look pinned ON */
-        box-shadow: 2px 2px 4px rgba(0,0,0,0.6);
-        /* Slight text shadow for glow */
-        text-shadow: 0 0 2px rgba(176, 196, 222, 0.3);
+        background-color: #3a3a3a;
+        /* This creates the "brushed" lines */
+        background-image: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px);
+        
+        color: #d0d0d0; /* Shiny Silver Text */
+        border: 1px solid #666; /* Sharp steel border */
+        text-shadow: 0 0 2px rgba(255,255,255,0.4); /* Glow */
     }
 
     /* --- BUTTONS --- */
@@ -370,13 +371,13 @@ if not filtered_df.empty:
             html += f'<div class="card-class">{row["Class"]}</div>'
             html += '</div>'
             
-            # --- TEXTURE PILLS (STONE & METAL) ---
+            # --- TEXTURE PILLS ---
             html += '<div class="pill-container">'
             if row.get('Campaign'):
-                 # STONE: Hewn, Matte
+                 # STONE (Granite Dots)
                  html += f'<div class="pill-base pill-stone">{row["Campaign"]}</div>'
             if row.get('Faction'):
-                 # METAL: Forged, Shiny
+                 # METAL (Brushed Lines)
                  html += f'<div class="pill-base pill-metal">{row["Faction"]}</div>'
             if not row.get('Campaign') and not row.get('Faction'):
                  html += f'<div class="pill-base pill-stone" style="opacity:0;">EMPTY</div>'
@@ -399,10 +400,10 @@ if not filtered_df.empty:
                     st.caption(f"Inscribe Tags: {row['Name']}")
                     
                     # TEXTURE CODED HEADERS (Learning Aid)
-                    st.markdown("<span style='color:#6a6a6a; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px;'>CAMPAIGN (STONE)</span>", unsafe_allow_html=True)
+                    st.markdown("<span style='color:#888; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px; border-bottom:1px solid #333;'>CAMPAIGN (STONE)</span>", unsafe_allow_html=True)
                     p_campaign = st.text_input("Campaign", value=row.get('Campaign', ''), key=f"pc_{index}", label_visibility="collapsed")
                     
-                    st.markdown("<span style='color:#b0c4de; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px;'>FACTION (METAL)</span>", unsafe_allow_html=True)
+                    st.markdown("<span style='color:#d0d0d0; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px; text-shadow:0 0 5px rgba(255,255,255,0.3); border-bottom:1px solid #666;'>FACTION (METAL)</span>", unsafe_allow_html=True)
                     p_faction = st.text_input("Faction", value=row.get('Faction', ''), key=f"pf_{index}", label_visibility="collapsed")
                     
                     if st.button("Save", key=f"psave_{index}", type="primary"):
