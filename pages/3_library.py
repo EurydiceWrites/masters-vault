@@ -345,18 +345,16 @@ if search_query:
 # --- GRID ---
 if not filtered_df.empty:
     cols = st.columns(3)
-    # Iterate with ORIGINAL INDEX to ensure deletes/updates target correct row
     for index, row in filtered_df.iloc[::-1].iterrows():
         col_index = index % 3
         img_src = row.get('Image_URL', '')
         if not str(img_src).startswith("http"):
             img_src = "https://via.placeholder.com/400x500?text=No+Visage"
 
-        # --- CLOUDINARY AI FACE CROP HACK ---
+        # --- CLOUDINARY AI FACE CROP HACK (HIGH RES) ---
         if "cloudinary" in img_src and "/upload/" in img_src:
-            # Inject g_face (Gravity: Face) and c_fill (Crop Fill)
-            # This forces Cloudinary to find the face and center on it
-            img_src = img_src.replace("/upload/", "/upload/c_fill,g_face,w_400,h_300/")
+            # Request 800px wide image, centered on face
+            img_src = img_src.replace("/upload/", "/upload/c_fill,g_face,w_800,h_600/")
 
         with cols[col_index]:
             html = ""
