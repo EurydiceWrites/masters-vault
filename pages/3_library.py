@@ -27,10 +27,10 @@ st.markdown("""
         --nav-gold: #d4af37; 
         --gold-glow: rgba(212, 175, 55, 0.6);
         
-        /* Tag Colors */
-        --tag-stone: #888;       /* Campaign */
-        --tag-purple: #9d4edd;   /* Faction (Amethyst) */
-        --tag-purple-dim: #2e1a47; 
+        /* Material Colors */
+        --text-stone: #666;      /* Etched Grey */
+        --text-metal: #e0e0e0;   /* Polished Silver */
+        --border-metal: #888;    /* Steel Edge */
     }
 
     /* --- GLOBAL --- */
@@ -134,35 +134,40 @@ st.markdown("""
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     
-    /* --- UNIFIED PILL STYLES --- */
+    /* --- MATERIAL PILLS --- */
     .pill-container {
         display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; width: 100%;
         margin-top: 0.5rem;
     }
 
-    /* Base Pill Shape */
+    /* Shared Shape */
     .pill-base {
         display: inline-block;
-        background: #151515; 
         font-family: 'Lato', sans-serif;
         font-size: 0.65rem;
         text-transform: uppercase;
         letter-spacing: 1px;
         padding: 4px 12px;
-        border-radius: 12px; 
+        border-radius: 4px; /* Sharper corners for a harder look */
         min-width: 60px;
     }
 
-    /* Variant 1: Campaign (Stone Grey) */
-    .pill-campaign {
-        border: 1px solid #444;
-        color: var(--tag-stone);
+    /* TEXTURE 1: STONE (Campaign) */
+    /* Matte, flat, dark, etched text */
+    .pill-stone {
+        background: #111; /* Pitch black/stone */
+        border: 1px solid #333; /* Dark dull border */
+        color: var(--text-stone); /* Dim grey text */
+        box-shadow: inset 0 0 5px #000; /* Inset shadow to look carved */
     }
 
-    /* Variant 2: Faction (Amethyst Purple) */
-    .pill-faction {
-        border: 1px solid var(--tag-purple-dim);
-        color: var(--tag-purple);
+    /* TEXTURE 2: METAL (Faction) */
+    /* Shiny, Gradient, Silver Text */
+    .pill-metal {
+        background: linear-gradient(145deg, #2a2a2a, #111); /* Metallic sheen gradient */
+        border: 1px solid var(--border-metal); /* Bright steel border */
+        color: var(--text-metal); /* Bright silver text */
+        text-shadow: 0 0 2px rgba(255,255,255,0.3); /* Slight metallic glow */
     }
 
     /* --- BUTTONS --- */
@@ -363,14 +368,16 @@ if not filtered_df.empty:
             html += f'<div class="card-class">{row["Class"]}</div>'
             html += '</div>'
             
-            # --- DUAL PILLS (COLOR CODED) ---
+            # --- STONE & METAL PILLS ---
             html += '<div class="pill-container">'
             if row.get('Campaign'):
-                 html += f'<div class="pill-base pill-campaign">{row["Campaign"]}</div>'
+                 # STONE: Dark, Matte, Etched
+                 html += f'<div class="pill-base pill-stone">{row["Campaign"]}</div>'
             if row.get('Faction'):
-                 html += f'<div class="pill-base pill-faction">{row["Faction"]}</div>'
+                 # METAL: Shiny, Silver, Bright
+                 html += f'<div class="pill-base pill-metal">{row["Faction"]}</div>'
             if not row.get('Campaign') and not row.get('Faction'):
-                 html += f'<div class="pill-base pill-campaign" style="opacity:0;">EMPTY</div>'
+                 html += f'<div class="pill-base pill-stone" style="opacity:0;">EMPTY</div>'
             html += '</div>'
             
             html += '</div>'
@@ -389,13 +396,11 @@ if not filtered_df.empty:
                 with st.popover("✒️", use_container_width=True):
                     st.caption(f"Inscribe Tags: {row['Name']}")
                     
-                    # COLOR CODED INPUT HEADERS (Learning Aid)
-                    # Campaign = Stone Grey
-                    st.markdown("<span style='color:#888; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px;'>CAMPAIGN (GREY)</span>", unsafe_allow_html=True)
+                    # TEXTURE CODED INPUT HEADERS
+                    st.markdown("<span style='color:#666; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px;'>CAMPAIGN (STONE)</span>", unsafe_allow_html=True)
                     p_campaign = st.text_input("Campaign", value=row.get('Campaign', ''), key=f"pc_{index}", label_visibility="collapsed")
                     
-                    # Faction = Amethyst Purple
-                    st.markdown("<span style='color:#9d4edd; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px;'>FACTION (PURPLE)</span>", unsafe_allow_html=True)
+                    st.markdown("<span style='color:#ccc; font-size:0.8rem; font-family:Cinzel; letter-spacing:1px; text-shadow: 0 0 5px #fff;'>FACTION (METAL)</span>", unsafe_allow_html=True)
                     p_faction = st.text_input("Faction", value=row.get('Faction', ''), key=f"pf_{index}", label_visibility="collapsed")
                     
                     if st.button("Save", key=f"psave_{index}", type="primary"):
