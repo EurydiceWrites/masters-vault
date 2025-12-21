@@ -91,7 +91,7 @@ st.markdown("""
     /* Image Frame */
     .img-frame { 
         width: 100%; 
-        height: 300px; /* Fixed Image Height */
+        height: 300px; 
         overflow: hidden; 
         border-bottom: 1px solid #222; 
         position: relative; 
@@ -101,12 +101,13 @@ st.markdown("""
         width: 100%; 
         height: 100%; 
         object-fit: cover; 
+        object-position: top center; /* Fixes Headless Gorm */
         opacity: 0.95; 
         transition: opacity 0.5s; 
     }
     .img-frame:hover img { opacity: 1; transform: scale(1.02); }
 
-    /* Identity Section - Uses Flexbox Space-Between to align Pill */
+    /* Identity Section */
     .card-identity {
         padding: 1rem 0.5rem; 
         text-align: center;
@@ -114,18 +115,12 @@ st.markdown("""
         flex-grow: 1; 
         display: flex; 
         flex-direction: column; 
-        justify-content: space-between; /* This pushes the Pill to bottom */
+        justify-content: space-between; 
         align-items: center;
         gap: 0.5rem;
     }
 
-    /* Top half of Identity (Name + Class) */
-    .identity-top {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 0.2rem;
-    }
+    .identity-top { width: 100%; display: flex; flex-direction: column; gap: 0.2rem; }
 
     .card-name { 
         font-family: 'Cinzel', serif; 
@@ -134,45 +129,25 @@ st.markdown("""
         letter-spacing: 1px; 
         text-shadow: 0 4px 10px #000;
         line-height: 1.2;
-        /* Truncate after 2 lines */
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         min-height: 3.4rem; /* Reserve space */
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        display: flex; align-items: center; justify-content: center;
     }
 
     .card-class { 
-        font-family: 'Cinzel', serif; 
-        font-size: 0.8rem; 
-        color: var(--emerald-bright); 
-        letter-spacing: 2px; 
-        text-transform: uppercase; 
-        opacity: 0.9;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--emerald-bright); 
+        letter-spacing: 2px; text-transform: uppercase; opacity: 0.9;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     
-    /* Pill Tag - Bottom of Card */
+    /* Pill Tag */
     .tag-pill {
-        display: inline-block;
-        background: #1a1a1a;
-        border: 1px solid #333;
-        color: #666;
-        font-family: 'Lato', sans-serif;
-        font-size: 0.65rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        padding: 4px 12px;
-        border-radius: 12px;
-        margin-top: 0.5rem;
+        display: inline-block; background: #1a1a1a; border: 1px solid #333; color: #666;
+        font-family: 'Lato', sans-serif; font-size: 0.65rem; text-transform: uppercase;
+        letter-spacing: 1px; padding: 4px 12px; border-radius: 12px; margin-top: 0.5rem;
     }
 
-    /* --- FLOATING BUTTON STYLES --- */
+    /* --- BUTTON STYLES --- */
     button[kind="primary"] {
         background: transparent !important; border: none !important; color: #555 !important;
         font-family: 'Cinzel', serif !important; font-size: 1.1rem !important; padding: 0 !important;
@@ -184,14 +159,15 @@ st.markdown("""
         transform: scale(1.05); background: transparent !important;
     }
 
+    /* Secondary (Burn/Tag) */
     button[kind="secondary"] {
         background: transparent !important; border: none !important; color: #444 !important;
         font-size: 1.5rem !important; padding: 0 !important; height: 60px !important;
         width: 100% !important; transition: all 0.4s ease !important; box-shadow: none !important;
     }
     button[kind="secondary"]:hover {
-        color: var(--destruct-bright) !important; text-shadow: 0 0 10px var(--destruct-red);
-        transform: scale(1.2) rotate(180deg); background: transparent !important;
+        color: var(--destruct-bright) !important;
+        transform: scale(1.2); background: transparent !important;
     }
 
     /* --- MODAL STYLING --- */
@@ -277,23 +253,6 @@ def view_soul(row, index_in_sheet):
             <div class="modal-voice">“{row['Greeting']}”</div>
             <div class="modal-lore">{row['Lore']}</div>
         """, unsafe_allow_html=True)
-        
-        # --- EDITABLE TAGS SECTION ---
-        st.markdown("---")
-        st.caption("EDIT ARCHIVE TAGS")
-        
-        new_campaign = st.text_input("Campaign", value=row.get('Campaign', ''), key=f"ec_{index_in_sheet}")
-        new_faction = st.text_input("Faction", value=row.get('Faction', ''), key=f"ef_{index_in_sheet}")
-        
-        if st.button("BIND NEW TAGS", key=f"update_{index_in_sheet}"):
-            try:
-                sheet_row = index_in_sheet + 2
-                worksheet.update_cell(sheet_row, 8, new_campaign)
-                worksheet.update_cell(sheet_row, 9, new_faction)
-                st.success("Archive Updated.")
-                st.rerun()
-            except Exception as e:
-                st.error(f"Update Failed: {e}")
 
 # -----------------------------------------------------------------------------
 # 6. LAYOUT & GRID
@@ -345,15 +304,15 @@ if search_query:
 # --- GRID ---
 if not filtered_df.empty:
     cols = st.columns(3)
+    # Iterate with ORIGINAL INDEX to ensure deletes/updates target correct row
     for index, row in filtered_df.iloc[::-1].iterrows():
         col_index = index % 3
         img_src = row.get('Image_URL', '')
         if not str(img_src).startswith("http"):
             img_src = "https://via.placeholder.com/400x500?text=No+Visage"
 
-        # --- CLOUDINARY AI FACE CROP HACK (HIGH RES) ---
+        # --- CLOUDINARY AI FACE CROP (HIGH RES) ---
         if "cloudinary" in img_src and "/upload/" in img_src:
-            # Request 800px wide image, centered on face
             img_src = img_src.replace("/upload/", "/upload/c_fill,g_face,w_800,h_600/")
 
         with cols[col_index]:
@@ -370,30 +329,49 @@ if not filtered_df.empty:
             html += f'<div class="card-class">{row["Class"]}</div>'
             html += '</div>'
             
-            # Identity Bottom: Pill Tag (Pushed to bottom by justify-content: space-between)
+            # Identity Bottom: Pill Tag
             if row.get('Campaign'):
                  html += f'<div class="tag-pill">{row["Campaign"]}</div>'
             else:
-                 # Invisible spacer to keep alignment even if no tag
                  html += f'<div class="tag-pill" style="opacity:0;">EMPTY</div>'
             
             html += '</div>'
             html += '</div>' 
             st.markdown(html, unsafe_allow_html=True)
             
-            # FLOATING ACTIONS
-            b_col1, b_col2 = st.columns([0.8, 0.2])
+            # FLOATING ACTIONS (3 COLUMNS)
+            # Layout: 60% Inspect | 20% Edit Tags | 20% Burn
+            b_col1, b_col2, b_col3 = st.columns([0.6, 0.2, 0.2])
+            
             with b_col1:
                 if st.button(f"INSPECT ᛦ", key=f"inspect_{index}", type="primary", use_container_width=True):
                     view_soul(row, index)
+            
+            # --- QUICK EDIT POPOVER ---
             with b_col2:
-                if st.button("ᚺ", key=f"burn_{index}", type="secondary", use_container_width=True, help="Permanently Burn from Archives"):
+                # Uses a Popover (Mini Menu)
+                with st.popover("🏷️", use_container_width=True):
+                    st.caption(f"Edit Tags: {row['Name']}")
+                    p_campaign = st.text_input("Campaign", value=row.get('Campaign', ''), key=f"pc_{index}")
+                    p_faction = st.text_input("Faction", value=row.get('Faction', ''), key=f"pf_{index}")
+                    if st.button("Save", key=f"psave_{index}"):
+                        try:
+                            sheet_row = index + 2
+                            worksheet.update_cell(sheet_row, 8, p_campaign)
+                            worksheet.update_cell(sheet_row, 9, p_faction)
+                            st.toast("Tags Updated", icon="🏷️")
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Error: {e}")
+
+            with b_col3:
+                if st.button("ᚺ", key=f"burn_{index}", type="secondary", use_container_width=True, help="Burn Soul"):
                     try:
                         worksheet.delete_rows(index + 2)
-                        st.toast(f"The soul of {row['Name']} has been severed.", icon="🔥")
+                        st.toast(f"Severed.", icon="🔥")
                         st.rerun()
                     except Exception as e:
-                        st.error(f"The soul resists: {e}")
+                        st.error(f"Error: {e}")
 else:
     st.markdown("<p style='text-align:center; color:#666;'>No souls answer to that name.</p>", unsafe_allow_html=True)
 
