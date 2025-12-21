@@ -24,7 +24,7 @@ st.markdown("""
         --emerald-dim: #1e3a2a;
         --destruct-red: #8b0000;
         --destruct-bright: #ff4500;
-        --nav-gold: #d4af37; /* Divine Gold */
+        --nav-gold: #d4af37;
         --gold-glow: rgba(212, 175, 55, 0.6);
     }
 
@@ -86,7 +86,7 @@ st.markdown("""
         box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         display: flex;
         flex-direction: column;
-        height: 520px !important;
+        height: 530px !important; /* Slight increase to fit dual pills */
         margin-bottom: 0px !important;
         overflow: hidden;
     }
@@ -129,13 +129,41 @@ st.markdown("""
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     
-    .tag-pill {
-        display: inline-block; background: #1a1a1a; border: 1px solid #333; color: #666;
-        font-family: 'Lato', sans-serif; font-size: 0.65rem; text-transform: uppercase;
-        letter-spacing: 1px; padding: 4px 12px; border-radius: 12px; margin-top: 0.5rem;
+    /* --- PILL STYLES (DISTINCT BUT SUBTLE) --- */
+    .pill-container {
+        display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; width: 100%;
+        margin-top: 0.5rem;
     }
 
-    /* --- BUTTON CLASS 1: PRIMARY (INSPECT) --- */
+    /* STYLE 1: CAMPAIGN (Stone/Foundation) */
+    .pill-campaign {
+        display: inline-block; 
+        background: #1a1a1a; 
+        border: 1px solid #333; 
+        color: #888; /* Muted Grey Text */
+        font-family: 'Lato', sans-serif; 
+        font-size: 0.6rem; 
+        text-transform: uppercase;
+        letter-spacing: 1px; 
+        padding: 3px 10px; 
+        border-radius: 10px;
+    }
+
+    /* STYLE 2: FACTION (Emerald/Allegiance) */
+    .pill-faction {
+        display: inline-block; 
+        background: #0e1a14; /* Very Dark Green Background */
+        border: 1px solid #1e3a2a; 
+        color: #50c878; /* Emerald Text */
+        font-family: 'Lato', sans-serif; 
+        font-size: 0.6rem; 
+        text-transform: uppercase;
+        letter-spacing: 1px; 
+        padding: 3px 10px; 
+        border-radius: 10px;
+    }
+
+    /* --- BUTTONS --- */
     button[kind="primary"] {
         background: transparent !important; border: none !important; color: #555 !important;
         font-family: 'Cinzel', serif !important; font-size: 1.1rem !important; padding: 0 !important;
@@ -147,8 +175,6 @@ st.markdown("""
         transform: scale(1.05); background: transparent !important;
     }
 
-    /* --- BUTTON CLASS 2: SECONDARY (BURN ONLY) --- */
-    /* This rule makes Secondary buttons Red by default */
     button[kind="secondary"] {
         background: transparent !important; border: none !important; color: #444 !important;
         font-size: 1.5rem !important; padding: 0 !important; height: 60px !important;
@@ -160,25 +186,19 @@ st.markdown("""
         transform: scale(1.2); background: transparent !important;
     }
 
-    /* --- BUTTON CLASS 3: DIVINE (GOLD POPOVER OVERRIDE) --- */
-    /* WE USE !important TO CRUSH THE RED HOVER EFFECT */
-    
+    /* DIVINE (POPOVER) */
     div[data-testid="stPopover"] button {
         color: var(--nav-gold) !important;
         border-color: transparent !important;
         background: transparent !important;
     }
-    
     div[data-testid="stPopover"] button:hover {
         color: var(--nav-gold) !important;
         text-shadow: 0 0 10px var(--gold-glow) !important;
         transform: scale(1.2) !important;
         background: transparent !important;
-        /* Explicitly reset the Red settings */
         box-shadow: none !important;
     }
-
-    /* Force the Icon SVG to be Gold */
     div[data-testid="stPopover"] button svg {
         fill: var(--nav-gold) !important;
         color: var(--nav-gold) !important;
@@ -234,9 +254,6 @@ except Exception as e:
 # -----------------------------------------------------------------------------
 @st.dialog("The Archive Opens...", width="large")
 def view_soul(row, index_in_sheet):
-    """
-    Shows pure details. Edits happen in the popover.
-    """
     img_src = row.get('Image_URL', '')
     if not str(img_src).startswith("http"):
         img_src = "https://via.placeholder.com/800x400?text=No+Visage"
@@ -341,10 +358,18 @@ if not filtered_df.empty:
             html += f'<div class="card-class">{row["Class"]}</div>'
             html += '</div>'
             
+            # --- DUAL PILLS LOGIC ---
+            html += '<div class="pill-container">'
+            # 1. Campaign Pill (Grey)
             if row.get('Campaign'):
-                 html += f'<div class="tag-pill">{row["Campaign"]}</div>'
-            else:
-                 html += f'<div class="tag-pill" style="opacity:0;">EMPTY</div>'
+                 html += f'<div class="pill-campaign">{row["Campaign"]}</div>'
+            # 2. Faction Pill (Green)
+            if row.get('Faction'):
+                 html += f'<div class="pill-faction">{row["Faction"]}</div>'
+            # 3. Spacer
+            if not row.get('Campaign') and not row.get('Faction'):
+                 html += f'<div class="pill-campaign" style="opacity:0;">EMPTY</div>'
+            html += '</div>'
             
             html += '</div>'
             html += '</div>' 
@@ -354,12 +379,10 @@ if not filtered_df.empty:
             b_col1, b_col2, b_col3 = st.columns([0.6, 0.2, 0.2])
             
             with b_col1:
-                # CLASS 1: PRIMARY (Inspect)
                 if st.button(f"INSPECT ᛦ", key=f"inspect_{index}", type="primary", use_container_width=True):
                     view_soul(row, index)
             
             with b_col2:
-                # CLASS 3: DIVINE (Gold Popover)
                 with st.popover("✒️", use_container_width=True):
                     st.caption(f"Inscribe Tags: {row['Name']}")
                     p_campaign = st.text_input("Campaign", value=row.get('Campaign', ''), key=f"pc_{index}")
@@ -376,7 +399,6 @@ if not filtered_df.empty:
                             st.error(f"Error: {e}")
 
             with b_col3:
-                # CLASS 2: SECONDARY (Burn)
                 if st.button("ᚺ", key=f"burn_{index}", type="secondary", use_container_width=True, help="Burn Soul"):
                     try:
                         worksheet.delete_rows(index + 2)
