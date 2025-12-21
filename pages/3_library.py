@@ -109,54 +109,25 @@ st.markdown("""
     }
 
     /* --- FLOATING BUTTON STYLES --- */
-    
-    /* 1. PRIMARY BUTTON (INSPECT - Floating Emerald) */
     button[kind="primary"] {
-        background: transparent !important;
-        border: none !important;
-        color: #555 !important; /* Dim initially */
-        font-family: 'Cinzel', serif !important;
-        font-size: 1.1rem !important;
-        padding: 0 !important;
-        height: 60px !important;
-        width: 100% !important;
-        transition: all 0.3s ease !important;
-        box-shadow: none !important; /* Remove any default shadow */
-    }
-    button[kind="primary"]:hover {
-        color: var(--emerald-bright) !important;
-        text-shadow: 0 0 15px var(--emerald-glow);
-        transform: scale(1.05); /* Slight grow */
-        background: transparent !important;
-    }
-    button[kind="primary"]:focus {
-        color: var(--emerald-bright) !important;
-        outline: none !important;
-        border: none !important;
-    }
-
-    /* 2. SECONDARY BUTTON (BURN - Floating Red) */
-    button[kind="secondary"] {
-        background: transparent !important;
-        border: none !important;
-        color: #444 !important; /* Dim initially */
-        font-size: 1.5rem !important;
-        padding: 0 !important;
-        height: 60px !important;
-        width: 100% !important;
-        transition: all 0.4s ease !important;
+        background: transparent !important; border: none !important; color: #555 !important;
+        font-family: 'Cinzel', serif !important; font-size: 1.1rem !important; padding: 0 !important;
+        height: 60px !important; width: 100% !important; transition: all 0.3s ease !important;
         box-shadow: none !important;
     }
-    button[kind="secondary"]:hover {
-        color: var(--destruct-bright) !important; 
-        text-shadow: 0 0 10px var(--destruct-red);
-        transform: scale(1.2) rotate(180deg); /* Spin effect */
-        background: transparent !important;
+    button[kind="primary"]:hover {
+        color: var(--emerald-bright) !important; text-shadow: 0 0 15px var(--emerald-glow);
+        transform: scale(1.05); background: transparent !important;
     }
-    button[kind="secondary"]:focus {
-        color: var(--destruct-bright) !important;
-        outline: none !important;
-        border: none !important;
+
+    button[kind="secondary"] {
+        background: transparent !important; border: none !important; color: #444 !important;
+        font-size: 1.5rem !important; padding: 0 !important; height: 60px !important;
+        width: 100% !important; transition: all 0.4s ease !important; box-shadow: none !important;
+    }
+    button[kind="secondary"]:hover {
+        color: var(--destruct-bright) !important; text-shadow: 0 0 10px var(--destruct-red);
+        transform: scale(1.2) rotate(180deg); background: transparent !important;
     }
 
     /* --- MODAL STYLING --- */
@@ -166,6 +137,7 @@ st.markdown("""
     .modal-voice { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: #e0e0e0; font-style: italic; padding: 1.5rem; background: #0a0a0a; border-left: 2px solid var(--emerald-glow); margin-bottom: 1.5rem; }
     .modal-lore { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: #bbb; line-height: 1.7; text-align: justify; }
     .modal-visual { font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; color: #666; font-style: italic; margin-top: 10px; border-top: 1px solid #222; padding-top: 10px; }
+    .modal-meta { font-family: 'Lato', sans-serif; font-size: 0.7rem; color: #444; margin-top: 2rem; border-top: 1px solid #222; padding-top: 1rem; }
 
     /* Footer */
     .footer-container { opacity: 0.3; text-align: center; margin-top: 4rem; padding-bottom: 2rem;}
@@ -199,19 +171,19 @@ try:
     worksheet = sh.get_worksheet(0)
     data = worksheet.get_all_records()
     df = pd.DataFrame(data)
-
-    if df.empty:
-        st.info("The Library is empty.")
-        st.stop()
 except Exception as e:
     st.error(f"Could not read from Vault: {e}")
     st.stop()
 
 # -----------------------------------------------------------------------------
-# 5. THE MODAL (POP UP FUNCTION)
+# 5. THE MODAL (POP UP FUNCTION) - EDITABLE
 # -----------------------------------------------------------------------------
 @st.dialog("The Archive Opens...", width="large")
-def view_soul(row):
+def view_soul(row, index_in_sheet):
+    """
+    Shows details AND allows editing of Campaign/Faction.
+    index_in_sheet: The 0-based index of the row in the pandas DF (needs +2 for GSheet)
+    """
     img_src = row.get('Image_URL', '')
     if not str(img_src).startswith("http"):
         img_src = "https://via.placeholder.com/800x400?text=No+Visage"
@@ -241,8 +213,30 @@ def view_soul(row):
             </div>
             <div class="modal-voice">“{row['Greeting']}”</div>
             <div class="modal-lore">{row['Lore']}</div>
-            <div class="modal-meta">ACCESSION: {row.get('Timestamp', 'Unknown')}</div>
         """, unsafe_allow_html=True)
+        
+        # --- EDITABLE TAGS SECTION ---
+        st.markdown("---")
+        st.caption("EDIT ARCHIVE TAGS")
+        
+        # We need unique keys for these inputs so they don't clash if modal reopens
+        new_campaign = st.text_input("Campaign", value=row.get('Campaign', ''), key=f"ec_{index_in_sheet}")
+        new_faction = st.text_input("Faction", value=row.get('Faction', ''), key=f"ef_{index_in_sheet}")
+        
+        if st.button("BIND NEW TAGS", key=f"update_{index_in_sheet}"):
+            try:
+                # Update Google Sheet
+                # Campaign is Column 8 (H), Faction is Column 9 (I)
+                # Row is index_in_sheet + 2 (1 for header, 1 for 1-based indexing)
+                sheet_row = index_in_sheet + 2
+                
+                worksheet.update_cell(sheet_row, 8, new_campaign) # Col H
+                worksheet.update_cell(sheet_row, 9, new_faction)  # Col I
+                
+                st.success("Archive Updated.")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Update Failed: {e}")
 
 # -----------------------------------------------------------------------------
 # 6. LAYOUT & GRID
@@ -251,21 +245,49 @@ st.page_link("1_the_vault.py", label="< RETURN TO HALL", use_container_width=Fal
 st.markdown("<h1>THE ARCHIVES OF THE LOST</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtext'>That which is remembered, lives forever.</div>", unsafe_allow_html=True)
 
-# --- SEARCH ---
+# --- SIDEBAR FILTERS ---
+st.sidebar.header("📜 Filter Archives")
+
+if not df.empty:
+    campaigns = ["All"]
+    if 'Campaign' in df.columns:
+        unique_cams = sorted([x for x in df['Campaign'].unique() if str(x).strip() != ""])
+        campaigns.extend(unique_cams)
+    sel_campaign = st.sidebar.selectbox("Campaign", campaigns)
+    
+    factions = ["All"]
+    if 'Faction' in df.columns:
+        unique_facs = sorted([x for x in df['Faction'].unique() if str(x).strip() != ""])
+        factions.extend(unique_facs)
+    sel_faction = st.sidebar.selectbox("Faction", factions)
+else:
+    sel_campaign = "All"
+    sel_faction = "All"
+
+# --- SEARCH & FILTER LOGIC ---
 search_query = st.text_input("Search the Archives", placeholder="Speak the name, class, or secret...")
+
+filtered_df = df.copy()
+
+if sel_campaign != "All":
+    filtered_df = filtered_df[filtered_df['Campaign'] == sel_campaign]
+
+if sel_faction != "All":
+    filtered_df = filtered_df[filtered_df['Faction'] == sel_faction]
+
 if search_query:
     mask = (
-        df['Name'].astype(str).str.contains(search_query, case=False) |
-        df['Class'].astype(str).str.contains(search_query, case=False) |
-        df['Lore'].astype(str).str.contains(search_query, case=False)
+        filtered_df['Name'].astype(str).str.contains(search_query, case=False) |
+        filtered_df['Class'].astype(str).str.contains(search_query, case=False) |
+        filtered_df['Lore'].astype(str).str.contains(search_query, case=False)
     )
-    filtered_df = df[mask]
-else:
-    filtered_df = df
+    filtered_df = filtered_df[mask]
 
 # --- GRID ---
 if not filtered_df.empty:
     cols = st.columns(3)
+    # Iterate with ORIGINAL INDEX to ensure deletes/updates target correct row
+    # We flip list for display, but keep track of original index
     for index, row in filtered_df.iloc[::-1].iterrows():
         col_index = index % 3
         img_src = row.get('Image_URL', '')
@@ -281,21 +303,20 @@ if not filtered_df.empty:
             html += '<div class="card-identity">'
             html += f'<div class="card-name">{row["Name"]}</div>'
             html += f'<div class="card-class">{row["Class"]}</div>'
+            # Optional: Show Campaign on Card
+            if row.get('Campaign'):
+                 html += f'<div style="color:#444; font-size:0.7rem; margin-top:5px; font-family:Lato;">{row["Campaign"]}</div>'
             html += '</div>'
             html += '</div>' 
             st.markdown(html, unsafe_allow_html=True)
             
             # FLOATING ACTIONS
-            # 80% for Inspect Text | 20% for Burn Rune
             b_col1, b_col2 = st.columns([0.8, 0.2])
-            
             with b_col1:
-                # Primary = Floating Text (Emerald)
                 if st.button(f"INSPECT ᛦ", key=f"inspect_{index}", type="primary", use_container_width=True):
-                    view_soul(row)
-            
+                    # Pass the ORIGINAL index so we can save edits
+                    view_soul(row, index)
             with b_col2:
-                # Secondary = Floating Rune (Red)
                 if st.button("ᚺ", key=f"burn_{index}", type="secondary", use_container_width=True, help="Permanently Burn from Archives"):
                     try:
                         worksheet.delete_rows(index + 2)
