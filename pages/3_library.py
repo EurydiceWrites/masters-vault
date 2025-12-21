@@ -22,6 +22,8 @@ st.markdown("""
         --emerald-glow: #50c878;
         --emerald-bright: #66ff99;
         --emerald-dim: #1e3a2a;
+        --destruct-red: #8b0000;
+        --destruct-bright: #ff4500;
     }
 
     /* --- GLOBAL --- */
@@ -30,18 +32,10 @@ st.markdown("""
         background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #000 80%);
     }
 
-    /* --- SIDEBAR STYLING --- */
-    [data-testid="stSidebar"] {
-        background-color: #080808; 
-        border-right: 1px solid #1e3a2a;
-    }
-    [data-testid="stSidebarNav"] {
-        font-family: 'Cinzel', serif;
-        padding-top: 2rem;
-    }
-    header[data-testid="stHeader"] {
-        background: transparent;
-    }
+    /* --- SIDEBAR --- */
+    [data-testid="stSidebar"] { background-color: #080808; border-right: 1px solid #1e3a2a; }
+    [data-testid="stSidebarNav"] { font-family: 'Cinzel', serif; padding-top: 2rem; }
+    header[data-testid="stHeader"] { background: transparent; }
 
     /* --- HEADER --- */
     h1 {
@@ -76,16 +70,16 @@ st.markdown("""
         letter-spacing: 2px;
     }
 
-    /* --- ARCHIVE CARD (HTML Top Half) --- */
+    /* --- ARCHIVE CARD --- */
     .archive-card {
         background: #0e0e0e;
         border: 1px solid #222;
-        border-bottom: none; /* Connects to button */
+        border-bottom: none; 
         border-top: 4px solid var(--emerald-dim);
         box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         display: flex;
         flex-direction: column;
-        height: 600px; /* FIXED HEIGHT FOR ALIGNMENT */
+        height: 550px; /* Reduced slightly to fit buttons below */
         margin-bottom: 0px !important;
     }
     .archive-card:hover {
@@ -94,44 +88,31 @@ st.markdown("""
     }
 
     .img-frame { 
-        width: 100%; 
-        height: 400px; 
-        overflow: hidden; 
-        border-bottom: 1px solid #222;
-        position: relative;
-        flex-shrink: 0;
+        width: 100%; height: 380px; overflow: hidden; 
+        border-bottom: 1px solid #222; position: relative; flex-shrink: 0;
     }
     .img-frame img { width: 100%; height: 100%; object-fit: cover; object-position: top; opacity: 0.95; transition: opacity 0.5s; }
     .img-frame:hover img { opacity: 1; transform: scale(1.02); }
 
     .card-identity {
-        padding: 1rem;
-        text-align: center;
+        padding: 1rem; text-align: center;
         background: linear-gradient(180deg, #111 0%, #0e0e0e 100%);
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+        flex-grow: 1; display: flex; flex-direction: column; justify-content: center;
     }
     .card-name { 
-        font-family: 'Cinzel', serif; 
-        font-size: 1.5rem; 
-        color: #fff; 
-        letter-spacing: 1px; 
-        margin-bottom: 0.5rem;
-        text-shadow: 0 4px 10px #000;
+        font-family: 'Cinzel', serif; font-size: 1.5rem; color: #fff; 
+        letter-spacing: 1px; margin-bottom: 0.5rem; text-shadow: 0 4px 10px #000;
     }
     .card-class { 
-        font-family: 'Cinzel', serif; 
-        font-size: 0.8rem; 
-        color: var(--emerald-bright); 
-        letter-spacing: 2px; 
-        text-transform: uppercase; 
-        opacity: 0.9;
+        font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--emerald-bright); 
+        letter-spacing: 2px; text-transform: uppercase; opacity: 0.9;
     }
 
-    /* --- THE BUTTON OVERRIDE (Streamlit) --- */
-    div.stButton > button {
+    /* --- BUTTON STYLES --- */
+    
+    /* 1. PRIMARY BUTTON (The Inspect Bar) */
+    /* We use [kind="primary"] to target the Inspect button specifically */
+    button[kind="primary"] {
         width: 100% !important;
         border-radius: 0px !important;
         background-color: #0e0e0e !important;
@@ -144,10 +125,35 @@ st.markdown("""
         height: 60px !important;
         transition: all 0.3s ease !important;
     }
-    div.stButton > button:hover {
+    button[kind="primary"]:hover {
         color: var(--emerald-bright) !important;
         border-color: #333 !important;
         background-color: #151515 !important;
+        box-shadow: 0 0 15px rgba(80, 200, 120, 0.1);
+    }
+
+    /* 2. SECONDARY BUTTON (The Floating Burn Rune) */
+    /* We use [kind="secondary"] to target the Destroy button */
+    button[kind="secondary"] {
+        background: transparent !important;
+        border: none !important;
+        color: #444 !important; /* Dark Red/Grey initially */
+        font-size: 1.5rem !important;
+        padding: 0 !important;
+        height: 60px !important;
+        width: 100% !important;
+        transition: all 0.4s ease !important;
+    }
+    button[kind="secondary"]:hover {
+        color: var(--destruct-bright) !important; /* Glows Red */
+        transform: scale(1.2) rotate(180deg); /* Subtle spin/grow effect */
+        text-shadow: 0 0 10px var(--destruct-red);
+        background: transparent !important;
+    }
+    button[kind="secondary"]:focus {
+        color: var(--destruct-bright) !important;
+        outline: none !important;
+        border: none !important;
     }
 
     /* --- MODAL STYLING --- */
@@ -156,32 +162,17 @@ st.markdown("""
     .modal-class { font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--emerald-bright); letter-spacing: 3px; text-transform: uppercase; }
     
     .modal-voice { 
-        font-family: 'Cormorant Garamond', serif; 
-        font-size: 1.4rem; 
-        color: #e0e0e0; 
-        font-style: italic;
-        padding: 1.5rem;
-        background: #0a0a0a;
-        border-left: 2px solid var(--emerald-glow);
-        margin-bottom: 1.5rem;
+        font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: #e0e0e0; font-style: italic;
+        padding: 1.5rem; background: #0a0a0a; border-left: 2px solid var(--emerald-glow); margin-bottom: 1.5rem;
     }
     
     .modal-lore { 
-        font-family: 'Cormorant Garamond', serif; 
-        font-size: 1.2rem; 
-        color: #bbb; 
-        line-height: 1.7; 
-        text-align: justify; 
+        font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: #bbb; line-height: 1.7; text-align: justify; 
     }
 
     .modal-visual {
-        font-family: 'Cormorant Garamond', serif; 
-        font-size: 0.95rem; 
-        color: #666; 
-        font-style: italic; 
-        margin-top: 10px;
-        border-top: 1px solid #222;
-        padding-top: 10px;
+        font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; color: #666; font-style: italic; 
+        margin-top: 10px; border-top: 1px solid #222; padding-top: 10px;
     }
 
     /* Footer Runes */
@@ -242,30 +233,11 @@ def view_soul(row):
     
     with col1:
         # --- CLICKABLE IMAGE HACK ---
-        # We use HTML to wrap the image in an anchor tag target="_blank"
         st.markdown(f"""
         <style>
-            .img-zoom-container {{
-                position: relative;
-                overflow: hidden;
-                border: 1px solid #333;
-                border-radius: 2px;
-                transition: border-color 0.3s;
-            }}
-            .img-zoom-container:hover {{
-                border-color: #50c878;
-            }}
-            .overlay-icon {{
-                position: absolute;
-                bottom: 10px;
-                right: 10px;
-                background: rgba(0,0,0,0.7);
-                color: #fff;
-                padding: 4px 8px;
-                font-size: 0.8rem;
-                border-radius: 4px;
-                pointer-events: none;
-            }}
+            .img-zoom-container {{ position: relative; overflow: hidden; border: 1px solid #333; border-radius: 2px; transition: border-color 0.3s; }}
+            .img-zoom-container:hover {{ border-color: #50c878; }}
+            .overlay-icon {{ position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 4px 8px; font-size: 0.8rem; border-radius: 4px; pointer-events: none; }}
         </style>
         
         <div class="img-zoom-container">
@@ -276,30 +248,17 @@ def view_soul(row):
         </div>
         """, unsafe_allow_html=True)
         
-        # Visual Description (Styled)
+        # Visual Description
         st.markdown(f"<div class='modal-visual'>{row['Visual_Desc']}</div>", unsafe_allow_html=True)
         
     with col2:
-        # Title Block
         st.markdown(f"""
             <div class="modal-header">
                 <div class="modal-name">{row['Name']}</div>
                 <div class="modal-class">{row['Class']}</div>
             </div>
-        """, unsafe_allow_html=True)
-        
-        # Voice Block
-        st.markdown(f"""
             <div class="modal-voice">“{row['Greeting']}”</div>
-        """, unsafe_allow_html=True)
-        
-        # Lore Block
-        st.markdown(f"""
             <div class="modal-lore">{row['Lore']}</div>
-        """, unsafe_allow_html=True)
-        
-        # Meta Block
-        st.markdown(f"""
             <div class="modal-meta">ACCESSION: {row.get('Timestamp', 'Unknown')}</div>
         """, unsafe_allow_html=True)
 
@@ -307,7 +266,7 @@ def view_soul(row):
 # -----------------------------------------------------------------------------
 # 6. LAYOUT & GRID
 # -----------------------------------------------------------------------------
-st.page_link("1_the_vault.py", label="< RETURN TO HALL", use_container_width=False)
+st.page_link("home.py", label="< RETURN TO HALL", use_container_width=False)
 
 st.markdown("<h1>THE ARCHIVES OF THE LOST</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtext'>That which is remembered, lives forever.</div>", unsafe_allow_html=True)
@@ -353,26 +312,21 @@ if not filtered_df.empty:
             st.markdown(html, unsafe_allow_html=True)
             
             # 2. THE BUTTONS (Action Row)
-            # We split the space: Big "Inspect" button, Small "Burn" button
-            b_col1, b_col2 = st.columns([0.8, 0.2])
+            # Layout: 80% Inspect | 20% Burn
+            b_col1, b_col2 = st.columns([0.85, 0.15])
             
             with b_col1:
-                # The Rune ᛦ (Yr) - Inspect
-                if st.button(f"INSPECT ᛦ", key=f"inspect_{index}", use_container_width=True):
+                # INSPECT = Primary Type (Solid Box)
+                if st.button(f"INSPECT ᛦ", key=f"inspect_{index}", type="primary", use_container_width=True):
                     view_soul(row)
             
             with b_col2:
-                # The Rune 🔥 - Burn
-                if st.button("🔥", key=f"burn_{index}", use_container_width=True, help="Permanently Burn from Archives"):
+                # BURN = Secondary Type (Floating Rune)
+                # Rune: ᚺ (Hagalaz - Destruction/Hail)
+                if st.button("ᚺ", key=f"burn_{index}", type="secondary", use_container_width=True, help="Permanently Burn from Archives"):
                     try:
-                        # Warning: This assumes the dataframe index matches the sheet order.
-                        # Since we are using filtered_df, we must be careful.
-                        # Ideally, find row by Unique ID. For now, we trust the index + 2 logic
-                        # But since we reversed the list, index is still the ORIGINAL index from the full DF
-                        # So this should work.
                         worksheet.delete_rows(index + 2)
                         st.toast(f"The soul of {row['Name']} has been severed.", icon="🔥")
-                        # We must clear cache or rerun to see changes
                         st.rerun()
                     except Exception as e:
                         st.error(f"The soul resists: {e}")
