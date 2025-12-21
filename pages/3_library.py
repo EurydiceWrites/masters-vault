@@ -70,7 +70,7 @@ st.markdown("""
         letter-spacing: 2px;
     }
 
-    /* --- ARCHIVE CARD (GEOMETRY LOCK) --- */
+    /* --- ARCHIVE CARD (GRID LOCK) --- */
     .archive-card {
         background: #0e0e0e;
         border: 1px solid #222;
@@ -79,8 +79,7 @@ st.markdown("""
         box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         display: flex;
         flex-direction: column;
-        /* FIXED HEIGHT: We use 500px to keep it compact */
-        height: 500px !important; 
+        height: 520px !important; /* FIXED HEIGHT */
         margin-bottom: 0px !important;
         overflow: hidden;
     }
@@ -89,10 +88,10 @@ st.markdown("""
         box-shadow: 0 15px 50px rgba(0,0,0,1);
     }
 
-    /* Image Frame - 280px is the sweet spot for portraits */
+    /* Image Frame */
     .img-frame { 
         width: 100%; 
-        height: 280px; 
+        height: 300px; /* Fixed Image Height */
         overflow: hidden; 
         border-bottom: 1px solid #222; 
         position: relative; 
@@ -102,14 +101,12 @@ st.markdown("""
         width: 100%; 
         height: 100%; 
         object-fit: cover; 
-        /* CRITICAL FIX: Anchor image to TOP (Head) instead of CENTER (Torso) */
-        object-position: top center; 
         opacity: 0.95; 
         transition: opacity 0.5s; 
     }
     .img-frame:hover img { opacity: 1; transform: scale(1.02); }
 
-    /* Identity Section - Fills the rest */
+    /* Identity Section - Uses Flexbox Space-Between to align Pill */
     .card-identity {
         padding: 1rem 0.5rem; 
         text-align: center;
@@ -117,33 +114,37 @@ st.markdown("""
         flex-grow: 1; 
         display: flex; 
         flex-direction: column; 
-        justify-content: flex-start; 
+        justify-content: space-between; /* This pushes the Pill to bottom */
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Top half of Identity (Name + Class) */
+    .identity-top {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
         gap: 0.2rem;
     }
 
-    /* Name: RESERVED SPACE for 2 lines */
     .card-name { 
         font-family: 'Cinzel', serif; 
-        font-size: 1.3rem; 
+        font-size: 1.4rem; 
         color: #fff; 
         letter-spacing: 1px; 
         text-shadow: 0 4px 10px #000;
         line-height: 1.2;
-        
-        /* Force 2 lines of height even if text is short */
-        min-height: 3.2rem; 
-        display: flex;
-        align-items: center; /* Center text vertically in that space */
-        justify-content: center;
-        
-        /* Cut off if longer than 2 lines */
+        /* Truncate after 2 lines */
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
+        min-height: 3.4rem; /* Reserve space */
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    /* Class: Simple 1 line */
     .card-class { 
         font-family: 'Cinzel', serif; 
         font-size: 0.8rem; 
@@ -151,14 +152,12 @@ st.markdown("""
         letter-spacing: 2px; 
         text-transform: uppercase; 
         opacity: 0.9;
-        margin-bottom: 0.5rem;
-        
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
     
-    /* Pill Tag - Pushed to bottom */
+    /* Pill Tag - Bottom of Card */
     .tag-pill {
         display: inline-block;
         background: #1a1a1a;
@@ -170,10 +169,7 @@ st.markdown("""
         letter-spacing: 1px;
         padding: 4px 12px;
         border-radius: 12px;
-        
-        /* Auto margin pushes it to the bottom of the flex container */
-        margin-top: auto; 
-        align-self: center;
+        margin-top: 0.5rem;
     }
 
     /* --- FLOATING BUTTON STYLES --- */
@@ -250,7 +246,6 @@ except Exception as e:
 def view_soul(row, index_in_sheet):
     """
     Shows details AND allows editing of Campaign/Faction.
-    index_in_sheet: The 0-based index of the row in the pandas DF (needs +2 for GSheet)
     """
     img_src = row.get('Image_URL', '')
     if not str(img_src).startswith("http"):
@@ -287,13 +282,11 @@ def view_soul(row, index_in_sheet):
         st.markdown("---")
         st.caption("EDIT ARCHIVE TAGS")
         
-        # Unique Keys to prevent conflicts
         new_campaign = st.text_input("Campaign", value=row.get('Campaign', ''), key=f"ec_{index_in_sheet}")
         new_faction = st.text_input("Faction", value=row.get('Faction', ''), key=f"ef_{index_in_sheet}")
         
         if st.button("BIND NEW TAGS", key=f"update_{index_in_sheet}"):
             try:
-                # Update Google Sheet (Columns H=8, I=9)
                 sheet_row = index_in_sheet + 2
                 worksheet.update_cell(sheet_row, 8, new_campaign)
                 worksheet.update_cell(sheet_row, 9, new_faction)
@@ -315,7 +308,6 @@ st.sidebar.header("📜 Filter Archives")
 if not df.empty:
     campaigns = ["All"]
     if 'Campaign' in df.columns:
-        # Sort fix for mixed types
         unique_cams = sorted([str(x) for x in df['Campaign'].unique() if str(x).strip() != "" and str(x).lower() != "nan"])
         campaigns.extend(unique_cams)
     sel_campaign = st.sidebar.selectbox("Campaign", campaigns)
@@ -360,6 +352,12 @@ if not filtered_df.empty:
         if not str(img_src).startswith("http"):
             img_src = "https://via.placeholder.com/400x500?text=No+Visage"
 
+        # --- CLOUDINARY AI FACE CROP HACK ---
+        if "cloudinary" in img_src and "/upload/" in img_src:
+            # Inject g_face (Gravity: Face) and c_fill (Crop Fill)
+            # This forces Cloudinary to find the face and center on it
+            img_src = img_src.replace("/upload/", "/upload/c_fill,g_face,w_400,h_300/")
+
         with cols[col_index]:
             html = ""
             html += '<div class="archive-card">'
@@ -367,12 +365,19 @@ if not filtered_df.empty:
             html += f'<img src="{img_src}" loading="lazy">'
             html += '</div>'
             html += '<div class="card-identity">'
+            
+            # Identity Top: Name + Class
+            html += '<div class="identity-top">'
             html += f'<div class="card-name">{row["Name"]}</div>'
             html += f'<div class="card-class">{row["Class"]}</div>'
+            html += '</div>'
             
-            # --- PILL LABEL FIX ---
+            # Identity Bottom: Pill Tag (Pushed to bottom by justify-content: space-between)
             if row.get('Campaign'):
                  html += f'<div class="tag-pill">{row["Campaign"]}</div>'
+            else:
+                 # Invisible spacer to keep alignment even if no tag
+                 html += f'<div class="tag-pill" style="opacity:0;">EMPTY</div>'
             
             html += '</div>'
             html += '</div>' 
