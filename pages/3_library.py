@@ -44,7 +44,7 @@ st.markdown("""
         border-right: 1px solid #1e3a2a; 
     }
     
-    /* Custom Sidebar Header - REPLACES THE SCROLL EMOJI */
+    /* Custom Sidebar Header */
     .sidebar-header {
         font-family: 'Cinzel', serif;
         color: var(--emerald-bright);
@@ -70,25 +70,25 @@ st.markdown("""
 
     header[data-testid="stHeader"] { background: transparent; }
 
-    /* --- UNIFIED INPUT FIELDS (Search + Popover) --- */
-    /* Forces ALL text inputs to match the theme: Dark, Square, Serif */
-    div[data-baseweb="input"] > div {
+    /* --- UNIFIED INPUT FIELDS (THE NAVY KILLER) --- */
+    
+    /* 1. Target the 'Base Input' Container (The Navy Box) */
+    div[data-baseweb="base-input"] {
         background-color: #0e0e0e !important;
         border: 1px solid #333 !important;
-        border-radius: 0px !important; /* Square edges */
-        color: #e0e0e0 !important;
-        font-family: 'Cinzel', serif !important;
-    }
-    
-    /* Text Inside Inputs */
-    input[type="text"] {
-        font-family: 'Cinzel', serif !important;
-        font-size: 0.9rem !important;
-        letter-spacing: 1px !important;
+        border-radius: 0px !important;
     }
 
-    /* Focus State - Emerald Glow */
-    div[data-baseweb="input"] > div:focus-within {
+    /* 2. Target the Input Text Itself */
+    input[data-baseweb="input"] {
+        color: #e0e0e0 !important;
+        font-family: 'Cinzel', serif !important;
+        text-align: left !important; /* FORCE LEFT ALIGN */
+        background-color: transparent !important; /* Let the dark container show */
+    }
+
+    /* 3. Handle Focus State (Emerald Glow) */
+    div[data-baseweb="base-input"]:focus-within {
         border-color: var(--emerald-glow) !important;
         box-shadow: 0 0 8px var(--emerald-dim) !important;
     }
@@ -189,7 +189,7 @@ st.markdown("""
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     
-    /* --- PILLS (PROCEDURAL) --- */
+    /* --- PILLS (PROCEDURAL TEXTURE) --- */
     .pill-container {
         display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; width: 100%;
         margin-top: 0.5rem;
@@ -232,7 +232,7 @@ st.markdown("""
         font-family: 'Cinzel', serif !important; font-size: 1.1rem !important; padding: 0 !important;
         height: 60px !important; width: 100% !important; transition: all 0.3s ease !important;
         box-shadow: none !important;
-        border-radius: 0px !important; /* Square */
+        border-radius: 0px !important;
     }
     button[kind="primary"]:hover {
         color: var(--emerald-bright) !important; text-shadow: 0 0 15px var(--emerald-glow);
@@ -243,7 +243,7 @@ st.markdown("""
         background: transparent !important; border: none !important; color: #444 !important;
         font-size: 1.5rem !important; padding: 0 !important; height: 60px !important;
         width: 100% !important; transition: all 0.4s ease !important; box-shadow: none !important;
-        border-radius: 0px !important; /* Square */
+        border-radius: 0px !important;
     }
     button[kind="secondary"]:hover {
         color: var(--destruct-bright) !important;
