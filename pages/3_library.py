@@ -59,27 +59,9 @@ st.markdown("""
     }
 
     /* --- NAVIGATION LINK (GOLD HOVER) --- */
-    a[data-testid="stPageLink-NavLink"] {
-        background: transparent !important;
-        border: none !important;
-    }
-    a[data-testid="stPageLink-NavLink"] p {
-        color: #666;
-        font-family: 'Cinzel', serif;
-        font-size: 0.9rem;
-        transition: color 0.3s, text-shadow 0.3s;
-    }
-    a[data-testid="stPageLink-NavLink"]:hover p { 
-        color: var(--nav-gold) !important;
-        text-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
-    }
-
-    /* --- POPOVER ARROW (GOLD) --- */
-    /* Targets the SVG arrow inside the popover button */
-    [data-testid="stPopover"] > button svg {
-        fill: var(--nav-gold) !important;
-        color: var(--nav-gold) !important;
-    }
+    a[data-testid="stPageLink-NavLink"] { background: transparent !important; border: none !important; }
+    a[data-testid="stPageLink-NavLink"] p { color: #666; font-family: 'Cinzel', serif; font-size: 0.9rem; transition: color 0.3s, text-shadow 0.3s; }
+    a[data-testid="stPageLink-NavLink"]:hover p { color: var(--nav-gold) !important; text-shadow: 0 0 10px rgba(212, 175, 55, 0.6); }
 
     /* --- SEARCH BAR --- */
     .stTextInput > div > div > input {
@@ -184,7 +166,7 @@ st.markdown("""
         transform: scale(1.05); background: transparent !important;
     }
 
-    /* Secondary (Burn / Tag Icon) - Red/Orange Glow */
+    /* Secondary (Burn / Default) - Red/Orange Glow */
     button[kind="secondary"] {
         background: transparent !important; border: none !important; color: #444 !important;
         font-size: 1.5rem !important; padding: 0 !important; height: 60px !important;
@@ -193,6 +175,25 @@ st.markdown("""
     button[kind="secondary"]:hover {
         color: var(--destruct-bright) !important;
         transform: scale(1.2); background: transparent !important;
+    }
+
+    /* --- THE POPOVER OVERRIDE (FIXING THE RED ARROW) --- */
+    /* We force the Popover Button to ignore the "Secondary=Red" rule */
+    [data-testid="stPopover"] > button {
+        color: var(--nav-gold) !important;
+        border-color: transparent !important;
+    }
+    /* On Hover: Glow Gold, not Red */
+    [data-testid="stPopover"] > button:hover {
+        color: var(--nav-gold) !important;
+        text-shadow: 0 0 10px rgba(212, 175, 55, 0.8) !important;
+        transform: scale(1.2) !important;
+        background: transparent !important;
+    }
+    /* Force the Icon SVG to be Gold */
+    [data-testid="stPopover"] > button svg {
+        fill: var(--nav-gold) !important;
+        stroke: var(--nav-gold) !important;
     }
 
     /* --- MODAL STYLING --- */
@@ -369,7 +370,7 @@ if not filtered_df.empty:
                 if st.button(f"INSPECT ᛦ", key=f"inspect_{index}", type="primary", use_container_width=True):
                     view_soul(row, index)
             
-            # QUICK EDIT (Quill)
+            # QUICK EDIT (Quill - Gold)
             with b_col2:
                 with st.popover("✒️", use_container_width=True):
                     st.caption(f"Inscribe Tags: {row['Name']}")
