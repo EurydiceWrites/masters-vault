@@ -356,7 +356,8 @@ with st.form("forge_form"):
 # --- HANDLING SUBMISSION ---
 if submitted and user_input:
     st.session_state.last_concept = user_input
-    st.session_state.npc_data = forge_npc(user_input, "Grim & Shadow") # Default vibe
+    # CHANGE: DEFAULT IS NOW NOBLE & BRIGHT
+    st.session_state.npc_data = forge_npc(user_input, "Noble & Bright") 
 
 # -----------------------------------------------------------------------------
 # 5. RESULT & MODIFIERS
@@ -395,17 +396,17 @@ if st.session_state.npc_data:
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        if st.button("RESHAPE: GRIM", use_container_width=True, type="secondary"):
+        if st.button("REROLL: GRIM", use_container_width=True, type="secondary"):
             st.session_state.npc_data = forge_npc(st.session_state.last_concept, "Grim & Shadow")
             st.rerun()
             
     with col2:
-        if st.button("RESHAPE: NOBLE", use_container_width=True, type="secondary"):
+        if st.button("REROLL: NOBLE", use_container_width=True, type="secondary"):
             st.session_state.npc_data = forge_npc(st.session_state.last_concept, "Noble & Bright")
             st.rerun()
             
     with col3:
-        if st.button("RESHAPE: WEIRD", use_container_width=True, type="secondary"):
+        if st.button("REROLL: STRANGE", use_container_width=True, type="secondary"):
             st.session_state.npc_data = forge_npc(st.session_state.last_concept, "Mystic & Strange")
             st.rerun()
 
