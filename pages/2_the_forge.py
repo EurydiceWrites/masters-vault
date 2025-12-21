@@ -9,18 +9,18 @@ import cloudinary
 import cloudinary.uploader
 
 # -----------------------------------------------------------------------------
-# 1. CONFIGURATION
+# 1. PAGE CONFIGURATION
 # -----------------------------------------------------------------------------
 st.set_page_config(page_title="The NPC Forge", layout="centered", page_icon="⚒️")
 
-# Initialize State
+# Initialize Session State
 if "npc_data" not in st.session_state:
     st.session_state.npc_data = None
 if "last_concept" not in st.session_state:
     st.session_state.last_concept = ""
 
 # -----------------------------------------------------------------------------
-# 2. THE VISUAL ENGINE (The Unified "Dark Room" Theme)
+# 2. THE VISUAL ENGINE (Unified Library Theme)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -46,7 +46,19 @@ st.markdown("""
         background-color: #080808; 
         border-right: 1px solid #1e3a2a; 
     }
-    [data-testid="stSidebarNav"] { font-family: 'Cinzel', serif; padding-top: 2rem; }
+    .sidebar-header {
+        font-family: 'Cinzel', serif;
+        color: var(--emerald-bright);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        margin-top: 2rem;
+        border-bottom: 1px solid var(--emerald-dim);
+        padding-bottom: 0.5rem;
+        text-align: center;
+        text-shadow: 0 0 10px var(--emerald-dim);
+    }
     header[data-testid="stHeader"] { background: transparent; }
 
     /* --- HEADER --- */
@@ -59,7 +71,7 @@ st.markdown("""
         text-shadow: 0 0 40px rgba(102, 255, 153, 0.4);
         margin-bottom: 0 !important;
         text-align: center;
-        margin-top: 10vh !important; /* Push it down for "Room" feel */
+        margin-top: 10vh !important;
     }
     .subtext {
         text-align: center;
@@ -75,42 +87,35 @@ st.markdown("""
     a[data-testid="stPageLink-NavLink"] p { color: #666; font-family: 'Cinzel', serif; font-size: 0.9rem; transition: color 0.3s; }
     a[data-testid="stPageLink-NavLink"]:hover p { color: var(--nav-gold) !important; text-shadow: 0 0 10px var(--emerald-glow); }
 
-    /* --- THE VOID INPUT (Specific Overrides) --- */
-    
-    /* 1. Target the Outer Container of the Input */
+    /* --- THE NAVY KILLER (Input Field Override) --- */
     div[data-baseweb="input"] {
-        background-color: #080808 !important; /* Pitch Black */
+        background-color: #000000 !important; /* PITCH BLACK */
         border: 1px solid #333 !important;
         border-radius: 0px !important;
-        padding: 10px;
     }
-
-    /* 2. Target the Inner 'Base Input' */
     div[data-baseweb="base-input"] {
-        background-color: transparent !important;
+        background-color: #000000 !important;
         border: none !important;
+        border-radius: 0px !important;
     }
-
-    /* 3. Target the Text Itself */
     input.st-ai, input.st-ah, input[type="text"] {
         background-color: transparent !important;
         color: #e0e0e0 !important;
-        font-family: 'Cormorant Garamond', serif !important; /* Elegant Serif for the wish */
-        font-size: 1.5rem !important;
-        text-align: center !important; /* Center the whisper */
-        font-style: italic;
+        font-family: 'Cormorant Garamond', serif !important;
+        font-size: 1.2rem !important;
+        text-align: center !important; /* Center the wish */
     }
-    
-    /* Placeholder Text */
-    input::placeholder {
-        color: #444 !important;
-        font-style: italic;
+    label p {
+        font-family: 'Cinzel', serif !important;
+        font-size: 1.2rem !important;
+        color: #888 !important;
+        text-align: center !important;
+        letter-spacing: 2px !important;
+        width: 100%;
     }
-
-    /* Focus Glow */
-    div[data-baseweb="input"]:focus-within {
-        border-color: var(--emerald-glow) !important;
-        box-shadow: 0 0 20px rgba(80, 200, 120, 0.2) !important;
+    div[data-baseweb="base-input"]:focus-within {
+        border: 1px solid var(--emerald-glow) !important;
+        box-shadow: 0 0 15px rgba(80, 200, 120, 0.2) !important;
     }
 
     /* --- BUTTONS --- */
@@ -122,9 +127,9 @@ st.markdown("""
         color: #888 !important;
         font-family: 'Cinzel', serif !important;
         font-weight: 700 !important;
-        letter-spacing: 6px !important;
-        font-size: 1.2rem !important;
-        height: 70px !important;
+        letter-spacing: 2px !important;
+        font-size: 1rem !important;
+        height: 60px !important;
         transition: all 0.5s ease !important;
         margin-top: 1rem;
     }
@@ -135,7 +140,7 @@ st.markdown("""
         background: rgba(80, 200, 120, 0.05) !important;
     }
     
-    /* Standard Buttons (Resonance Modifiers) */
+    /* Resonance Buttons */
     button[kind="secondary"] {
         background: transparent !important; 
         border: 1px solid #333 !important; 
@@ -267,7 +272,6 @@ def forge_npc(concept, tone):
         if auth_success:
             sh = gc.open("Masters_Vault_Db")
             worksheet = sh.get_worksheet(0)
-            # Simple save: Name, Class, Lore, Greeting, Visual, Image, Time
             row_data = [
                 char_data['Name'], 
                 char_data['Class'], 
@@ -276,7 +280,7 @@ def forge_npc(concept, tone):
                 char_data['Visual_Desc'], 
                 image_url, 
                 str(datetime.datetime.now()),
-                "", "" # Empty Campaign/Faction slots for now
+                "", "" # Empty Campaign/Faction
             ]
             worksheet.append_row(row_data)
     except Exception as e:
@@ -291,15 +295,26 @@ def forge_npc(concept, tone):
 st.page_link("1_the_vault.py", label="< RETURN TO VAULT", use_container_width=False)
 
 st.markdown("<h1>THE NPC FORGE</h1>", unsafe_allow_html=True)
-st.markdown("<div class='subtext'>Whisper the desire, and the Void shall give it form.</div>", unsafe_allow_html=True)
+st.markdown("<div class='subtext'>Inscribe the soul. Strike the iron.</div>", unsafe_allow_html=True)
 
-# --- THE INPUT (Minimalist) ---
+# --- SIDEBAR FILTERS ---
+st.sidebar.markdown('<div class="sidebar-header">The Forge</div>', unsafe_allow_html=True)
+
+# --- THE INPUT (CALL & RESPONSE + Z-PATTERN) ---
 with st.form("forge_form"):
-    # This is the "Big Dark Room" input
-    user_input = st.text_input("Concept", placeholder="What do you seek?", label_visibility="collapsed")
     
-    # Just the button
-    submitted = st.form_submit_button("STRIKE THE ANVIL")
+    # 1. The Call (Label) and Response (Help)
+    user_input = st.text_input(
+        label="WHISPER YOUR DESIRES...", 
+        help="...and the void shall give it form."
+    )
+    
+    # 2. Layout for Button (Z-Pattern Alignment)
+    # We use columns to push the button to the right side
+    c_spacer, c_btn = st.columns([2, 1])
+    
+    with c_btn:
+        submitted = st.form_submit_button("STRIKE THE ANVIL")
 
 # --- HANDLING SUBMISSION ---
 if submitted and user_input:
@@ -337,7 +352,7 @@ if st.session_state.npc_data:
     card_html += f'</div>'
     st.markdown(card_html, unsafe_allow_html=True)
 
-    # --- RESONANCE MODIFIERS (Subtle Buttons) ---
+    # --- RESONANCE MODIFIERS ---
     st.markdown("<br><br>", unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns(3)
