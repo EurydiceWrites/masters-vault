@@ -264,8 +264,8 @@ def forge_npc(concept, tone):
             text_model = genai.GenerativeModel('models/gemini-3-pro-preview')
             text_prompt = f"""
             Role: Fantasy DM Creative Archivist.
-            Task: Create a richly textured, photo-realistic NPC based on: "{concept}".
-            Rules: Norse-inspired name (EASY to pronounce). photo realistic. {text_vibe}. No Stats.
+            Task: Create a vivid, fully realized description in a fantasy style of an NPC based on: "{concept}".
+            Rules: Norse-inspired name (EASY to pronounce). {text_vibe}. No Stats.
             Format: JSON with keys: Name, Class, Visual_Desc, Lore, Greeting.
             """
             text_response = text_model.generate_content(text_prompt)
@@ -276,7 +276,7 @@ def forge_npc(concept, tone):
             return None
 
     # 3. GENERATE IMAGE
-    with st.spinner("Weaving the shadow..."):
+    with st.spinner("Conjuring the form..."):
         try:
             image_model = genai.GenerativeModel('models/gemini-3-pro-image-preview') 
             img_prompt = f"{img_vibe}, {char_data['Visual_Desc']}, Norse aesthetic, 8k, cinematic lighting."
