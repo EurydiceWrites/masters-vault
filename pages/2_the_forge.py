@@ -12,7 +12,7 @@ import cloudinary.uploader
 # -----------------------------------------------------------------------------
 # 1. PAGE CONFIGURATION
 # -----------------------------------------------------------------------------
-st.set_page_config(page_title="The NPC Forge", layout="centered", page_icon="⚒️")
+st.set_page_config(page_title="Well of Souls", layout="centered", page_icon="⚒️")
 
 # Initialize Session State
 if "npc_data" not in st.session_state:
@@ -369,10 +369,10 @@ def forge_npc(concept, tone):
 st.page_link("1_the_vault.py", label="< RETURN TO VAULT", use_container_width=False)
 
 st.markdown("<h1>THE NPC FORGE</h1>", unsafe_allow_html=True)
-st.markdown("<div class='subtext'>Inscribe the soul. Strike the iron.</div>", unsafe_allow_html=True)
+st.markdown("<div class='subtext'>Conjure and forn and inscribe the soul... </div>", unsafe_allow_html=True)
 
 # --- SIDEBAR FILTERS ---
-st.sidebar.markdown('<div class="sidebar-header">The Forge</div>', unsafe_allow_html=True)
+st.sidebar.markdown('<div class="sidebar-header">The Well of Souls</div>', unsafe_allow_html=True)
 
 # --- THE INPUT (Z-PATTERN & CALL/RESPONSE) ---
 with st.form("forge_form"):
@@ -384,18 +384,40 @@ with st.form("forge_form"):
         placeholder="...and the void shall give it form."
     )
     
-    # 2. Layout for Button (Z-Pattern Alignment)
-    # We use columns to push the button to the right side
-    c_spacer, c_btn = st.columns([2, 1])
-    
+  # 2. The Resonance (Dropdown & Button Layout)
+    c_vibe, c_btn = st.columns([2, 1])
+ 
+    with c_vibe:
+        st.markdown("""
+            <div style="
+                font-family: 'Cinzel', serif; 
+                font-size: 14px; 
+                color: #a0a0a0; 
+                margin-bottom: 5px;
+                display: block;
+                text-transform: uppercase; 
+                letter-spacing: 1px;">
+                Choose a Resonance
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # --- THIS IS THE DROPDOWN ---
+        selected_vibe = st.selectbox(
+            "CHOOSE A RESONANCE", 
+            ["Noble & Bright", "Grim & Shadow", "Mystic & Strange"],
+            label_visibility="collapsed"
+        )
     with c_btn:
-        submitted = st.form_submit_button("STRIKE THE ANVIL")
+        st.markdown("<br>", unsafe_allow_html=True)
+        submitted = st.form_submit_button("INSCRIBE THE SOUL.")
 
 # --- HANDLING SUBMISSION ---
 if submitted and user_input:
     st.session_state.last_concept = user_input
     # CHANGE: DEFAULT IS NOW NOBLE & BRIGHT
-    st.session_state.npc_data = forge_npc(user_input, "Noble & Bright") 
+    st.session_state.npc_data = forge_npc(user_input, selected_vibe) 
+    
+    st.rerun()
 
 # -----------------------------------------------------------------------------
 # 5. RESULT & MODIFIERS
