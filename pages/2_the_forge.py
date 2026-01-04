@@ -384,13 +384,20 @@ with st.form("forge_form"):
     with c_vibe:
         # We inject your custom font style here
         st.markdown("""
-            <div style="font-family: 'Cinzel', serif; color: #cfd8dc; font-size: 14px; margin-bottom: -50px;">
-                CHOOSE A RESONANCE
+            <div style="
+                font-family: 'Cinzel', serif; 
+                font-size: 14px; 
+                color: #a0a0a0; 
+                margin-bottom: 10px;      /* Pushes the dropdown down */
+                display: block;           /* Forces it to take up its own space */
+                text-transform: uppercase; 
+                letter-spacing: 1px;">
+                Choose a Resonance
             </div>
         """, unsafe_allow_html=True)
         
         selected_vibe = st.selectbox(
-            "CHOOSE A RESONANCE", # This text is hidden but needed for screen readers
+            "CHOOSE A RESONANCE", 
             ["Noble & Bright", "Grim & Shadow", "Mystic & Strange"],
             label_visibility="collapsed" # We hide the default one to use our custom one
         )
