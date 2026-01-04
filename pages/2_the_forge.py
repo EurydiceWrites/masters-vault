@@ -287,7 +287,14 @@ def forge_npc(concept, tone):
                 safety_settings=safety_settings
             )
             
-            char_data = json.loads(text_response.text)
+            # Parse the JSON
+            parsed_json = json.loads(text_response.text)
+            
+            # FIX: If the AI returned a list [{}], grab the first item
+            if isinstance(parsed_json, list):
+                char_data = parsed_json[0]
+            else:
+                char_data = parsed_json
             
         except Exception as e:
             st.error(f"The whisper was lost: {e}")
