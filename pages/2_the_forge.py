@@ -330,8 +330,8 @@ def forge_npc(concept, tone):
 # -----------------------------------------------------------------------------
 st.page_link("1_the_vault.py", label="< RETURN TO VAULT", use_container_width=False)
 
-st.markdown("<h1>THE NPC FORGE</h1>", unsafe_allow_html=True)
-st.markdown("<div class='subtext'>Inscribe the soul. Strike the iron.</div>", unsafe_allow_html=True)
+st.markdown("<h1>THE Well of Souls</h1>", unsafe_allow_html=True)
+st.markdown("<div class='subtext'>Conjure a form and inscribe the soul.</div>", unsafe_allow_html=True)
 
 # --- SIDEBAR FILTERS ---
 st.sidebar.markdown('<div class="sidebar-header">The Forge</div>', unsafe_allow_html=True)
@@ -347,17 +347,26 @@ with st.form("forge_form"):
     )
     
     # 2. Layout for Button (Z-Pattern Alignment)
-    # We use columns to push the button to the right side
-    c_vibe, c_btn = st.columns([2, 1])
+   # ... inside your form ...
+    c_vibe, c_btn = st.columns([3, 1]) 
     
     with c_vibe:
-        # THIS fills the yellow box!
+        # We inject your custom font style here
+        st.markdown("""
+            <div style="font-family: 'Cinzel', serif; color: #cfd8dc; font-size: 14px; margin-bottom: -50px;">
+                CHOOSE A RESONANCE
+            </div>
+        """, unsafe_allow_html=True)
+        
         selected_vibe = st.selectbox(
-            "Select a Resonance", 
+            "CHOOSE A RESONANCE", # This text is hidden but needed for screen readers
             ["Noble & Bright", "Grim & Shadow", "Mystic & Strange"],
-            label_visibility="collapsed" # Hides the label so it fits the design
+            label_visibility="collapsed" # We hide the default one to use our custom one
         )
+
     with c_btn:
+        # Vertical spacer to align button with the dropdown box
+        st.markdown("<br>", unsafe_allow_html=True)
         submitted = st.form_submit_button("STRIKE THE ANVIL")
 
 # --- HANDLING SUBMISSION ---
