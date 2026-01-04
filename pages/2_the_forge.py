@@ -358,9 +358,9 @@ st.markdown("""
     }
     
     /* 4. The Options in the Menu */
-    li[data-baseweb="option"] {
-        color: #e0e0e0 !important;
-    }
+    li[data-baseweb="option"],
+            li[data-baseweb="option"] * {
+ 
 </style>
 """, unsafe_allow_html=True)
 
