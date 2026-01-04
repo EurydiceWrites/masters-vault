@@ -330,8 +330,39 @@ def forge_npc(concept, tone):
 # -----------------------------------------------------------------------------
 st.page_link("1_the_vault.py", label="< RETURN TO VAULT", use_container_width=False)
 
+
 st.markdown("<h1>THE Well of Souls</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtext'>Conjure a form and inscribe the soul.</div>", unsafe_allow_html=True)
+# -----------------------------------------------------------------------------
+# CSS FOR DROPDOWN STYLING
+# -----------------------------------------------------------------------------
+st.markdown("""
+<style>
+    /* 1. The Main Box (Closed) */
+    div[data-baseweb="select"] > div {
+        background-color: #121212 !important;
+        border: 1px solid #333333 !important;
+        color: #e0e0e0 !important;
+        font-family: 'Cinzel', serif;
+    }
+    
+    /* 2. The Text Inside the Box */
+    div[data-baseweb="select"] span {
+        color: #e0e0e0 !important;
+    }
+
+    /* 3. The Dropdown Menu (Open) */
+    ul[data-baseweb="menu"] {
+        background-color: #121212 !important;
+        border: 1px solid #333333 !important;
+    }
+    
+    /* 4. The Options in the Menu */
+    li[data-baseweb="option"] {
+        color: #e0e0e0 !important;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # --- SIDEBAR FILTERS ---
 st.sidebar.markdown('<div class="sidebar-header">The Forge</div>', unsafe_allow_html=True)
