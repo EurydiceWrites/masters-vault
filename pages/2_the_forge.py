@@ -270,7 +270,7 @@ def forge_npc(concept, tone):
             genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
             
             # CHECK MODEL
-            model_name = 'gemini-1.5-flash' # Let's stick to the reliable one for the test
+            model_name = 'gemini-3-pro-preview' # Let's stick to the reliable one for the test
             st.write(f"🔧 DEBUG: contacting model '{model_name}'...") # Probe 3
             text_model = genai.GenerativeModel(model_name)
             
