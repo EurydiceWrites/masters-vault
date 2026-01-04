@@ -353,7 +353,7 @@ with st.form("forge_form"):
     with c_vibe:
         # THIS fills the yellow box!
         selected_vibe = st.selectbox(
-            "CHOOSE THE METAL (Vibe)", 
+            "Select a Resonance", 
             ["Noble & Bright", "Grim & Shadow", "Mystic & Strange"],
             label_visibility="collapsed" # Hides the label so it fits the design
         )
@@ -364,7 +364,8 @@ with st.form("forge_form"):
 if submitted and user_input:
     st.session_state.last_concept = user_input
     # CHANGE: DEFAULT IS NOW NOBLE & BRIGHT
-    st.session_state.npc_data = forge_npc(user_input, "Noble & Bright") 
+    st.session_state.npc_data = forge_npc(user_input, selected_vibe) 
+    st.rerun()
 
 # -----------------------------------------------------------------------------
 # 5. RESULT & MODIFIERS
