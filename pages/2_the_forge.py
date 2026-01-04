@@ -245,8 +245,6 @@ def setup_auth():
         return None, False, str(e)
 
 def forge_npc(concept, tone):
-    st.write("🔧 DEBUG: Starting Forge Process...") # Probe 1
-
     # 1. DEFINE VIBES
     if tone == "Grim & Shadow":
         text_vibe = "Dark fantasy, gritty, morally ambiguous, dangerous tone."
@@ -254,26 +252,28 @@ def forge_npc(concept, tone):
     elif tone == "Noble & Bright":
         text_vibe = "High fantasy, heroic, hopeful, noble, clean and elegant tone."
         img_vibe = "photo realistic, high fantasy, vibrant, golden hour lighting, majestic, clean, ethereal"
-    else: 
+    else: # Mystic & Strange
         text_vibe = "Eldritch, strange, dreamlike, mysterious, folklore-heavy tone."
         img_vibe = "photo realistic, surreal, mist-filled, cinematic, strange colors, folklore aesthetic"
 
     # 2. GENERATE TEXT
     with st.spinner(f"The Void answers..."):
         try:
-            # CHECK SECRETS
-            if "GOOGLE_API_KEY" not in st.secrets:
-                st.error("❌ DEBUG ERROR: GOOGLE_API_KEY not found in secrets!")
-                return None
+            if "GOOGLE_API_KEY" in st.secrets:
+                genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
             
-            st.write("🔧 DEBUG: Found API Key. Configuring Gemini...") # Probe 2
-            genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+            # --- The Writer ---
+            text_model = genai.GenerativeModel('models/gemini-3-pro-preview')
             
-            # CHECK MODEL
-            model_name = 'gemini-3-pro-preview' # Let's stick to the reliable one for the test
-            st.write(f"🔧 DEBUG: contacting model '{model_name}'...") # Probe 3
-            text_model = genai.GenerativeModel(model_name)
-            
+            # Force JSON Mode & Disable Safety Blocks
+            generation_config = {"response_mime_type": "application/json"}
+            safety_settings = [
+                {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+            ]
+
             text_prompt = f"""
             Role: Fantasy DM Creative Archivist.
             Task: Create a vivid, fully realized description in a fantasy style of an NPC based on: "{concept}".
@@ -281,55 +281,77 @@ def forge_npc(concept, tone):
             Format: JSON with keys: Name, Class, Visual_Desc, Lore, Greeting.
             """
             
-            st.write("🔧 DEBUG: Sending request to Google...") # Probe 4
-            text_response = text_model.generate_content(text_prompt)
-            st.write("🔧 DEBUG: Response received!") # Probe 5
+            text_response = text_model.generate_content(
+                text_prompt, 
+                generation_config=generation_config,
+                safety_settings=safety_settings
+            )
             
-            # CHECK RESPONSE
-            raw_text = text_response.text
-            st.write(f"🔧 DEBUG: Raw Output: {raw_text[:100]}...") # Show first 100 chars
+            char_data = json.loads(text_response.text)
             
-            # CLEAN JSON
-            clean_json = raw_text.replace("```json", "").replace("```", "").strip()
-            char_data = json.loads(clean_json)
-            st.write("🔧 DEBUG: JSON Parsed successfully.") # Probe 6
-
         except Exception as e:
-            st.error(f"❌ DEBUG CRASH IN TEXT GEN: {e}")
+            st.error(f"The whisper was lost: {e}")
             return None
 
     # 3. GENERATE IMAGE
     with st.spinner("Conjuring the form..."):
         try:
-            st.write("🔧 DEBUG: Starting Image Generation...") # Probe 7
-            image_model = genai.GenerativeModel('models/gemini-3-pro-image-preview') # Verify this model name
-            img_prompt = f"{img_vibe}, {char_data['Visual_Desc']}, Norse aesthetic, 8k, cinematic lighting."
+            # --- The Artist ---
+            image_model = genai.GenerativeModel('models/gemini-3-pro-image-preview') 
             
-            st.write("🔧 DEBUG: Requesting Image...") # Probe 8
+            img_prompt = f"{img_vibe}, {char_data['Visual_Desc']}, Norse aesthetic, 8k, cinematic lighting."
             img_response = image_model.generate_content(img_prompt)
             
+            image_url = None
             if img_response.parts:
-                st.write("🔧 DEBUG: Image received. Uploading to Cloudinary...") # Probe 9
                 img_bytes = img_response.parts[0].inline_data.data
                 
-                # Cloudinary setup...
+                # Cloudinary Upload
                 if "cloudinary" in st.secrets:
-                    cloudinary.config(
-                        cloud_name = st.secrets["cloudinary"]["cloud_name"],
-                        api_key = st.secrets["cloudinary"]["api_key"],
-                        api_secret = st.secrets["cloudinary"]["api_secret"],
-                        secure = True
-                    )
+                    try:
+                        cloudinary.config(
+                            cloud_name = st.secrets["cloudinary"]["cloud_name"],
+                            api_key = st.secrets["cloudinary"]["api_key"],
+                            api_secret = st.secrets["cloudinary"]["api_secret"],
+                            secure = True
+                        )
+                        upload_result = cloudinary.uploader.upload(io.BytesIO(img_bytes), folder="masters_vault_npcs")
+                        image_url = upload_result.get("secure_url")
+                    except Exception as cloud_error:
+                        st.warning(f"Image created, but upload failed: {cloud_error}")
                 
-                upload_result = cloudinary.uploader.upload(io.BytesIO(img_bytes), folder="masters_vault_npcs")
-                image_url = upload_result.get("secure_url")
-                st.write(f"🔧 DEBUG: Upload success: {image_url}") # Probe 10
+                if not image_url:
+                    image_url = "https://via.placeholder.com/500?text=Not+Saved+To+Cloud"
             else:
                 image_url = "https://via.placeholder.com/500?text=Manifestation+Failed"
-                
+
         except Exception as e:
-            st.error(f"❌ DEBUG CRASH IN IMAGE: {e}")
+            st.error(f"Image Gen Failed: {e}")
             image_url = "https://via.placeholder.com/500?text=Error"
+
+    # 4. SAVE TO DATABASE
+    try:
+        gc, auth_success, auth_msg = setup_auth()
+        if auth_success:
+            sh = gc.open("Masters_Vault_Db")
+            worksheet = sh.get_worksheet(0)
+            
+            row_data = [
+                char_data['Name'], 
+                char_data['Class'], 
+                char_data['Lore'], 
+                char_data['Greeting'], 
+                char_data['Visual_Desc'], 
+                image_url, 
+                str(datetime.datetime.now()),
+                "", "" # Empty Campaign/Faction
+            ]
+            worksheet.append_row(row_data)
+        else:
+            st.error(f"Vault Connection Failed: {auth_msg}")
+
+    except Exception as e:
+        st.error(f"Vault closed (Save Failed): {e}")
 
     char_data['image_url'] = image_url
     return char_data
