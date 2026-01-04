@@ -1,3 +1,4 @@
+
 import streamlit as st
 import google.generativeai as genai
 from google.oauth2 import service_account
@@ -11,7 +12,7 @@ import cloudinary.uploader
 # -----------------------------------------------------------------------------
 # 1. PAGE CONFIGURATION
 # -----------------------------------------------------------------------------
-st.set_page_config(page_title="The Well of Souls", layout="centered", page_icon="⚒️")
+st.set_page_config(page_title="The NPC Forge", layout="centered", page_icon="⚒️")
 
 # Initialize Session State
 if "npc_data" not in st.session_state:
@@ -87,14 +88,23 @@ st.markdown("""
     a[data-testid="stPageLink-NavLink"] p { color: #666; font-family: 'Cinzel', serif; font-size: 0.9rem; transition: color 0.3s; }
     a[data-testid="stPageLink-NavLink"]:hover p { color: var(--nav-gold) !important; text-shadow: 0 0 10px var(--emerald-glow); }
 
-    /* --- THE VOID INPUT --- */
+    /* --- THE VOID INPUT (Specific Overrides) --- */
+    
+    /* 1. Target the Outer Container */
     div[data-baseweb="input"] {
-        background-color: #000000 !important;
+        background-color: #000000 !important; /* PITCH BLACK */
         border: 1px solid #333 !important;
         border-radius: 0px !important;
         padding: 10px;
     }
-    div[data-baseweb="base-input"] { background-color: transparent !important; border: none !important; }
+
+    /* 2. Target the Inner 'Base Input' */
+    div[data-baseweb="base-input"] {
+        background-color: transparent !important;
+        border: none !important;
+    }
+
+    /* 3. Target the Text Itself */
     input.st-ai, input.st-ah, input[type="text"] {
         background-color: transparent !important;
         color: #e0e0e0 !important;
@@ -103,37 +113,45 @@ st.markdown("""
         text-align: center !important; 
         font-style: italic;
     }
+    
+    /* 4. THE GHOST PLACEHOLDER (Hidden until hover) */
     input::placeholder {
-        color: transparent !important;
+        color: transparent !important; /* Invisible by default */
         transition: color 0.5s ease-in-out;
         font-family: 'Cinzel', serif !important;
         font-size: 1rem !important;
         letter-spacing: 2px;
         text-transform: uppercase;
     }
-    div[data-baseweb="input"]:hover input::placeholder { color: #444 !important; }
-    div[data-baseweb="base-input"]:focus-within input::placeholder { color: #333 !important; }
-    div[data-testid="InputInstructions"] { display: none !important; }
+    
+    /* Reveal on Hover or Focus */
+    div[data-baseweb="input"]:hover input::placeholder {
+        color: #444 !important; /* Faint grey on hover */
+    }
+    div[data-baseweb="base-input"]:focus-within input::placeholder {
+        color: #333 !important;
+    }
+
+    /* 5. REMOVE "PRESS ENTER" Instructions */
+    div[data-testid="InputInstructions"] {
+        display: none !important;
+    }
+
+    /* 6. The Label (The "Call") */
+    label p {
+        font-family: 'Cinzel', serif !important;
+        font-size: 1.2rem !important;
+        color: #888 !important;
+        text-align: center !important;
+        letter-spacing: 2px !important;
+        width: 100%;
+        margin-bottom: 10px !important;
+    }
+
+    /* Focus Glow */
     div[data-baseweb="input"]:focus-within {
         border-color: var(--emerald-glow) !important;
         box-shadow: 0 0 20px rgba(80, 200, 120, 0.2) !important;
-    }
-
-    /* --- DROPDOWN CSS (Repaired) --- */
-    div[data-baseweb="select"] > div {
-        background-color: #121212 !important;
-        border: 1px solid #333333 !important;
-        color: #e0e0e0 !important;
-        font-family: 'Cinzel', serif;
-    }
-    div[data-baseweb="select"] span { color: #e0e0e0 !important; }
-    ul[data-baseweb="menu"] {
-        background-color: #121212 !important;
-        border: 1px solid #333333 !important;
-    }
-    li[data-baseweb="option"], li[data-baseweb="option"] * {
-        color: #e0e0e0 !important;
-        font-family: 'Cinzel', serif !important;
     }
 
     /* --- BUTTONS --- */
@@ -157,6 +175,8 @@ st.markdown("""
         text-shadow: 0 0 15px var(--emerald-glow);
         background: rgba(80, 200, 120, 0.05) !important;
     }
+    
+    /* Resonance Buttons */
     button[kind="secondary"] {
         background: transparent !important; 
         border: 1px solid #333 !important; 
@@ -242,7 +262,6 @@ def forge_npc(concept, tone):
             if "GOOGLE_API_KEY" in st.secrets:
                 genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
             
-            # Using your model preference
             text_model = genai.GenerativeModel('models/gemini-3-pro-preview')
             text_prompt = f"""
             Role: Fantasy DM Creative Archivist.
@@ -266,29 +285,17 @@ def forge_npc(concept, tone):
             
             if img_response.parts:
                 img_bytes = img_response.parts[0].inline_data.data
-                
-                # --- CLOUDINARY LOGIC FIX (Handles nested OR flat keys) ---
                 if "cloudinary" in st.secrets:
-                    # Case 1: Nested [cloudinary] section
                     cloudinary.config(
                         cloud_name = st.secrets["cloudinary"]["cloud_name"],
                         api_key = st.secrets["cloudinary"]["api_key"],
                         api_secret = st.secrets["cloudinary"]["api_secret"],
                         secure = True
                     )
-                elif "CLOUDINARY_CLOUD_NAME" in st.secrets:
-                     # Case 2: Flat keys
-                    cloudinary.config(
-                        cloud_name = st.secrets["CLOUDINARY_CLOUD_NAME"],
-                        api_key = st.secrets["CLOUDINARY_API_KEY"],
-                        api_secret = st.secrets["CLOUDINARY_API_SECRET"],
-                        secure = True
-                    )
-                
-                # Perform upload
-                upload_result = cloudinary.uploader.upload(io.BytesIO(img_bytes), folder="masters_vault_npcs")
-                image_url = upload_result.get("secure_url")
-
+                    upload_result = cloudinary.uploader.upload(io.BytesIO(img_bytes), folder="masters_vault_npcs")
+                    image_url = upload_result.get("secure_url")
+                else:
+                    image_url = "https://via.placeholder.com/500?text=Cloudinary+Missing"
             else:
                 image_url = "https://via.placeholder.com/500?text=Manifestation+Failed"
         except Exception as e:
@@ -324,8 +331,8 @@ def forge_npc(concept, tone):
 # -----------------------------------------------------------------------------
 st.page_link("1_the_vault.py", label="< RETURN TO VAULT", use_container_width=False)
 
-st.markdown("<h1>THE Well of Souls</h1>", unsafe_allow_html=True)
-st.markdown("<div class='subtext'>Conjure a form and inscribe the soul.</div>", unsafe_allow_html=True)
+st.markdown("<h1>THE NPC FORGE</h1>", unsafe_allow_html=True)
+st.markdown("<div class='subtext'>Inscribe the soul. Strike the iron.</div>", unsafe_allow_html=True)
 
 # --- SIDEBAR FILTERS ---
 st.sidebar.markdown('<div class="sidebar-header">The Forge</div>', unsafe_allow_html=True)
@@ -334,43 +341,24 @@ st.sidebar.markdown('<div class="sidebar-header">The Forge</div>', unsafe_allow_
 with st.form("forge_form"):
     
     # 1. The Call (Label)
+    # The placeholder acts as the response (hidden until hover/focus)
     user_input = st.text_input(
         label="WHISPER YOUR DESIRES...", 
         placeholder="...and the void shall give it form."
     )
     
-    # 2. Layout for Button
-    c_vibe, c_btn = st.columns([3, 1]) 
+    # 2. Layout for Button (Z-Pattern Alignment)
+    # We use columns to push the button to the right side
+    c_spacer, c_btn = st.columns([2, 1])
     
-    with c_vibe:
-        st.markdown("""
-            <div style="
-                font-family: 'Cinzel', serif; 
-                font-size: 14px; 
-                color: #a0a0a0; 
-                margin-bottom: 10px;
-                display: block;
-                text-transform: uppercase; 
-                letter-spacing: 1px;">
-                Choose a Resonance
-            </div>
-        """, unsafe_allow_html=True)
-        
-        selected_vibe = st.selectbox(
-            "CHOOSE A RESONANCE", 
-            ["Noble & Bright", "Grim & Shadow", "Mystic & Strange"],
-            label_visibility="collapsed"
-        )
-
     with c_btn:
-        st.markdown("<br>", unsafe_allow_html=True)
         submitted = st.form_submit_button("STRIKE THE ANVIL")
 
 # --- HANDLING SUBMISSION ---
 if submitted and user_input:
     st.session_state.last_concept = user_input
-    st.session_state.npc_data = forge_npc(user_input, selected_vibe) 
-    st.rerun()
+    # CHANGE: DEFAULT IS NOW NOBLE & BRIGHT
+    st.session_state.npc_data = forge_npc(user_input, "Noble & Bright") 
 
 # -----------------------------------------------------------------------------
 # 5. RESULT & MODIFIERS
