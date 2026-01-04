@@ -302,7 +302,7 @@ def forge_npc(concept, tone):
     with st.spinner("Conjuring the form..."):
         try:
             st.write("🔧 DEBUG: Starting Image Generation...") # Probe 7
-            image_model = genai.GenerativeModel('models/imagen-3') # Verify this model name
+            image_model = genai.GenerativeModel('models/gemini-3-pro-image-preview') # Verify this model name
             img_prompt = f"{img_vibe}, {char_data['Visual_Desc']}, Norse aesthetic, 8k, cinematic lighting."
             
             st.write("🔧 DEBUG: Requesting Image...") # Probe 8
