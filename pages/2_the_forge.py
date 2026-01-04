@@ -348,8 +348,15 @@ with st.form("forge_form"):
     
     # 2. Layout for Button (Z-Pattern Alignment)
     # We use columns to push the button to the right side
-    c_spacer, c_btn = st.columns([2, 1])
+    c_vibe, c_btn = st.columns([2, 1])
     
+    with c_vibe:
+        # THIS fills the yellow box!
+        selected_vibe = st.selectbox(
+            "CHOOSE THE METAL (Vibe)", 
+            ["Noble & Bright", "Grim & Shadow", "Mystic & Strange"],
+            label_visibility="collapsed" # Hides the label so it fits the design
+        )
     with c_btn:
         submitted = st.form_submit_button("STRIKE THE ANVIL")
 
