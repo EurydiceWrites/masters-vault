@@ -11,7 +11,7 @@ import cloudinary.uploader
 # -----------------------------------------------------------------------------
 # 1. PAGE CONFIGURATION
 # -----------------------------------------------------------------------------
-st.set_page_config(page_title="The NPC Forge", layout="centered", page_icon="⚒️")
+st.set_page_config(page_title="The Well of Souls", layout="centered", page_icon="⚒️")
 
 # Initialize Session State
 if "npc_data" not in st.session_state:
