@@ -1,14 +1,14 @@
-
 import streamlit as st
 from google import genai
 from google.oauth2 import service_account
 from google.genai import types
-import io
 import gspread
 import json
 import datetime
 import cloudinary
 import cloudinary.uploader
+import base64
+import os
 
 # -----------------------------------------------------------------------------
 # 1. PAGE CONFIGURATION
@@ -90,22 +90,16 @@ st.markdown("""
     a[data-testid="stPageLink-NavLink"]:hover p { color: var(--nav-gold) !important; text-shadow: 0 0 10px var(--emerald-glow); }
 
     /* --- THE VOID INPUT (Specific Overrides) --- */
-    
-    /* 1. Target the Outer Container */
     div[data-baseweb="input"] {
-        background-color: #000000 !important; /* PITCH BLACK */
+        background-color: #000000 !important;
         border: 1px solid #333 !important;
         border-radius: 0px !important;
         padding: 10px;
     }
-
-    /* 2. Target the Inner 'Base Input' */
     div[data-baseweb="base-input"] {
         background-color: transparent !important;
         border: none !important;
     }
-
-    /* 3. Target the Text Itself */
     input.st-ai, input.st-ah, input[type="text"] {
         background-color: transparent !important;
         color: #e0e0e0 !important;
@@ -114,31 +108,23 @@ st.markdown("""
         text-align: center !important; 
         font-style: italic;
     }
-    
-    /* 4. THE GHOST PLACEHOLDER (Hidden until hover) */
     input::placeholder {
-        color: transparent !important; /* Invisible by default */
+        color: transparent !important;
         transition: color 0.5s ease-in-out;
         font-family: 'Cinzel', serif !important;
         font-size: 1rem !important;
         letter-spacing: 2px;
         text-transform: uppercase;
     }
-    
-    /* Reveal on Hover or Focus */
     div[data-baseweb="input"]:hover input::placeholder {
-        color: #444 !important; /* Faint grey on hover */
+        color: #444 !important;
     }
     div[data-baseweb="base-input"]:focus-within input::placeholder {
         color: #333 !important;
     }
-
-    /* 5. REMOVE "PRESS ENTER" Instructions */
     div[data-testid="InputInstructions"] {
         display: none !important;
     }
-
-    /* 6. The Label (The "Call") */
     label p {
         font-family: 'Cinzel', serif !important;
         font-size: 1.2rem !important;
@@ -148,8 +134,6 @@ st.markdown("""
         width: 100%;
         margin-bottom: 10px !important;
     }
-
-    /* Focus Glow */
     div[data-baseweb="input"]:focus-within {
         border-color: var(--emerald-glow) !important;
         box-shadow: 0 0 20px rgba(80, 200, 120, 0.2) !important;
@@ -176,8 +160,6 @@ st.markdown("""
         text-shadow: 0 0 15px var(--emerald-glow);
         background: rgba(80, 200, 120, 0.05) !important;
     }
-    
-    /* Resonance Buttons */
     button[kind="secondary"] {
         background: transparent !important; 
         border: 1px solid #333 !important; 
@@ -201,7 +183,6 @@ st.markdown("""
         animation: fadein 1.5s;
     }
     .seam { height: 1px; background: radial-gradient(circle, #444 0%, transparent 90%); margin: 0; border: none; opacity: 0.6; }
-    
     .card-header { background: #111; padding: 2rem 1rem; text-align: center; }
     .card-name { font-family: 'Cinzel', serif; font-size: 2.2rem; color: #fff; letter-spacing: 4px; margin-bottom: 0.5rem; }
     .card-class { font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--emerald-bright); letter-spacing: 3px; text-transform: uppercase; text-shadow: 0 0 10px rgba(102, 255, 153, 0.3); }
@@ -222,49 +203,28 @@ st.markdown("""
 
     @keyframes fadein { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Footer */
     .footer-container { opacity: 0.3; text-align: center; margin-top: 4rem; padding-bottom: 2rem;}
     .rune-span { margin: 0 10px; font-size: 1.2rem; color: #444; cursor: default; }
-
 </style>
 """, unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# 3. CORE LOGIC (Gemini & GSheets)
-# -----------------------------------------------------------------------------
-# -----------------------------------------------------------------------------
-# AUTHENTICATION (Bulletproof)
-# -----------------------------------------------------------------------------
-# -----------------------------------------------------------------------------
-# AUTHENTICATION (Bulletproof)
+# 3. CORE LOGIC
 # -----------------------------------------------------------------------------
 def setup_auth():
-    try:
-        SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-        if "gcp_service_account" in st.secrets:
-            # Cloud auth
-            creds = service_account.Credentials.from_service_account_info(
-                st.secrets["gcp_service_account"], scopes=SCOPES
-            )
-        else:
-            # Local auth
-            creds = service_account.Credentials.from_service_account_file("service_account.json", scopes=SCOPES)
-            
-        gc = gspread.authorize(creds)
+    SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+    if "gcp_service_account" in st.secrets:
+        creds = service_account.Credentials.from_service_account_info(
+            st.secrets["gcp_service_account"], scopes=SCOPES
+        )
+    else:
+        creds = service_account.Credentials.from_service_account_file("service_account.json", scopes=SCOPES)
         
-        # Open the specific database and worksheet
-        sh = gc.open("Masters_Vault_Db")
-        worksheet = sh.get_worksheet(0)
-        
-        # Return BOTH the connection and the worksheet so they can be "unpacked"
-        return gc, worksheet
-        
-    except Exception as e:
-        st.error(f"Vault Connection Error: {e}")
-        st.stop()
-
-# This is the line your app was looking for!
-gc = setup_auth()
+    gc = gspread.authorize(creds)
+    sh = gc.open("Masters_Vault_Db")
+    
+    # Return JUST the worksheet to make saving simple
+    return sh.get_worksheet(0)
 
 def forge_npc(concept, tone):
     # 1. DEFINE VIBES
@@ -274,16 +234,13 @@ def forge_npc(concept, tone):
     elif tone == "Noble & Bright":
         text_vibe = "may contain themes including: High fantasy, heroic, hopeful, noble, clean and elegant tone. Focus on grand ideals and pristine appearance."
         img_vibe = "ultra-realistic cinematic movie still, high fantasy, vibrant, golden hour lighting, majestic, clean, ethereal, sharp focus, majestic"
-    else: # Mystic & Strange
+    else:
         text_vibe = "may contain themes including: eldritch, strange, dreamlike, mysterious, folklore-heavy tone. Focus on unsettling but beautiful, unnatural details."
         img_vibe = "ultra-realistic cinematic movie still, surreal, mist-filled, strange colors, folklore aesthetic, hauntingly beautiful, eerie cinematic lighting"
 
-# 2. GENERATE TEXT (NO SAFETY NETS)
+    # 2. GENERATE TEXT
     with st.spinner(f"The Void answers..."):
-        st.info("TRACER 1: Spinner started.")
-        
         client = genai.Client(api_key=st.secrets["GOOGLE_API_KEY"])
-        st.info("TRACER 2: Keymaster created.")
 
         text_prompt = f"""
         Role: Master Worldbuilder and Grounded Fantasy DM.
@@ -291,20 +248,16 @@ def forge_npc(concept, tone):
         Rules: 
         1. Norse-inspired name (EASY to pronounce). 
         2. Tone: {text_vibe}
-        3. Contextual realism:  The setting is  high-fantasy. Apply realism based on the subject's nature. Avoid cartoonish high-fantasy tropes. 
+        3. Contextual realism: The setting is high-fantasy. Apply realism based on the subject's nature. Avoid cartoonish high-fantasy tropes. 
         4. MANDATORY COMPLIANCE: The Visual_Desc MUST be PG-13. 
-        6. No Stats.
+        5. No Stats.
         Format: JSON with keys: Name, Class, Visual_Desc, Lore, Greeting.
         """
-        st.info("TRACER 3: Prompt built, sending request...")
-
-        # NO SAFETY NETS. IF THIS FAILS, STREAMLIT WILL SCREAM.
+        
         text_response = client.models.generate_content(
             model='gemini-3.1-pro-preview',
             contents=text_prompt
         )
-        
-        st.info("TRACER 4: Google responded! Parsing JSON...")
         
         raw_text = text_response.text.replace('```json', '').replace('```', '').strip()
         parsed_json = json.loads(raw_text)
@@ -313,83 +266,56 @@ def forge_npc(concept, tone):
             char_data = parsed_json[0]
         else:
             char_data = parsed_json
-        
-        st.success("TRACER 5: Text generation complete!")
 
-# 3. GENERATE IMAGE (NO SAFETY NETS)
+    # 3. GENERATE IMAGE
     with st.spinner("Conjuring the Form..."):
-        
-        # The Assembly Line: Now completely focused on ULTRA-REALISM!
-        # This new prompt uses powerful realism and cinematic keywords, 
-        # and avoids generic "fantasy portrait" phrasing for a grounded, photo-realistic movie still look!
         image_prompt = f"An ultra-realistic, cinematic 8K movie still of a {char_data.get('Class')}. {char_data.get('Visual_Desc')}. {img_vibe}"
         
-        # Ask Google to paint the picture
         image_response = client.models.generate_images(
             model='imagen-4.0-generate-001',
             prompt=image_prompt,
             config=types.GenerateImagesConfig(
                 number_of_images=1,
                 aspect_ratio="3:4",
-                            )
+            )
         )
         
-        # Extract the raw image data from the Google response
         generated_image = image_response.generated_images[0].image.image_bytes
-        
-        # Convert the raw image bytes into an HTML-friendly URL
-        import base64
-        import os
         b64_encoded = base64.b64encode(generated_image).decode("utf-8")
         data_uri = f"data:image/jpeg;base64,{b64_encoded}"
         
         # ---> UPLOAD TO CLOUDINARY <---
         try:
-            # Force Python to use your exact URL string from secrets.toml
             os.environ["CLOUDINARY_URL"] = st.secrets["CLOUDINARY_URL"]
-            
-            # Upload the image into a specific folder
             upload_result = cloudinary.uploader.upload(data_uri, folder="Well_of_Souls")
-            
-            # Inject the clean Cloudinary URL directly into the character sheet!
             char_data["image_url"] = upload_result["secure_url"]
-            
         except Exception as e:
             st.warning(f"Cloudinary Error: {e}")
-            # If Cloudinary fails, fallback to the raw string so the app doesn't break
             char_data["image_url"] = data_uri
-        # ---> 4. SAVE TO GOOGLE SHEETS (TEXT ONLY) <---
-        try:
-            gc, auth_success, auth_msg = setup_auth()
-            if auth_success:
-                sh = gc.open("Masters_Vault_Db")
-                worksheet = sh.sheet1 
-                
-                import datetime
-                current_time = str(datetime.datetime.now())
 
-                row_to_save = [
-                    char_data.get("Name", "Unknown"),  # Column A
-                    char_data.get("Class", "Unknown"), # Column B
-                    char_data.get("Lore", ""),         # Column C
-                    char_data.get("Greeting", ""),     # Column D
-                    char_data.get("Visual_Desc", ""),  # Column E
-                    char_data.get("image_url", ""),    # Column F
-                    current_time                       # Column G
-                ]
-                
-                # FIX 1: Force it to Row 2 instead of the bottom of the sheet!
-                worksheet.insert_row(row_to_save, 2)
-                
-                # FIX 2: Store the message in memory so the rerun doesn't delete it
-                st.session_state.db_status = f"Success! {char_data.get('Name')} saved to Vault."
-            else:
-                st.session_state.db_status = f"Vault Error: {auth_msg}"
+        # ---> 4. SAVE TO GOOGLE SHEETS <---
+        try:
+            # We now just grab the worksheet directly. No unpacking. No messages.
+            worksheet = setup_auth()
+            
+            current_time = str(datetime.datetime.now())
+            row_to_save = [
+                char_data.get("Name", "Unknown"), 
+                char_data.get("Class", "Unknown"),
+                char_data.get("Lore", ""),         
+                char_data.get("Greeting", ""),     
+                char_data.get("Visual_Desc", ""),  
+                char_data.get("image_url", ""),    
+                current_time                       
+            ]
+            
+            worksheet.insert_row(row_to_save, 2)
+            st.session_state.db_status = f"Success! {char_data.get('Name')} saved to Vault."
         except Exception as e:
             st.session_state.db_status = f"Vault Exception: {str(e)}"
 
-        # Send the clean character sheet (with the image) back to the main app
         return char_data
+
 # -----------------------------------------------------------------------------
 # 4. LAYOUT
 # -----------------------------------------------------------------------------
@@ -398,37 +324,23 @@ st.page_link("1_the_vault.py", label="< RETURN TO VAULT", use_container_width=Fa
 st.markdown("<h1>The WELL OF SOULS</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtext'>Conjure a form and inscribe the soul... </div>", unsafe_allow_html=True)
 
-# --- SIDEBAR FILTERS ---
 st.sidebar.markdown('<div class="sidebar-header">The Well of Souls</div>', unsafe_allow_html=True)
 
-# --- THE INPUT (Z-PATTERN & CALL/RESPONSE) ---
 with st.form("forge_form"):
-    
-    # 1. The Call (Label)
-    # The placeholder acts as the response (hidden until hover/focus)
     user_input = st.text_input(
         label="WHISPER YOUR DESIRES...", 
         placeholder="...and the void shall give it form."
     )
     
-  # 2. The Resonance (Dropdown & Button Layout)
     c_vibe, c_btn = st.columns([2, 1])
  
     with c_vibe:
         st.markdown("""
-            <div style="
-                font-family: 'Cinzel', serif; 
-                font-size: 14px; 
-                color: #a0a0a0; 
-                margin-bottom: 5px;
-                display: block;
-                text-transform: uppercase; 
-                letter-spacing: 1px;">
+            <div style="font-family: 'Cinzel', serif; font-size: 14px; color: #a0a0a0; margin-bottom: 5px; display: block; text-transform: uppercase; letter-spacing: 1px;">
                 Choose a Resonance
             </div>
         """, unsafe_allow_html=True)
         
-        # --- THIS IS THE DROPDOWN ---
         selected_vibe = st.selectbox(
             "CHOOSE A RESONANCE", 
             ["Noble & Bright", "Grim & Shadow", "Mystic & Strange"],
@@ -438,12 +350,9 @@ with st.form("forge_form"):
         st.markdown("<br>", unsafe_allow_html=True)
         submitted = st.form_submit_button("INSCRIBE THE SOUL.")
 
-# --- HANDLING SUBMISSION ---
 if submitted and user_input:
     st.session_state.last_concept = user_input
-    # CHANGE: DEFAULT IS NOW NOBLE & BRIGHT
     st.session_state.npc_data = forge_npc(user_input, selected_vibe) 
-    
     st.rerun()
 
 # -----------------------------------------------------------------------------
@@ -452,9 +361,12 @@ if submitted and user_input:
 if st.session_state.npc_data:
     data = st.session_state.npc_data
     if "db_status" in st.session_state:
-        st.warning(st.session_state.db_status)
+        # If success, show green. If error, show yellow.
+        if "Success!" in st.session_state.db_status:
+            st.success(st.session_state.db_status)
+        else:
+            st.warning(st.session_state.db_status)
     
-    # --- RENDER CARD ---
     card_html = ""
     card_html += f'<div class="character-card">'
     card_html += f'  <div class="card-header">'
@@ -479,7 +391,6 @@ if st.session_state.npc_data:
     card_html += f'</div>'
     st.markdown(card_html, unsafe_allow_html=True)
 
-    # --- RESONANCE MODIFIERS ---
     st.markdown("<br><br>", unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns(3)
@@ -499,7 +410,6 @@ if st.session_state.npc_data:
             st.session_state.npc_data = forge_npc(st.session_state.last_concept, "Mystic & Strange")
             st.rerun()
 
-# FOOTER
 runes = ["ᚦ", "ᚱ", "ᛁ", "ᛉ", "ᛉ", "ᚨ", "ᚱ"]
 rune_html = "<div class='footer-container'>"
 for i, rune in enumerate(runes):
