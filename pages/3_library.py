@@ -414,15 +414,29 @@ if search_query:
 
 # --- GRID ---
 if not filtered_df.empty:
+    
+    # 1. SORTING LOGIC: Latest First
+    if 'Timestamp' in filtered_df.columns:
+        # Convert to datetime for accurate sorting, keeping original index intact
+        filtered_df['Timestamp_Temp'] = pd.to_datetime(filtered_df['Timestamp'], errors='coerce')
+        filtered_df = filtered_df.sort_values(by='Timestamp_Temp', ascending=False)
+    else:
+        # Fallback: Reverse the dataframe (assumes newest entries are at the bottom of the sheet)
+        filtered_df = filtered_df.iloc[::-1]
+
     cols = st.columns(3)
-    for index, row in filtered_df.iloc[::-1].iterrows():
+    
+    # Notice we removed .iloc[::-1] from iterrows() since it's already sorted above
+    for index, row in filtered_df.iterrows(): 
         col_index = index % 3
         img_src = row.get('Image_URL', '')
         if not str(img_src).startswith("http"):
             img_src = "https://via.placeholder.com/400x500?text=No+Visage"
 
+        # 2. PERFORMANCE FIX: Force Cloudinary to serve optimized, smaller thumbnails
         if "cloudinary" in img_src and "/upload/" in img_src:
-            img_src = img_src.replace("/upload/", "/upload/c_fill,g_face,w_800,h_600/")
+            # w_400,h_400 creates a smaller image. q_auto,f_auto forces high compression and fast formats (like WebP)
+            img_src = img_src.replace("/upload/", "/upload/c_fill,g_face,w_400,h_400,q_auto,f_auto/")
 
         with cols[col_index]:
             html = ""
@@ -489,13 +503,3 @@ if not filtered_df.empty:
                         st.rerun()
                     except Exception as e:
                         st.error(f"Error: {e}")
-else:
-    st.markdown("<p style='text-align:center; color:#666;'>No souls answer to that name.</p>", unsafe_allow_html=True)
-
-# FOOTER
-runes = ["ᚦ", "ᚱ", "ᛁ", "ᛉ", "ᛉ", "ᚨ", "ᚱ"]
-rune_html = "<div class='footer-container'>"
-for i, rune in enumerate(runes):
-    rune_html += f"<span class='rune-span'>{rune}</span>"
-rune_html += "</div>"
-st.markdown(rune_html, unsafe_allow_html=True)

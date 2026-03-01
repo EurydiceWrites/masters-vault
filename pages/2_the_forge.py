@@ -1,7 +1,8 @@
 
 import streamlit as st
-import google.generativeai as genai
+from google import genai
 from google.oauth2 import service_account
+from google.genai import types
 import io
 import gspread
 import json
@@ -234,142 +235,148 @@ st.markdown("""
 def setup_auth():
     try:
         SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-        if "gcp_service_account" in st.secrets:
-            creds = service_account.Credentials.from_service_account_info(
-                st.secrets["gcp_service_account"], scopes=SCOPES
-            )
-            gc = gspread.authorize(creds)
-            return gc, True, "Success"
-        return None, None, "Missing Google Secrets"
+        
+        # Read directly from the JSON file sitting in your project folder!
+        creds = service_account.Credentials.from_service_account_file(
+            "service_account.json", scopes=SCOPES
+        )
+        gc = gspread.authorize(creds)
+        
+        return gc, True, "Success"
     except Exception as e:
-        return None, False, str(e)
+        return None, False, f"JSON Auth Error: {str(e)}"
 
 def forge_npc(concept, tone):
     # 1. DEFINE VIBES
     if tone == "Grim & Shadow":
-        text_vibe = "Dark fantasy, gritty, morally ambiguous, dangerous tone."
-        img_vibe = "photo realistic, dark fantasy, gritty, low key lighting, shadow heavy, ominous"
+        text_vibe = "may contain themes including: Dark fantasy, gritty, morally ambiguous, dangerous tone. Focus on survival, visible scars, and heavily weathered gear."
+        img_vibe = "ultra-realistic cinematic movie still, dark fantasy, gritty, low key lighting, heavy shadows, ominous, battle-worn, stark realism, deeply weathered"
     elif tone == "Noble & Bright":
-        text_vibe = "High fantasy, heroic, hopeful, noble, clean and elegant tone."
-        img_vibe = "photo realistic, high fantasy, vibrant, golden hour lighting, majestic, clean, ethereal"
+        text_vibe = "may contain themes including: High fantasy, heroic, hopeful, noble, clean and elegant tone. Focus on grand ideals and pristine appearance."
+        img_vibe = "ultra-realistic cinematic movie still, high fantasy, vibrant, golden hour lighting, majestic, clean, ethereal, sharp focus, majestic"
     else: # Mystic & Strange
-        text_vibe = "Eldritch, strange, dreamlike, mysterious, folklore-heavy tone."
-        img_vibe = "photo realistic, surreal, mist-filled, cinematic, strange colors, folklore aesthetic"
+        text_vibe = "may contain themes including: eldritch, strange, dreamlike, mysterious, folklore-heavy tone. Focus on unsettling but beautiful, unnatural details."
+        img_vibe = "ultra-realistic cinematic movie still, surreal, mist-filled, strange colors, folklore aesthetic, hauntingly beautiful, eerie cinematic lighting"
 
-    # 2. GENERATE TEXT
+# 2. GENERATE TEXT (NO SAFETY NETS)
     with st.spinner(f"The Void answers..."):
-        try:
-            if "GOOGLE_API_KEY" in st.secrets:
-                genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-            
-            # --- The Writer ---
-            text_model = genai.GenerativeModel('models/gemini-3-pro-preview')
-            
-            # Force JSON Mode & Disable Safety Blocks
-            generation_config = {"response_mime_type": "application/json"}
-            safety_settings = [
-                {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
-                {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
-                {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-                {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
-            ]
+        st.info("TRACER 1: Spinner started.")
+        
+        client = genai.Client(api_key=st.secrets["GOOGLE_API_KEY"])
+        st.info("TRACER 2: Keymaster created.")
 
-            text_prompt = f"""
-            Role: Fantasy DM Creative Archivist.
-            Task: Create a vivid, fully realized description in a fantasy style of an NPC based on: "{concept}".
-            Rules: Norse-inspired name (EASY to pronounce). {text_vibe}. No Stats.
-            Format: JSON with keys: Name, Class, Visual_Desc, Lore, Greeting.
-            """
-            
-            text_response = text_model.generate_content(
-                text_prompt, 
-                generation_config=generation_config,
-                safety_settings=safety_settings
-            )
-            
-            # Parse the JSON
-            parsed_json = json.loads(text_response.text)
-            
-            # FIX: If the AI returned a list [{}], grab the first item
-            if isinstance(parsed_json, list):
-                char_data = parsed_json[0]
-            else:
-                char_data = parsed_json
-            
-        except Exception as e:
-            st.error(f"The whisper was lost: {e}")
-            return None
+        text_prompt = f"""
+        Role: Master Worldbuilder and Grounded Fantasy DM.
+        Task: Create a vivid, highly believable, and realistic NPC based on: "{concept}".
+        Rules: 
+        1. Norse-inspired name (EASY to pronounce). 
+        2. Tone: {text_vibe}
+        3. Contextual realism:  The setting is  high-fantasy. Apply realism based on the subject's nature. Avoid cartoonish high-fantasy tropes. 
+        4. MANDATORY COMPLIANCE: The Visual_Desc MUST be PG-13. 
+        6. No Stats.
+        Format: JSON with keys: Name, Class, Visual_Desc, Lore, Greeting.
+        """
+        st.info("TRACER 3: Prompt built, sending request...")
 
-    # 3. GENERATE IMAGE
-    with st.spinner("Conjuring the form..."):
-        try:
-            # --- The Artist ---
-            image_model = genai.GenerativeModel('models/gemini-3-pro-image-preview') 
-            
-            img_prompt = f"{img_vibe}, {char_data['Visual_Desc']}, Norse aesthetic, 8k, cinematic lighting."
-            img_response = image_model.generate_content(img_prompt)
-            
-            image_url = None
-            if img_response.parts:
-                img_bytes = img_response.parts[0].inline_data.data
-                
-                # Cloudinary Upload
-                if "cloudinary" in st.secrets:
-                    try:
-                        cloudinary.config(
-                            cloud_name = st.secrets["cloudinary"]["cloud_name"],
-                            api_key = st.secrets["cloudinary"]["api_key"],
-                            api_secret = st.secrets["cloudinary"]["api_secret"],
-                            secure = True
-                        )
-                        upload_result = cloudinary.uploader.upload(io.BytesIO(img_bytes), folder="masters_vault_npcs")
-                        image_url = upload_result.get("secure_url")
-                    except Exception as cloud_error:
-                        st.warning(f"Image created, but upload failed: {cloud_error}")
-                
-                if not image_url:
-                    image_url = "https://via.placeholder.com/500?text=Not+Saved+To+Cloud"
-            else:
-                image_url = "https://via.placeholder.com/500?text=Manifestation+Failed"
-
-        except Exception as e:
-            st.error(f"Image Gen Failed: {e}")
-            image_url = "https://via.placeholder.com/500?text=Error"
-
-    # 4. SAVE TO DATABASE
-    try:
-        gc, auth_success, auth_msg = setup_auth()
-        if auth_success:
-            sh = gc.open("Masters_Vault_Db")
-            worksheet = sh.get_worksheet(0)
-            
-            row_data = [
-                char_data['Name'], 
-                char_data['Class'], 
-                char_data['Lore'], 
-                char_data['Greeting'], 
-                char_data['Visual_Desc'], 
-                image_url, 
-                str(datetime.datetime.now()),
-                "", "" # Empty Campaign/Faction
-            ]
-            worksheet.append_row(row_data)
+        # NO SAFETY NETS. IF THIS FAILS, STREAMLIT WILL SCREAM.
+        text_response = client.models.generate_content(
+            model='gemini-3.1-pro-preview',
+            contents=text_prompt
+        )
+        
+        st.info("TRACER 4: Google responded! Parsing JSON...")
+        
+        raw_text = text_response.text.replace('```json', '').replace('```', '').strip()
+        parsed_json = json.loads(raw_text)
+        
+        if isinstance(parsed_json, list):
+            char_data = parsed_json[0]
         else:
-            st.error(f"Vault Connection Failed: {auth_msg}")
+            char_data = parsed_json
+        
+        st.success("TRACER 5: Text generation complete!")
 
-    except Exception as e:
-        st.error(f"Vault closed (Save Failed): {e}")
+# 3. GENERATE IMAGE (NO SAFETY NETS)
+    with st.spinner("Conjuring the Form..."):
+        
+        # The Assembly Line: Now completely focused on ULTRA-REALISM!
+        # This new prompt uses powerful realism and cinematic keywords, 
+        # and avoids generic "fantasy portrait" phrasing for a grounded, photo-realistic movie still look!
+        image_prompt = f"An ultra-realistic, cinematic 8K movie still of a {char_data.get('Class')}. {char_data.get('Visual_Desc')}. {img_vibe}"
+        
+        # Ask Google to paint the picture
+        image_response = client.models.generate_images(
+            model='imagen-4.0-generate-001',
+            prompt=image_prompt,
+            config=types.GenerateImagesConfig(
+                number_of_images=1,
+                aspect_ratio="3:4",
+                            )
+        )
+        
+        # Extract the raw image data from the Google response
+        generated_image = image_response.generated_images[0].image.image_bytes
+        
+        # Convert the raw image bytes into an HTML-friendly URL
+        import base64
+        import os
+        b64_encoded = base64.b64encode(generated_image).decode("utf-8")
+        data_uri = f"data:image/jpeg;base64,{b64_encoded}"
+        
+        # ---> UPLOAD TO CLOUDINARY <---
+        try:
+            # Force Python to use your exact URL string from secrets.toml
+            os.environ["CLOUDINARY_URL"] = st.secrets["CLOUDINARY_URL"]
+            
+            # Upload the image into a specific folder
+            upload_result = cloudinary.uploader.upload(data_uri, folder="Well_of_Souls")
+            
+            # Inject the clean Cloudinary URL directly into the character sheet!
+            char_data["image_url"] = upload_result["secure_url"]
+            
+        except Exception as e:
+            st.warning(f"Cloudinary Error: {e}")
+            # If Cloudinary fails, fallback to the raw string so the app doesn't break
+            char_data["image_url"] = data_uri
+        # ---> 4. SAVE TO GOOGLE SHEETS (TEXT ONLY) <---
+        try:
+            gc, auth_success, auth_msg = setup_auth()
+            if auth_success:
+                sh = gc.open("Masters_Vault_Db")
+                worksheet = sh.sheet1 
+                
+                import datetime
+                current_time = str(datetime.datetime.now())
 
-    char_data['image_url'] = image_url
-    return char_data
+                row_to_save = [
+                    char_data.get("Name", "Unknown"),  # Column A
+                    char_data.get("Class", "Unknown"), # Column B
+                    char_data.get("Lore", ""),         # Column C
+                    char_data.get("Greeting", ""),     # Column D
+                    char_data.get("Visual_Desc", ""),  # Column E
+                    char_data.get("image_url", ""),    # Column F
+                    current_time                       # Column G
+                ]
+                
+                # FIX 1: Force it to Row 2 instead of the bottom of the sheet!
+                worksheet.insert_row(row_to_save, 2)
+                
+                # FIX 2: Store the message in memory so the rerun doesn't delete it
+                st.session_state.db_status = f"Success! {char_data.get('Name')} saved to Vault."
+            else:
+                st.session_state.db_status = f"Vault Error: {auth_msg}"
+        except Exception as e:
+            st.session_state.db_status = f"Vault Exception: {str(e)}"
 
+        # Send the clean character sheet (with the image) back to the main app
+        return char_data
 # -----------------------------------------------------------------------------
 # 4. LAYOUT
 # -----------------------------------------------------------------------------
 st.page_link("1_the_vault.py", label="< RETURN TO VAULT", use_container_width=False)
 
-st.markdown("<h1>THE NPC FORGE</h1>", unsafe_allow_html=True)
-st.markdown("<div class='subtext'>Conjure and forn and inscribe the soul... </div>", unsafe_allow_html=True)
+st.markdown("<h1>The WELL OF SOULS</h1>", unsafe_allow_html=True)
+st.markdown("<div class='subtext'>Conjure a form and inscribe the soul... </div>", unsafe_allow_html=True)
 
 # --- SIDEBAR FILTERS ---
 st.sidebar.markdown('<div class="sidebar-header">The Well of Souls</div>', unsafe_allow_html=True)
@@ -424,6 +431,8 @@ if submitted and user_input:
 # -----------------------------------------------------------------------------
 if st.session_state.npc_data:
     data = st.session_state.npc_data
+    if "db_status" in st.session_state:
+        st.warning(st.session_state.db_status)
     
     # --- RENDER CARD ---
     card_html = ""
