@@ -232,21 +232,28 @@ st.markdown("""
 # -----------------------------------------------------------------------------
 # 3. CORE LOGIC (Gemini & GSheets)
 # -----------------------------------------------------------------------------
-try:
-    SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-    if "gcp_service_account" in st.secrets:
-        # If in the cloud, use the secrets you pasted
-        creds = service_account.Credentials.from_service_account_info(
-            st.secrets["gcp_service_account"], scopes=SCOPES
-        )
-    else:
-        # If local, use the file
-        creds = service_account.Credentials.from_service_account_file("service_account.json", scopes=SCOPES)
-        
-    gc = gspread.authorize(creds)
-except Exception as e:
-    st.error(f"Vault Connection Error: {e}")
-    st.stop()
+# -----------------------------------------------------------------------------
+# AUTHENTICATION (Bulletproof)
+# -----------------------------------------------------------------------------
+def setup_auth():
+    try:
+        SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+        if "gcp_service_account" in st.secrets:
+            # If in the cloud, use the secrets
+            creds = service_account.Credentials.from_service_account_info(
+                st.secrets["gcp_service_account"], scopes=SCOPES
+            )
+        else:
+            # If local, use the file
+            creds = service_account.Credentials.from_service_account_file("service_account.json", scopes=SCOPES)
+            
+        return gspread.authorize(creds)
+    except Exception as e:
+        st.error(f"Vault Connection Error: {e}")
+        st.stop()
+
+# This is the line your app was looking for!
+gc = setup_auth()
 
 def forge_npc(concept, tone):
     # 1. DEFINE VIBES
