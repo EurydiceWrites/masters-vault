@@ -286,12 +286,19 @@ def forge_npc(concept, tone):
         
         # ---> UPLOAD TO CLOUDINARY <---
         try:
-            os.environ["CLOUDINARY_URL"] = st.secrets["CLOUDINARY_URL"]
+            # Use the exact format you have in your Streamlit secrets
+            cloudinary.config(
+                cloud_name = st.secrets["cloudinary"]["cloud_name"],
+                api_key = st.secrets["cloudinary"]["api_key"],
+                api_secret = st.secrets["cloudinary"]["api_secret"],
+                secure = True
+            )
             upload_result = cloudinary.uploader.upload(data_uri, folder="Well_of_Souls")
             char_data["image_url"] = upload_result["secure_url"]
         except Exception as e:
             st.warning(f"Cloudinary Error: {e}")
-            char_data["image_url"] = data_uri
+            # CRITICAL FIX: Do NOT save the raw data_uri to the spreadsheet. 
+            char_data["image_url"] = "Image Upload Failed - See Cloudinary"
 
         # ---> 4. SAVE TO GOOGLE SHEETS <---
         try:
