@@ -235,19 +235,30 @@ st.markdown("""
 # -----------------------------------------------------------------------------
 # AUTHENTICATION (Bulletproof)
 # -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# AUTHENTICATION (Bulletproof)
+# -----------------------------------------------------------------------------
 def setup_auth():
     try:
         SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
         if "gcp_service_account" in st.secrets:
-            # If in the cloud, use the secrets
+            # Cloud auth
             creds = service_account.Credentials.from_service_account_info(
                 st.secrets["gcp_service_account"], scopes=SCOPES
             )
         else:
-            # If local, use the file
+            # Local auth
             creds = service_account.Credentials.from_service_account_file("service_account.json", scopes=SCOPES)
             
-        return gspread.authorize(creds)
+        gc = gspread.authorize(creds)
+        
+        # Open the specific database and worksheet
+        sh = gc.open("Masters_Vault_Db")
+        worksheet = sh.get_worksheet(0)
+        
+        # Return BOTH the connection and the worksheet so they can be "unpacked"
+        return gc, worksheet
+        
     except Exception as e:
         st.error(f"Vault Connection Error: {e}")
         st.stop()
