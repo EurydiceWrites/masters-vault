@@ -126,7 +126,7 @@ def generate_item_text(concept: str, rarity: str) -> dict:
     1. Tone: Mysterious, ancient, and grounded in a dark high-fantasy setting.
     2. Rarity: {rarity}
     3. MANDATORY COMPLIANCE: The Visual_Desc MUST be PG-13. 
-    Format: JSON strictly with these exact keys: Name, Type, Rarity, Lore, Mechanics, Visual_Desc.
+    Format: JSON strictly with these exact keys: Name, Type, Rarity, Lore, Visual_Desc.
     """
     
     client = get_gemini_client()
@@ -163,6 +163,33 @@ def generate_item_image(visual_desc: str, item_type: str) -> bytes:
         config=types.GenerateImagesConfig(
             number_of_images=1,
             aspect_ratio="1:1",  # Items look great in square aspects
+        )
+    )
+    
+    return image_response.generated_images[0].image.image_bytes
+
+def remix_item_image(base_visual: str, item_type: str, tweak: str) -> bytes:
+    """
+    Rerolls an item image by combining the artifact's original visual description
+    with a specific user tweak (e.g., 'Make it glow blue').
+    """
+    base_style = "Museum quality artifact macro photography, highly detailed, realistic textures, eerie cinematic lighting, 8k resolution, dramatic shadows, grounded. ABSOLUTELY NO CGI, NO 3D RENDER, NO CARTOON, NO VIDEO GAME GRAPHICS."
+        
+    image_prompt = (
+        f"A hyper-realistic close-up photograph of a magical {item_type}. "
+        f"Base Description: {base_visual}. "
+        f"MANDATORY NEW DETAIL: {tweak}. "
+        f"The item MUST be placed naturally on a textured surface like worn leather, an ancient stone altar, or dark velvet. "
+        f"Style: {base_style}"
+    )
+    
+    client = get_gemini_client()
+    image_response = client.models.generate_images(
+        model='imagen-4.0-ultra-generate-001',
+        prompt=image_prompt,
+        config=types.GenerateImagesConfig(
+            number_of_images=1,
+            aspect_ratio="1:1",
         )
     )
     

@@ -8,7 +8,7 @@ from services import llm_service, storage_service, db_service
 # -----------------------------------------------------------------------------
 # 1. PAGE CONFIGURATION
 # -----------------------------------------------------------------------------
-st.set_page_config(page_title="The Armory", layout="centered", page_icon="⚔️")
+st.set_page_config(page_title="The Forge", layout="centered", page_icon="⚒️")
 
 # Initialize Session State
 if "item_data" not in st.session_state:
@@ -45,7 +45,7 @@ def forge_item(concept, rarity):
             data_uri = f"data:image/jpeg;base64,{b64_encoded}"
             
             # ---> UPLOAD TO CLOUDINARY <---
-            item_data["image_url"] = storage_service.upload_image_to_cdn(data_uri, folder="The_Armory")
+            item_data["image_url"] = storage_service.upload_image_to_cdn(data_uri, folder="The_Forge")
         except Exception as e:
             st.warning(f"Could not forge visual form: {e}")
             item_data["image_url"] = "Image Upload Failed"
@@ -57,8 +57,7 @@ def forge_item(concept, rarity):
                 item_data.get("Name", "Unknown Artifact"), 
                 item_data.get("Type", "Unknown"),
                 rarity,
-                item_data.get("Lore", ""),         
-                item_data.get("Mechanics", ""),     
+                item_data.get("Lore", ""),             
                 item_data.get("Visual_Desc", ""),  
                 item_data.get("image_url", ""),    
                 current_time                       
@@ -76,10 +75,10 @@ def forge_item(concept, rarity):
 # -----------------------------------------------------------------------------
 st.page_link("1_the_vault.py", label="< RETURN TO VAULT", use_container_width=False)
 
-st.markdown("<h1>THE ARMORY</h1>", unsafe_allow_html=True)
+st.markdown("<h1>THE FORGE</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtext'>Forge artifacts of power and ruin...</div>", unsafe_allow_html=True)
 
-st.sidebar.markdown('<div class="sidebar-header">The Armory</div>', unsafe_allow_html=True)
+st.sidebar.markdown('<div class="sidebar-header">The Forge</div>', unsafe_allow_html=True)
 
 with st.form("armory_form"):
     user_input = st.text_input(
@@ -138,11 +137,6 @@ if st.session_state.item_data:
         card_html += f'    <div style="height:400px; display:flex; align-items:center; justify-content:center; color:#555;">No Visage Found</div>'
     card_html += f'  </div>'
     card_html += f'  <div class="visual-caption">"{data.get("Visual_Desc", "")}"</div>'
-    card_html += f'  <hr class="seam">'
-    card_html += f'  <div class="voice-section">'
-    card_html += f'    <div class="lore-label" style="text-align:center;">MECHANICS</div>'
-    card_html += f'    <div style="color:#d3d3d3; font-size:0.95rem; text-align:center;">{data.get("Mechanics", "")}</div>'
-    card_html += f'  </div>'
     card_html += f'  <hr class="seam">'
     card_html += f'  <div class="lore-section">'
     card_html += f'    <span class="lore-label">Lore</span>'

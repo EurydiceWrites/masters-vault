@@ -96,3 +96,11 @@ def delete_character(sheet_row: int):
     worksheet = get_worksheet()
     worksheet.delete_rows(sheet_row)
     clear_cache()
+
+def update_item_image(sheet_row: int, new_image_url: str):
+    """
+    Updates only the Image_URL column (Column 6 in the Magic Items sheet) for a given row.
+    """
+    worksheet = get_items_worksheet()
+    worksheet.update_cell(sheet_row, 6, new_image_url)
+    clear_items_cache()

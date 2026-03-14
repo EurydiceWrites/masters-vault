@@ -8,7 +8,7 @@ from services import llm_service, storage_service, db_service
 # -----------------------------------------------------------------------------
 # 1. PAGE CONFIGURATION
 # -----------------------------------------------------------------------------
-st.set_page_config(page_title="Well of Souls", layout="centered", page_icon="⚒️")
+st.set_page_config(page_title="Well of Souls", layout="centered", page_icon="🔮")
 
 # Initialize Session State
 if "npc_data" not in st.session_state:
@@ -76,10 +76,10 @@ def forge_npc(concept, tone):
 # -----------------------------------------------------------------------------
 st.page_link("1_the_vault.py", label="< RETURN TO VAULT", use_container_width=False)
 
-st.markdown("<h1>The WELL OF SOULS</h1>", unsafe_allow_html=True)
+st.markdown("<h1>THE WELL OF SOULS</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtext'>Conjure a form and inscribe the soul... </div>", unsafe_allow_html=True)
 
-st.sidebar.markdown('<div class="sidebar-header">The Well of Souls</div>', unsafe_allow_html=True)
+st.sidebar.markdown('<div class="sidebar-header">Well of Souls</div>', unsafe_allow_html=True)
 
 with st.form("forge_form"):
     user_input = st.text_input(

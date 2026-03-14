@@ -8,7 +8,7 @@ from services import db_service, llm_service, storage_service
 # -----------------------------------------------------------------------------
 # 1. PAGE CONFIG
 # -----------------------------------------------------------------------------
-st.set_page_config(page_title="The Hall of Souls", page_icon="📚", layout="wide")
+st.set_page_config(page_title="NPC Archives", page_icon="📚", layout="wide")
 
 # -----------------------------------------------------------------------------
 # 2. THE VISUAL ENGINE (CSS)
@@ -101,7 +101,7 @@ def view_soul(row, index_in_sheet):
 # -----------------------------------------------------------------------------
 st.page_link("1_the_vault.py", label="< RETURN TO HALL", use_container_width=False)
 
-st.markdown("<h1>THE ARCHIVES OF THE LOST</h1>", unsafe_allow_html=True)
+st.markdown("<h1>NPC ARCHIVES</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtext'>That which is remembered, lives forever.</div>", unsafe_allow_html=True)
 
 if st.session_state.get("show_success_toast"):
