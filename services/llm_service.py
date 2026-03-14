@@ -109,5 +109,61 @@ def remix_npc_image(base_visual: str, char_class: str, tweak: str, tone: str) ->
             aspect_ratio="3:4",
         )
     )
+    return image_response.generated_images[0].image.image_bytes
+
+# -----------------------------------------------------------------------------
+# 3. MAGIC ITEM LOGIC
+# -----------------------------------------------------------------------------
+def generate_item_text(concept: str, rarity: str) -> dict:
+    """
+    Generates the Magic Item text data and returns a structured dictionary.
+    Handles JSON parsing locally.
+    """
+    text_prompt = f"""
+    Role: Master Worldbuilder and Grounded Fantasy DM.
+    Task: Create a vivid, highly believable, and realistic Magic Item based on: "{concept}".
+    Rules: 
+    1. Tone: Mysterious, ancient, and grounded in a dark high-fantasy setting.
+    2. Rarity: {rarity}
+    3. MANDATORY COMPLIANCE: The Visual_Desc MUST be PG-13. 
+    Format: JSON strictly with these exact keys: Name, Type, Rarity, Lore, Mechanics, Visual_Desc.
+    """
+    
+    client = get_gemini_client()
+    text_response = client.models.generate_content(
+        model='gemini-3-pro-preview',
+        contents=text_prompt
+    )
+    
+    raw_text = text_response.text.replace('```json', '').replace('```', '').strip()
+    parsed_json = json.loads(raw_text)
+    
+    if isinstance(parsed_json, list):
+        return parsed_json[0]
+    return parsed_json
+
+def generate_item_image(visual_desc: str, item_type: str) -> bytes:
+    """
+    Generates an image of the Magic Item based on the text description.
+    Returns the raw image bytes.
+    """
+    base_style = "Museum quality artifact macro photography, highly detailed, realistic textures, eerie cinematic lighting, 8k resolution, dramatic shadows, grounded. ABSOLUTELY NO CGI, NO 3D RENDER, NO CARTOON, NO VIDEO GAME GRAPHICS."
+        
+    image_prompt = (
+        f"A hyper-realistic close-up photograph of a magical {item_type}. "
+        f"Description: {visual_desc}. "
+        f"The item MUST be placed naturally on a textured surface like worn leather, an ancient stone altar, or dark velvet. "
+        f"Style: {base_style}"
+    )
+    
+    client = get_gemini_client()
+    image_response = client.models.generate_images(
+        model='imagen-4.0-ultra-generate-001',
+        prompt=image_prompt,
+        config=types.GenerateImagesConfig(
+            number_of_images=1,
+            aspect_ratio="1:1",  # Items look great in square aspects
+        )
+    )
     
     return image_response.generated_images[0].image.image_bytes

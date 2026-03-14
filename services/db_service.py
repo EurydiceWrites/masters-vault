@@ -21,10 +21,20 @@ def get_gspread_client():
 
 @st.cache_resource
 def get_worksheet():
-    """Returns the main worksheet. Cached for performance."""
+    """Returns the main NPC worksheet. Cached for performance."""
     gc = get_gspread_client()
     sh = gc.open("Masters_Vault_Db")
-    return sh.get_worksheet(0)
+    return sh.worksheet("NPCs")
+
+@st.cache_resource
+def get_items_worksheet():
+    """Returns the Magic Items worksheet. Cached for performance."""
+    gc = get_gspread_client()
+    sh = gc.open("Masters_Vault_Db")
+    try:
+        return sh.worksheet("Magic Items")
+    except Exception as e:
+        raise Exception(f"Could not find a tab named 'Magic Items' in your Google Sheet. Error: {e}")
 
 # -----------------------------------------------------------------------------
 # 2. READ OPERATIONS
@@ -42,6 +52,17 @@ def clear_cache():
     """Manually invalidates the data cache (useful after writing data)."""
     get_all_records.clear()
 
+@st.cache_data(ttl=60)
+def get_all_items():
+    """Fetches all records from the Items sheet as a Pandas DataFrame."""
+    worksheet = get_items_worksheet()
+    data = worksheet.get_all_records()
+    return pd.DataFrame(data)
+
+def clear_items_cache():
+    """Manually invalidates the items cache."""
+    get_all_items.clear()
+
 # -----------------------------------------------------------------------------
 # 3. WRITE OPERATIONS
 # -----------------------------------------------------------------------------
@@ -50,6 +71,12 @@ def insert_character(row_data: list):
     worksheet = get_worksheet()
     worksheet.insert_row(row_data, 2)
     clear_cache()
+
+def insert_item(row_data: list):
+    """Inserts a new item row at the top of the Items sheet."""
+    worksheet = get_items_worksheet()
+    worksheet.insert_row(row_data, 2)
+    clear_items_cache()
 
 def update_character_meta(sheet_row: int, campaign: str, faction: str):
     """Updates specific columns (Campaign, Faction) for a given row."""
