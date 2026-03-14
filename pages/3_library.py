@@ -1,7 +1,9 @@
 import streamlit as st
-from google.oauth2 import service_account
-import gspread
 import pandas as pd
+import base64
+
+import utils.styles as styles
+from services import db_service, llm_service, storage_service
 
 # -----------------------------------------------------------------------------
 # 1. PAGE CONFIG
@@ -11,317 +13,13 @@ st.set_page_config(page_title="The Hall of Souls", page_icon="📚", layout="wid
 # -----------------------------------------------------------------------------
 # 2. THE VISUAL ENGINE (CSS)
 # -----------------------------------------------------------------------------
-st.markdown("""
-<style>
-    /* --- FONTS --- */
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Lato:wght@400;700&display=swap');
-
-    /* --- VARIABLES --- */
-    :root {
-        --stone-bg: #111;
-        --emerald-glow: #50c878;
-        --emerald-bright: #66ff99;
-        --emerald-dim: #1e3a2a;
-        --destruct-red: #8b0000;
-        --destruct-bright: #ff4500;
-        --nav-gold: #d4af37; 
-        --gold-glow: rgba(212, 175, 55, 0.6);
-        
-        /* Balanced Text Colors */
-        --text-stone: #888;      /* Warm Matte Grey */
-        --text-metal: #8a9ba8;   /* Cool Steel Grey */
-    }
-
-    /* --- GLOBAL BACKGROUND --- */
-    .stApp {
-        background-color: #050505;
-        background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #000 80%);
-    }
-
-    /* --- SIDEBAR STYLING --- */
-    [data-testid="stSidebar"] { 
-        background-color: #080808; 
-        border-right: 1px solid #1e3a2a; 
-    }
-    
-    .sidebar-header {
-        font-family: 'Cinzel', serif;
-        color: var(--emerald-bright);
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        font-size: 1.1rem;
-        margin-bottom: 1rem;
-        margin-top: 2rem;
-        border-bottom: 1px solid var(--emerald-dim);
-        padding-bottom: 0.5rem;
-        text-align: center;
-        text-shadow: 0 0 10px var(--emerald-dim);
-    }
-
-    [data-testid="stSidebar"] div[data-baseweb="select"] > div {
-        background-color: #111 !important;
-        border: 1px solid #333 !important;
-        color: #ddd !important;
-        font-family: 'Cinzel', serif !important;
-        border-radius: 0px !important; 
-    }
-
-    header[data-testid="stHeader"] { background: transparent; }
-
-    /* --- AGGRESSIVE INPUT OVERRIDE (THE FIX) --- */
-    /* This targets every possible layer of the input box to kill the Navy Blue */
-    
-    /* 1. The Outer Wrapper */
-    div[data-baseweb="input"] {
-        background-color: #0e0e0e !important;
-        border-radius: 0px !important;
-    }
-
-    /* 2. The Inner Container (Base Input) */
-    div[data-baseweb="base-input"] {
-        background-color: #0e0e0e !important;
-        border: 1px solid #333 !important;
-        border-radius: 0px !important;
-    }
-
-    /* 3. The Input Element Itself */
-    input.st-ai, input.st-ah, input[type="text"] {
-        background-color: transparent !important;
-        color: #e0e0e0 !important;
-        font-family: 'Cinzel', serif !important;
-        text-align: left !important; /* Force Left Alignment */
-    }
-
-    /* 4. Focus State */
-    div[data-baseweb="base-input"]:focus-within {
-        border-color: var(--emerald-glow) !important;
-        box-shadow: 0 0 8px var(--emerald-dim) !important;
-    }
-    
-    /* --- POPOVER MENU CONTAINER --- */
-    div[data-testid="stPopoverBody"] {
-        background-color: #080808 !important; /* Pitch Black */
-        border: 1px solid #444 !important;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.9);
-        border-radius: 0px; 
-    }
-
-    /* --- TOAST STYLING --- */
-    div[data-testid="stToast"] {
-        background-color: #0e0e0e !important;
-        border: 1px solid #333 !important;
-        border-left: 4px solid var(--emerald-glow) !important;
-        color: #eee !important;
-        font-family: 'Cinzel', serif !important;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.8);
-        border-radius: 0px;
-    }
-
-    /* --- HEADER --- */
-    h1 {
-        font-family: 'Cinzel', serif !important;
-        text-transform: uppercase;
-        letter-spacing: 12px;
-        font-size: 3rem !important;
-        color: var(--emerald-bright) !important;
-        text-shadow: 0 0 30px rgba(102, 255, 153, 0.4);
-        margin-bottom: 0 !important;
-        text-align: center;
-    }
-    .subtext {
-        text-align: center;
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 1.2rem;
-        color: #888;
-        font-style: italic;
-        margin-bottom: 3rem;
-    }
-
-    /* --- NAVIGATION LINK --- */
-    a[data-testid="stPageLink-NavLink"] { background: transparent !important; border: none !important; }
-    a[data-testid="stPageLink-NavLink"] p { color: #666; font-family: 'Cinzel', serif; font-size: 0.9rem; transition: color 0.3s; }
-    a[data-testid="stPageLink-NavLink"]:hover p { color: var(--nav-gold) !important; text-shadow: 0 0 10px var(--gold-glow); }
-
-    /* --- ARCHIVE CARD --- */
-    .archive-card {
-        background: #0e0e0e;
-        border: 1px solid #222;
-        border-bottom: none; 
-        border-top: 4px solid var(--emerald-dim);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        display: flex;
-        flex-direction: column;
-        height: 540px !important; 
-        margin-bottom: 0px !important;
-        overflow: hidden;
-    }
-    .archive-card:hover {
-        border-top: 4px solid var(--emerald-bright);
-        box-shadow: 0 15px 50px rgba(0,0,0,1);
-    }
-
-    /* Image Frame */
-    .img-frame { 
-        width: 100%; height: 300px; overflow: hidden; 
-        border-bottom: 1px solid #222; position: relative; flex-shrink: 0;
-    }
-    .img-frame img { 
-        width: 100%; height: 100%; object-fit: cover; object-position: top center; 
-        opacity: 0.95; transition: opacity 0.5s; 
-    }
-    .img-frame:hover img { opacity: 1; transform: scale(1.02); }
-
-    /* Identity Section */
-    .card-identity {
-        padding: 1rem 0.5rem; text-align: center;
-        background: linear-gradient(180deg, #111 0%, #0e0e0e 100%);
-        flex-grow: 1; display: flex; flex-direction: column; 
-        justify-content: space-between; align-items: center; gap: 0.5rem;
-    }
-
-    .identity-top { width: 100%; display: flex; flex-direction: column; gap: 0.2rem; }
-
-    .card-name { 
-        font-family: 'Cinzel', serif; font-size: 1.4rem; color: #fff; letter-spacing: 1px; 
-        text-shadow: 0 4px 10px #000; line-height: 1.2;
-        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-        min-height: 3.4rem; display: flex; align-items: center; justify-content: center;
-    }
-
-    .card-class { 
-        font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--emerald-bright); 
-        letter-spacing: 2px; text-transform: uppercase; opacity: 0.9;
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    
-    /* --- PILLS (PROCEDURAL) --- */
-    .pill-container {
-        display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; width: 100%;
-        margin-top: 0.5rem;
-    }
-
-    .pill-base {
-        display: inline-block;
-        font-family: 'Lato', sans-serif;
-        font-size: 0.6rem;
-        text-transform: uppercase;
-        letter-spacing: 2px; 
-        padding: 6px 14px;
-        border-radius: 4px;
-        border: 1px solid transparent; 
-        min-width: 70px;
-    }
-
-    /* STONE */
-    .pill-stone {
-        background-color: #151515;
-        background-image: radial-gradient(#000 15%, transparent 16%), radial-gradient(#000 15%, transparent 16%);
-        background-size: 4px 4px;
-        color: var(--text-stone);
-        border: 1px solid #333;
-        box-shadow: inset 0 0 4px #000; 
-    }
-
-    /* METAL */
-    .pill-metal {
-        background-color: #151515; 
-        background-image: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px);
-        color: var(--text-metal);
-        border: 1px solid #4a5568; 
-        box-shadow: inset 0 0 4px #000; 
-    }
-
-    /* --- BUTTONS --- */
-    button[kind="primary"] {
-        background: transparent !important; border: none !important; color: #555 !important;
-        font-family: 'Cinzel', serif !important; font-size: 1.1rem !important; padding: 0 !important;
-        height: 60px !important; width: 100% !important; transition: all 0.3s ease !important;
-        box-shadow: none !important;
-        border-radius: 0px !important;
-    }
-    button[kind="primary"]:hover {
-        color: var(--emerald-bright) !important; text-shadow: 0 0 15px var(--emerald-glow);
-        transform: scale(1.05); background: transparent !important;
-    }
-
-    button[kind="secondary"] {
-        background: transparent !important; border: none !important; color: #444 !important;
-        font-size: 1.5rem !important; padding: 0 !important; height: 60px !important;
-        width: 100% !important; transition: all 0.4s ease !important; box-shadow: none !important;
-        border-radius: 0px !important;
-    }
-    button[kind="secondary"]:hover {
-        color: var(--destruct-bright) !important;
-        text-shadow: 0 0 10px var(--destruct-red) !important;
-        transform: scale(1.2); background: transparent !important;
-    }
-
-    /* DIVINE (POPOVER) */
-    div[data-testid="stPopover"] button {
-        color: var(--nav-gold) !important;
-        border-color: transparent !important;
-        background: transparent !important;
-    }
-    div[data-testid="stPopover"] button:hover {
-        color: var(--nav-gold) !important;
-        text-shadow: 0 0 10px var(--gold-glow) !important;
-        transform: scale(1.2) !important;
-        background: transparent !important;
-        box-shadow: none !important;
-    }
-    div[data-testid="stPopover"] button svg {
-        fill: var(--nav-gold) !important;
-        color: var(--nav-gold) !important;
-    }
-
-    /* --- MODAL STYLING --- */
-    div[role="dialog"] {
-        background-color: #0e0e0e !important;
-        border: 1px solid #333 !important;
-        box-shadow: 0 0 50px rgba(0,0,0,0.9);
-        border-radius: 0px;
-    }
-
-    .modal-header { border-bottom: 1px solid #333; padding-bottom: 1rem; margin-bottom: 1rem; }
-    .modal-name { font-family: 'Cinzel', serif; font-size: 2.5rem; color: #fff; line-height: 1.1; margin-bottom: 5px;}
-    .modal-class { font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--emerald-bright); letter-spacing: 3px; text-transform: uppercase; }
-    .modal-voice { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: #e0e0e0; font-style: italic; padding: 1.5rem; background: #0a0a0a; border-left: 2px solid var(--emerald-glow); margin-bottom: 1.5rem; }
-    .modal-lore { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: #bbb; line-height: 1.7; text-align: justify; }
-    .modal-visual { font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; color: #666; font-style: italic; margin-top: 10px; border-top: 1px solid #222; padding-top: 10px; }
-    .modal-meta { font-family: 'Lato', sans-serif; font-size: 0.7rem; color: #444; margin-top: 2rem; border-top: 1px solid #222; padding-top: 1rem; }
-
-    /* Footer */
-    .footer-container { opacity: 0.3; text-align: center; margin-top: 4rem; padding-bottom: 2rem;}
-    .rune-span { margin: 0 10px; font-size: 1.2rem; color: #444; cursor: default; }
-
-</style>
-""", unsafe_allow_html=True)
+styles.load_css()
 
 # -----------------------------------------------------------------------------
-# 3. AUTHENTICATION
+# 3. FETCH DATA
 # -----------------------------------------------------------------------------
 try:
-    SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-    if "gcp_service_account" in st.secrets:
-        creds = service_account.Credentials.from_service_account_info(
-            st.secrets["gcp_service_account"], scopes=SCOPES
-        )
-        gc = gspread.authorize(creds)
-    else:
-        creds = service_account.Credentials.from_service_account_file("service_account.json", scopes=SCOPES)
-        gc = gspread.authorize(creds)
-except Exception as e:
-    st.error(f"🚨 Connection Error: {e}")
-    st.stop()
-
-# -----------------------------------------------------------------------------
-# 4. FETCH DATA
-# -----------------------------------------------------------------------------
-try:
-    sh = gc.open("Masters_Vault_Db")
-    worksheet = sh.get_worksheet(0)
-    data = worksheet.get_all_records()
-    df = pd.DataFrame(data)
+    df = db_service.get_all_records()
 except Exception as e:
     st.error(f"Could not read from Vault: {e}")
     st.stop()
@@ -355,12 +53,48 @@ def view_soul(row, index_in_sheet):
     with col2:
         st.markdown(f"""
             <div class="modal-header">
-                <div class="modal-name">{row['Name']}</div>
+            <div class="modal-name">{row['Name']}</div>
                 <div class="modal-class">{row['Class']}</div>
             </div>
             <div class="modal-voice">“{row['Greeting']}”</div>
             <div class="modal-lore">{row['Lore']}</div>
         """, unsafe_allow_html=True)
+        
+        st.markdown("<hr style='border: 1px solid #222; margin: 20px 0;'>", unsafe_allow_html=True)
+        st.markdown("<div style='font-family:Cinzel; color:#95b4a7; margin-bottom:8px;'>✨ Reforge Visage (Fast Lane)</div>", unsafe_allow_html=True)
+        
+        tweak_prompt = st.text_input("Tweak visual details", placeholder="e.g., 'Make it snowing', 'Give them a scar'", label_visibility="collapsed", key=f"tweak_{index_in_sheet}")
+        tweak_tone = st.selectbox("Resonance", ["Noble & Bright", "Grim & Shadow", "Mystic & Strange"], key=f"tweak_tone_{index_in_sheet}")
+        
+        if st.button("REFORGE IMAGE", type="primary", use_container_width=True, key=f"btn_reforge_{index_in_sheet}"):
+            if not tweak_prompt:
+                st.warning("Please enter a tweak description.")
+            else:
+                with st.spinner("The Weave shifts..."):
+                    try:
+                        # 1. Generate new image using the remix function
+                        new_img_bytes = llm_service.remix_npc_image(
+                            base_visual=row['Visual_Desc'],
+                            char_class=row['Class'],
+                            tweak=tweak_prompt,
+                            tone=tweak_tone
+                        )
+                        
+                        # 1b. Encode the raw bytes to Data URI for Cloudinary
+                        b64_encoded = base64.b64encode(new_img_bytes).decode("utf-8")
+                        data_uri = f"data:image/jpeg;base64,{b64_encoded}"
+                        
+                        # 2. Upload to Cloudinary
+                        new_image_url = storage_service.upload_image_to_cdn(data_uri)
+                        
+                        # 3. Patch the Database 
+                        db_service.update_character_image(index_in_sheet + 2, new_image_url)
+                        
+                        st.session_state["show_success_toast"] = True
+                        st.rerun()
+                        
+                    except Exception as e:
+                        st.error(f"Failed to reforge image: {e}")
 
 # -----------------------------------------------------------------------------
 # 6. LAYOUT & GRID
@@ -369,6 +103,10 @@ st.page_link("1_the_vault.py", label="< RETURN TO HALL", use_container_width=Fal
 
 st.markdown("<h1>THE ARCHIVES OF THE LOST</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtext'>That which is remembered, lives forever.</div>", unsafe_allow_html=True)
+
+if st.session_state.get("show_success_toast"):
+    st.toast("Visage reforged successfully.", icon="✨")
+    st.session_state["show_success_toast"] = False
 
 # --- SIDEBAR FILTERS ---
 st.sidebar.markdown('<div class="sidebar-header">Filter Archives</div>', unsafe_allow_html=True)
@@ -488,8 +226,7 @@ if not filtered_df.empty:
                     if st.button("Save", key=f"psave_{index}", type="primary"):
                         try:
                             sheet_row = index + 2
-                            worksheet.update_cell(sheet_row, 8, p_campaign)
-                            worksheet.update_cell(sheet_row, 9, p_faction)
+                            db_service.update_character_meta(sheet_row, p_campaign, p_faction)
                             st.toast("Resonance Inscribed", icon="✒️")
                             st.rerun()
                         except Exception as e:
@@ -498,7 +235,7 @@ if not filtered_df.empty:
             with b_col3:
                 if st.button("ᚺ", key=f"burn_{index}", type="secondary", use_container_width=True, help="Burn Soul"):
                     try:
-                        worksheet.delete_rows(index + 2)
+                        db_service.delete_character(index + 2)
                         st.toast(f"Severed.", icon="🔥")
                         st.rerun()
                     except Exception as e:
