@@ -359,7 +359,7 @@ def load_css():
         box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         display: flex;
         flex-direction: column;
-        height: 540px !important; 
+        height: 640px !important; 
         margin-bottom: 0px !important;
         overflow: hidden;
     }
@@ -368,7 +368,7 @@ def load_css():
         box-shadow: 0 15px 50px rgba(0,0,0,1);
     }
     .img-frame { 
-        width: 100%; height: 300px; overflow: hidden; 
+        width: 100%; height: 400px; overflow: hidden; 
         border-bottom: 1px solid #222; position: relative; flex-shrink: 0;
     }
     .img-frame img { 

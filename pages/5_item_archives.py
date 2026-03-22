@@ -77,12 +77,12 @@ def view_item(row, index_in_sheet):
                             item_type=row.get('Type', 'Wondrous Item'),
                             tweak=tweak_prompt
                         )
-                        # Store preview in session state instead of saving immediately
+                        # Store preview in session state — do NOT st.rerun() here,
+                        # because that closes the dialog before the preview can render.
                         st.session_state[preview_key] = {
                             "bytes": new_img_bytes,
                             "original_url": img_src,
                         }
-                        st.rerun()
                     except Exception as e:
                         st.error(f"Failed to reforge artifact: {e}")
         
@@ -171,28 +171,31 @@ if search_query:
     filtered_df = filtered_df[mask]
 
 # --- GRID ---
+MAX_DISPLAY = 30
+
 if not filtered_df.empty:
     
     # 1. SORTING LOGIC: Latest First
     if 'Timestamp' in filtered_df.columns:
-        # Convert to datetime for accurate sorting, keeping original index intact
         filtered_df['Timestamp_Temp'] = pd.to_datetime(filtered_df['Timestamp'], errors='coerce')
         filtered_df = filtered_df.sort_values(by='Timestamp_Temp', ascending=False)
     else:
-        # Fallback: Reverse the dataframe (assumes newest entries are at the bottom of the sheet)
         filtered_df = filtered_df.iloc[::-1]
+
+    # Cap displayed entries
+    display_df = filtered_df.head(MAX_DISPLAY)
 
     cols = st.columns(3)
     
-    for index, row in filtered_df.iterrows(): 
-        col_index = index % 3
+    for i, (index, row) in enumerate(display_df.iterrows()): 
+        col_index = i % 3
         img_src = row.get('Image_URL', '')
         if not str(img_src).startswith("http"):
             img_src = "https://via.placeholder.com/400x400?text=No+Visage"
 
-        # 2. PERFORMANCE FIX: Force Cloudinary to serve optimized, smaller thumbnails
+        # PERFORMANCE FIX: Cloudinary optimized thumbnails
         if "cloudinary" in img_src and "/upload/" in img_src:
-            img_src = img_src.replace("/upload/", "/upload/c_fill,g_face,w_400,h_400,q_auto,f_auto/")
+            img_src = img_src.replace("/upload/", "/upload/c_fill,g_center,w_400,h_400,q_auto,f_auto/")
 
         with cols[col_index]:
             html = ""
