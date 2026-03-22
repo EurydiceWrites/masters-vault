@@ -1,0 +1,244 @@
+
+<div id="uw" style="padding: 1rem 0;">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+#uw { --void: #08080a; --deep: #0e100e; --surface: #161a16; --cavern: #0f1a0f; --green: #4CAF50; --green-d: #2E7D32; --lime: #7CB342; --yellow: #FDD835; --orange: #FF9800; --red: #EF5350; --red-d: #B71C1C; --text: #c8c8c0; --dim: #6b6b5e; --accent: #4CAF50; }
+.uw-canvas { background: var(--void); border-radius: 12px; overflow: hidden; }
+.uw-header { text-align: center; padding: 3rem 2rem 1.5rem; }
+.uw-badge { font-family: 'Cinzel', serif; font-size: 11px; color: var(--dim); letter-spacing: 6px; text-transform: uppercase; }
+.uw-title { font-family: 'Cinzel', serif; font-size: 36px; font-weight: 700; color: #fff; margin: 8px 0 0; }
+.uw-title span { color: var(--green); }
+.uw-premise { font-family: 'Cormorant Garamond', serif; font-size: 17px; color: var(--text); text-align: center; max-width: 500px; margin: 16px auto 0; line-height: 1.7; font-style: italic; opacity: 0.7; }
+.board { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 2rem 1.5rem; }
+.panel { background: var(--deep); border-radius: 8px; padding: 1.5rem; position: relative; overflow: hidden; min-height: 200px; }
+.panel-wide { grid-column: 1 / -1; }
+.panel-label { font-family: 'Cinzel', serif; font-size: 10px; color: var(--dim); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 12px; }
+.panel-title { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+.panel-text { font-family: 'Cormorant Garamond', serif; font-size: 14px; color: var(--text); line-height: 1.6; }
+.panel-flavor { font-family: 'Cormorant Garamond', serif; font-size: 13px; color: var(--dim); font-style: italic; margin-top: 10px; }
+
+.p-origins { background: linear-gradient(180deg, var(--deep) 0%, var(--cavern) 100%); }
+.creature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+.creature-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(76,175,80,0.12); border-radius: 6px; padding: 10px; text-align: center; }
+.cc-icon { width: 36px; height: 36px; border-radius: 50%; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.cc-name { font-family: 'Cinzel', serif; font-size: 11px; color: #fff; letter-spacing: 1px; }
+.cc-power { font-family: 'Cormorant Garamond', serif; font-size: 11px; color: var(--dim); margin-top: 3px; font-style: italic; }
+
+.p-slime { background: linear-gradient(135deg, var(--deep) 0%, #0d1a0d 100%); }
+.slime-blob { position: absolute; bottom: -10px; right: -5px; width: 120px; height: 90px; background: radial-gradient(ellipse at 50% 70%, rgba(76,175,80,0.12), transparent 70%); border-radius: 50%; }
+.slime-eye { position: absolute; bottom: 45px; right: 40px; width: 8px; height: 10px; background: radial-gradient(circle, rgba(76,175,80,0.7), rgba(76,175,80,0.2)); border-radius: 50%; }
+.slime-eye2 { position: absolute; bottom: 48px; right: 55px; width: 6px; height: 8px; background: radial-gradient(circle, rgba(76,175,80,0.5), rgba(76,175,80,0.15)); border-radius: 50%; }
+
+.tier-bar { display: flex; align-items: stretch; gap: 2px; margin-top: 12px; height: 32px; border-radius: 4px; overflow: hidden; }
+.tier-seg { flex: 1; display: flex; align-items: center; justify-content: center; font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1px; }
+.t1 { background: rgba(76,175,80,0.15); color: var(--green); }
+.t2 { background: rgba(76,175,80,0.25); color: var(--green); }
+.t3 { background: rgba(124,179,66,0.3); color: var(--lime); }
+.t4 { background: rgba(253,216,53,0.25); color: var(--yellow); }
+.ta { background: linear-gradient(90deg, rgba(255,152,0,0.3), rgba(239,83,80,0.3)); color: var(--orange); }
+
+.p-domain { background: linear-gradient(135deg, var(--deep) 0%, #101a10 100%); }
+.pool-viz { position: absolute; bottom: 10px; right: 15px; width: 100px; height: 60px; }
+.pool-ring { position: absolute; border-radius: 50%; border: 1px solid rgba(76,175,80,0.2); }
+.pool-r1 { width: 80px; height: 40px; bottom: 0; left: 10px; }
+.pool-r2 { width: 60px; height: 30px; bottom: 8px; left: 20px; border-color: rgba(76,175,80,0.3); }
+.pool-r3 { width: 30px; height: 16px; bottom: 14px; left: 35px; border-color: rgba(76,175,80,0.45); background: rgba(76,175,80,0.06); }
+
+.p-combat { background: linear-gradient(135deg, #1a0f0a 0%, var(--deep) 100%); }
+.clash-line { position: absolute; bottom: 20px; right: 20px; width: 80px; height: 80px; }
+.clash-l { position: absolute; width: 1px; transform-origin: center; }
+.c-l1 { height: 60px; top: 10px; left: 40px; transform: rotate(15deg); background: rgba(239,83,80,0.4); }
+.c-l2 { height: 50px; top: 15px; left: 40px; transform: rotate(-20deg); background: rgba(255,152,0,0.35); }
+.c-l3 { height: 40px; top: 20px; left: 40px; transform: rotate(45deg); background: rgba(253,216,53,0.3); }
+.c-dot { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: rgba(239,83,80,0.5); top: 38px; left: 37px; }
+
+.p-rival { background: linear-gradient(135deg, var(--deep) 0%, #1c100a 100%); }
+.rival-silhouettes { display: flex; gap: 16px; margin-top: 16px; justify-content: center; }
+.rival-s { text-align: center; }
+.rival-shape { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 4px; }
+.rival-shape.rs-devil { background: rgba(255,152,0,0.1); border: 1px solid rgba(255,152,0,0.3); }
+.rival-shape.rs-dragon { background: rgba(239,83,80,0.08); border: 1px solid rgba(239,83,80,0.25); }
+.rival-shape.rs-demon { background: rgba(183,28,28,0.1); border: 1px solid rgba(183,28,28,0.3); }
+.rival-label { font-family: 'Cinzel', serif; font-size: 10px; color: var(--dim); letter-spacing: 1px; }
+.rival-style { font-family: 'Cormorant Garamond', serif; font-size: 11px; color: var(--text); font-style: italic; margin-top: 2px; }
+
+.p-narrative { background: linear-gradient(135deg, var(--cavern) 0%, var(--deep) 100%); border: 1px solid rgba(76,175,80,0.12); }
+.narr-box { background: rgba(0,0,0,0.3); border: 1px solid rgba(76,175,80,0.15); border-radius: 6px; padding: 14px; margin-top: 12px; }
+.narr-label { font-family: 'Cinzel', serif; font-size: 9px; color: var(--green-d); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; opacity: 0.8; }
+.narr-text { font-family: 'Cormorant Garamond', serif; font-size: 15px; color: var(--text); line-height: 1.7; font-style: italic; }
+.narr-tag { display: inline-block; font-family: 'Cinzel', serif; font-size: 9px; color: var(--dim); letter-spacing: 2px; border: 1px solid rgba(76,175,80,0.15); border-radius: 3px; padding: 2px 8px; margin-top: 10px; margin-right: 4px; }
+
+.uw-footer { text-align: center; padding: 2rem 2rem 2.5rem; }
+.uf-line1 { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--text); font-style: italic; }
+.uf-line2 { font-family: 'Cinzel', serif; font-size: 13px; color: var(--dim); letter-spacing: 4px; margin-top: 10px; }
+</style>
+
+<div class="uw-canvas">
+<div class="uw-header">
+<div class="uw-badge">Part I &mdash; The first installment</div>
+<h1 class="uw-title">The <span>Underworld</span></h1>
+<p class="uw-premise">You are not a hero. You are not chosen. You are a creature in a cave, and you are hungry. Everything starts here.</p>
+</div>
+
+<div class="board">
+
+<div class="panel panel-wide p-origins">
+<div class="panel-label">Choose your origin</div>
+<div class="panel-title">Nine creatures. Nine ways to conquer.</div>
+<div class="panel-text">Each origin is a different game. Different power source, different combat identity, different relationship to the world.</div>
+<div class="creature-grid">
+<div class="creature-card">
+<div class="cc-icon" style="background:rgba(76,175,80,0.1);border:1px solid rgba(76,175,80,0.25);">
+<svg width="18" height="18"><circle cx="9" cy="11" r="7" fill="none" stroke="rgba(76,175,80,0.5)" stroke-width="1"/><circle cx="7" cy="9" r="1.5" fill="rgba(76,175,80,0.6)"/><circle cx="11" cy="8" r="1" fill="rgba(76,175,80,0.4)"/></svg>
+</div>
+<div class="cc-name">Ooze</div>
+<div class="cc-power">Devour to grow</div>
+</div>
+<div class="creature-card">
+<div class="cc-icon" style="background:rgba(200,200,180,0.06);border:1px solid rgba(200,200,180,0.2);">
+<svg width="18" height="18"><line x1="9" y1="3" x2="9" y2="15" stroke="rgba(200,200,180,0.5)" stroke-width="1.5"/><line x1="5" y1="7" x2="13" y2="7" stroke="rgba(200,200,180,0.5)" stroke-width="1"/><circle cx="9" cy="4" r="2.5" fill="none" stroke="rgba(200,200,180,0.5)" stroke-width="1"/></svg>
+</div>
+<div class="cc-name">Undead</div>
+<div class="cc-power">Harvest life</div>
+</div>
+<div class="creature-card">
+<div class="cc-icon" style="background:rgba(239,83,80,0.08);border:1px solid rgba(239,83,80,0.25);">
+<svg width="18" height="18"><path d="M9 3 L14 13 L9 11 L4 13 Z" fill="none" stroke="rgba(239,83,80,0.5)" stroke-width="1"/></svg>
+</div>
+<div class="cc-name">Dragon</div>
+<div class="cc-power">Attune to element</div>
+</div>
+<div class="creature-card">
+<div class="cc-icon" style="background:rgba(160,150,60,0.08);border:1px solid rgba(160,150,60,0.25);">
+<svg width="18" height="18"><rect x="4" y="6" width="10" height="8" rx="1" fill="none" stroke="rgba(160,150,60,0.5)" stroke-width="1"/><line x1="6" y1="6" x2="6" y2="4" stroke="rgba(160,150,60,0.4)" stroke-width="1"/><line x1="12" y1="6" x2="12" y2="4" stroke="rgba(160,150,60,0.4)" stroke-width="1"/></svg>
+</div>
+<div class="cc-name">Goblinoid</div>
+<div class="cc-power">Subjugate</div>
+</div>
+<div class="creature-card">
+<div class="cc-icon" style="background:rgba(183,28,28,0.08);border:1px solid rgba(183,28,28,0.25);">
+<svg width="18" height="18"><path d="M4 14 L9 4 L14 14" fill="none" stroke="rgba(183,28,28,0.5)" stroke-width="1.5"/><line x1="6" y1="10" x2="12" y2="10" stroke="rgba(183,28,28,0.4)" stroke-width="1"/></svg>
+</div>
+<div class="cc-name">Demon</div>
+<div class="cc-power">Kill to ascend</div>
+</div>
+<div class="creature-card">
+<div class="cc-icon" style="background:rgba(255,152,0,0.08);border:1px solid rgba(255,152,0,0.25);">
+<svg width="18" height="18"><circle cx="9" cy="9" r="6" fill="none" stroke="rgba(255,152,0,0.4)" stroke-width="1"/><path d="M6 7 L9 12 L12 7" fill="none" stroke="rgba(255,152,0,0.5)" stroke-width="1"/></svg>
+</div>
+<div class="cc-name">Devil</div>
+<div class="cc-power">Contract &amp; control</div>
+</div>
+<div class="creature-card">
+<div class="cc-icon" style="background:rgba(124,179,66,0.08);border:1px solid rgba(124,179,66,0.2);">
+<svg width="18" height="18"><circle cx="9" cy="9" r="5" fill="none" stroke="rgba(124,179,66,0.3)" stroke-width="1"/><circle cx="9" cy="9" r="2" fill="none" stroke="rgba(124,179,66,0.5)" stroke-width="1"/><circle cx="9" cy="9" r="0.8" fill="rgba(124,179,66,0.5)"/></svg>
+</div>
+<div class="cc-name">Aberration</div>
+<div class="cc-power">Feed on minds</div>
+</div>
+<div class="creature-card">
+<div class="cc-icon" style="background:rgba(100,160,80,0.08);border:1px solid rgba(100,160,80,0.2);">
+<svg width="18" height="18"><path d="M5 14 C5 8 9 4 13 8" fill="none" stroke="rgba(100,160,80,0.5)" stroke-width="1.5"/><circle cx="13" cy="7" r="1" fill="rgba(100,160,80,0.4)"/></svg>
+</div>
+<div class="cc-name">Beast</div>
+<div class="cc-power">Hunt &amp; evolve</div>
+</div>
+<div class="creature-card">
+<div class="cc-icon" style="background:rgba(140,130,110,0.08);border:1px solid rgba(140,130,110,0.2);">
+<svg width="18" height="18"><rect x="5" y="4" width="8" height="11" rx="1" fill="none" stroke="rgba(140,130,110,0.5)" stroke-width="1.5"/><line x1="7" y1="8" x2="11" y2="8" stroke="rgba(140,130,110,0.3)" stroke-width="1"/></svg>
+</div>
+<div class="cc-name">Giant</div>
+<div class="cc-power">Reshape the land</div>
+</div>
+</div>
+</div>
+
+<div class="panel p-slime">
+<div class="panel-label">Spotlight &mdash; Ooze origin</div>
+<div class="panel-title" style="color:var(--green);">The Slime</div>
+<div class="panel-text">You begin as a puddle with hunger. Engulf what you can. Grow. Your size is your power. Your mass is your weapon. At Tier 4, you become something the cavern has never seen.</div>
+<div class="tier-bar">
+<div class="tier-seg t1">T1</div>
+<div class="tier-seg t2">T2</div>
+<div class="tier-seg t3">T3</div>
+<div class="tier-seg t4">T4</div>
+<div class="tier-seg ta">Ascend</div>
+</div>
+<div class="panel-flavor">"Instant Engulf &mdash; move over them. They are already inside you."</div>
+<div class="slime-blob"></div>
+<div class="slime-eye"></div>
+<div class="slime-eye2"></div>
+</div>
+
+<div class="panel p-domain">
+<div class="panel-label">Build your domain</div>
+<div class="panel-title">Spawning pools</div>
+<div class="panel-text">Invest your power into the world. Create structures that defend, produce, and feed energy back to you. Every creature type builds differently. The Slime seeds pools. The Devil builds courts. The Dragon shapes lairs.</div>
+<div class="panel-flavor">Your domain is not a base. It is an extension of your body.</div>
+<div class="pool-viz">
+<div class="pool-ring pool-r1"></div>
+<div class="pool-ring pool-r2"></div>
+<div class="pool-ring pool-r3"></div>
+</div>
+</div>
+
+<div class="panel p-combat">
+<div class="panel-label">Dual-layer combat</div>
+<div class="panel-title">Command or conquer</div>
+<div class="panel-text">Send your armies. Issue tactical orders turn by turn. When the opposing commander enters the fight, you get a choice: drop in. You are not a general watching from a tower. You are the most dangerous thing on the field.</div>
+<div class="panel-flavor">No doomstacking. No cheating AI. What you scout is what you fight.</div>
+<div class="clash-line">
+<div class="clash-l c-l1"></div>
+<div class="clash-l c-l2"></div>
+<div class="clash-l c-l3"></div>
+<div class="c-dot"></div>
+</div>
+</div>
+
+<div class="panel p-rival">
+<div class="panel-label">They are building too</div>
+<div class="panel-title">Rival empires</div>
+<div class="panel-text">The Underworld is not empty. Other monsters are evolving, conquering, and expanding. Each one plays by the rules of its origin. Defeat them to steal abilities outside your tree.</div>
+<div class="rival-silhouettes">
+<div class="rival-s">
+<div class="rival-shape rs-devil"><svg width="20" height="20"><circle cx="10" cy="10" r="6" fill="none" stroke="rgba(255,152,0,0.5)" stroke-width="1"/></svg></div>
+<div class="rival-label">Devil lord</div>
+<div class="rival-style">Contracts your minions</div>
+</div>
+<div class="rival-s">
+<div class="rival-shape rs-dragon"><svg width="20" height="20"><path d="M10 4 L16 14 L10 12 L4 14 Z" fill="none" stroke="rgba(239,83,80,0.4)" stroke-width="1"/></svg></div>
+<div class="rival-label">Fire wyrm</div>
+<div class="rival-style">Fortifies the volcano</div>
+</div>
+<div class="rival-s">
+<div class="rival-shape rs-demon"><svg width="20" height="20"><path d="M4 16 L10 4 L16 16" fill="none" stroke="rgba(183,28,28,0.5)" stroke-width="1.5"/></svg></div>
+<div class="rival-label">Pit demon</div>
+<div class="rival-style">Kills everything in sight</div>
+</div>
+</div>
+</div>
+
+<div class="panel panel-wide p-narrative">
+<div class="panel-label">GenAI narrative engine</div>
+<div class="panel-title">Your story. No one else's.</div>
+<div class="panel-text">At every evolution milestone, the narrative engine reads your complete journey &mdash; every creature consumed, every rival defeated, every path chosen &mdash; and generates the identity of what you've become. Authored schema. Authored fallbacks. Your performance.</div>
+<div class="narr-box">
+<div class="narr-label">Evolution milestone &mdash; Tier 3 Ascension</div>
+<div class="narr-text">"The thing that crawled from the spawning pool no longer remembers being small. It has eaten a dragon's heart and worn a demon's rage. The caverns call it The Viscous Inferno, and the name is not wrong &mdash; but it is not enough. Nothing down here is enough anymore."</div>
+<div style="margin-top:10px;">
+<span class="narr-tag">origin: ooze</span>
+<span class="narr-tag">path: slime &rarr; slime dragon</span>
+<span class="narr-tag">rivals consumed: fire dragon, demon</span>
+<span class="narr-tag">tone: awe</span>
+</div>
+</div>
+</div>
+
+</div>
+
+<div class="uw-footer">
+<div class="uf-line1">This is where it starts.</div>
+<div class="uf-line2">ASCENSION &mdash; PART I &mdash; THE UNDERWORLD</div>
+</div>
+</div>
+</div>

@@ -63,6 +63,14 @@ with col2:
     st.page_link("pages/5_item_archives.py", label="THE RELIQUARY", use_container_width=True)
     st.markdown("<p style='text-align: center; color: #666; font-family: Cormorant Garamond; font-size: 1rem; margin-top: -15px;'>Inspect the Reliquary</p>", unsafe_allow_html=True)
 
+st.markdown("<br>", unsafe_allow_html=True)
+
+# Centered bottom link
+col_l, col_c, col_r = st.columns([1, 1, 1])
+with col_c:
+    st.page_link("pages/6_the_pitch.py", label="THE PITCH", use_container_width=True)
+    st.markdown("<p style='text-align: center; color: #666; font-family: Cormorant Garamond; font-size: 1rem; margin-top: -15px;'>The Vision</p>", unsafe_allow_html=True)
+
 # Footer
 runes = ["ᚠ", "ᚢ", "ᚦ", "ᚨ", "ᚱ", "ᚲ", "ᚷ", "ᚹ"]
 rune_html = "<div class='footer-container'>"

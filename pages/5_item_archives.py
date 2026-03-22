@@ -99,6 +99,10 @@ def view_item(row, index_in_sheet):
             
             btn_col1, btn_col2 = st.columns(2)
             with btn_col1:
+                if st.button("↩ KEEP ORIGINAL", use_container_width=True, key=f"keep_{index_in_sheet}"):
+                    del st.session_state[preview_key]
+                    st.rerun()
+            with btn_col2:
                 if st.button("✅ ACCEPT NEW", type="primary", use_container_width=True, key=f"accept_{index_in_sheet}"):
                     with st.spinner("Inscribing new artifact..."):
                         try:
@@ -112,10 +116,6 @@ def view_item(row, index_in_sheet):
                             st.rerun()
                         except Exception as e:
                             st.error(f"Failed to save: {e}")
-            with btn_col2:
-                if st.button("↩ KEEP ORIGINAL", use_container_width=True, key=f"keep_{index_in_sheet}"):
-                    del st.session_state[preview_key]
-                    st.rerun()
 
 # -----------------------------------------------------------------------------
 # 6. LAYOUT & GRID

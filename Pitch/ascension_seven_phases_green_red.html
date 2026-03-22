@@ -1,0 +1,168 @@
+
+<div id="root" style="padding: 1rem 0;">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+#root { --void: #0a0a0c; --deep: #10120f; --surface: #1a1c18; --c1: #2E7D32; --c1g: #4CAF50; --c2: #558B2F; --c2g: #7CB342; --c3: #9E9D24; --c3g: #C0CA33; --c4: #F9A825; --c4g: #FDD835; --c5: #EF6C00; --c5g: #FF9800; --c6: #D32F2F; --c6g: #EF5350; --c7: #B71C1C; --c7g: #E53935; --gold: #D4A017; --text: #c8c8c0; --dim: #6b6b60; }
+.vision-canvas { background: var(--void); border-radius: 12px; overflow: hidden; position: relative; }
+.vision-header { text-align: center; padding: 4rem 2rem 2rem; position: relative; }
+.vision-header::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 1px; height: 60px; background: linear-gradient(to bottom, transparent, var(--c1)); }
+.v-title { font-family: 'Cinzel', serif; font-size: 42px; font-weight: 700; color: #fff; letter-spacing: 6px; margin: 0; }
+.v-sub { font-family: 'Cormorant Garamond', serif; font-size: 16px; color: var(--dim); letter-spacing: 8px; margin-top: 12px; text-transform: uppercase; }
+.v-tagline { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--text); margin-top: 24px; font-style: italic; opacity: 0.7; }
+.timeline { position: relative; padding: 2rem 0 3rem; }
+.timeline::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: linear-gradient(to bottom, var(--c1) 0%, var(--c2) 14%, var(--c3) 28%, var(--c4) 42%, var(--c5) 57%, var(--c6) 75%, var(--c7) 100%); }
+.phase { display: flex; align-items: stretch; margin: 0; padding: 0; position: relative; min-height: 140px; }
+.phase:nth-child(odd) { flex-direction: row; }
+.phase:nth-child(even) { flex-direction: row-reverse; }
+.phase-content { width: 45%; padding: 1.5rem 2rem; position: relative; }
+.phase:nth-child(odd) .phase-content { text-align: right; padding-right: 3rem; }
+.phase:nth-child(even) .phase-content { text-align: left; padding-left: 3rem; }
+.phase-spacer { width: 10%; display: flex; align-items: center; justify-content: center; position: relative; z-index: 2; }
+.phase-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid; position: relative; }
+.phase-dot::after { content: ''; position: absolute; inset: 3px; border-radius: 50%; }
+.p1 .phase-dot { border-color: var(--c1g); } .p1 .phase-dot::after { background: var(--c1g); }
+.p2 .phase-dot { border-color: var(--c2g); } .p2 .phase-dot::after { background: var(--c2g); }
+.p3 .phase-dot { border-color: var(--c3g); } .p3 .phase-dot::after { background: var(--c3g); }
+.p4 .phase-dot { border-color: var(--c4g); } .p4 .phase-dot::after { background: var(--c4g); }
+.p5 .phase-dot { border-color: var(--c5g); } .p5 .phase-dot::after { background: var(--c5g); }
+.p6 .phase-dot { border-color: var(--c6g); } .p6 .phase-dot::after { background: var(--c6g); }
+.p7 .phase-dot { border-color: var(--c7g); } .p7 .phase-dot::after { background: var(--c7g); }
+.phase-num { font-family: 'Cinzel', serif; font-size: 11px; color: var(--dim); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 4px; }
+.phase-name { font-family: 'Cinzel', serif; font-size: 20px; font-weight: 600; margin: 4px 0 8px; }
+.p1 .phase-name { color: var(--c1g); }
+.p2 .phase-name { color: var(--c2g); }
+.p3 .phase-name { color: var(--c3g); }
+.p4 .phase-name { color: var(--c4g); }
+.p5 .phase-name { color: var(--c5g); }
+.p6 .phase-name { color: var(--c6g); }
+.p7 .phase-name { color: var(--c7g); }
+.phase-desc { font-family: 'Cormorant Garamond', serif; font-size: 15px; color: var(--text); line-height: 1.6; margin: 0; }
+.phase-systems { font-family: 'Cormorant Garamond', serif; font-size: 13px; color: var(--dim); margin-top: 8px; font-style: italic; }
+.phase-viz { width: 45%; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+.phase-art { width: 100%; max-width: 260px; height: 100px; border-radius: 8px; position: relative; overflow: hidden; }
+
+.pa-cavern { background: linear-gradient(135deg, #080c08 0%, #0f1a0f 40%, #162216 70%, #080c08 100%); }
+.pa-cavern::before { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40%; background: linear-gradient(to top, rgba(46,125,50,0.15), transparent); }
+.pa-cavern::after { content: ''; position: absolute; top: 20px; left: 30%; width: 40px; height: 40px; border-radius: 50%; background: radial-gradient(circle, rgba(76,175,80,0.3) 0%, transparent 70%); }
+
+.pa-continent { background: linear-gradient(135deg, #0c0f08 0%, #1a2210 30%, #1a1a0a 70%, #0f0f08 100%); }
+.pa-continent::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 35%; background: linear-gradient(to bottom, rgba(124,179,66,0.1), transparent); }
+
+.pa-planet { background: radial-gradient(ellipse at 40% 50%, #1a1a10 0%, #0f0f0a 50%, #0a0a08 100%); }
+.pa-planet::before { content: ''; position: absolute; top: 50%; left: 40%; transform: translate(-50%,-50%); width: 50px; height: 50px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #2a2a18, #15150e); border: 1px solid rgba(192,202,51,0.25); }
+
+.pa-solar { background: radial-gradient(circle at 30% 40%, #1a1508 0%, #0f0f08 60%, #0a0a06 100%); }
+.pa-solar::before { content: ''; position: absolute; top: 50%; left: 30%; transform: translate(-50%,-50%); width: 20px; height: 20px; border-radius: 50%; background: radial-gradient(circle, rgba(253,216,53,0.6), rgba(249,168,37,0.1)); box-shadow: 0 0 30px rgba(249,168,37,0.15); }
+
+.pa-galaxy { background: radial-gradient(ellipse at 50% 50%, #1a1208 0%, #0f0a06 60%, #080604 100%); }
+.pa-galaxy::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%) rotate(30deg); width: 80px; height: 30px; border-radius: 50%; background: radial-gradient(ellipse, rgba(255,152,0,0.2), transparent); }
+
+.pa-universe { background: #080606; }
+.pa-universe::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 25% 30%, rgba(211,47,47,0.1) 0%, transparent 40%), radial-gradient(circle at 70% 60%, rgba(239,83,80,0.08) 0%, transparent 40%), radial-gradient(circle at 50% 80%, rgba(255,152,0,0.06) 0%, transparent 30%); }
+
+.pa-dimension { background: linear-gradient(135deg, #0a0808 0%, #1a0e0e 50%, #0a0808 100%); }
+.pa-dimension::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 60px; height: 60px; border-radius: 50%; border: 1px solid rgba(229,57,53,0.25); }
+.pa-dimension::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%) rotate(45deg); width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(183,28,28,0.3); }
+
+.star { position: absolute; width: 1px; height: 1px; background: #fff; border-radius: 50%; }
+.vision-footer { text-align: center; padding: 2rem 2rem 3rem; border-top: 1px solid rgba(46,125,50,0.15); }
+.vf-line { font-family: 'Cinzel', serif; font-size: 13px; color: var(--dim); letter-spacing: 3px; }
+.vf-big { font-family: 'Cinzel', serif; font-size: 22px; font-weight: 600; color: #fff; margin-top: 12px; }
+.vf-carry { font-family: 'Cormorant Garamond', serif; font-size: 15px; color: var(--text); margin-top: 12px; font-style: italic; opacity: 0.6; }
+</style>
+
+<div class="vision-canvas">
+<div class="vision-header">
+<h1 class="v-title">ASCENSION</h1>
+<p class="v-sub">The seven ages</p>
+<p class="v-tagline">"You will never hit a ceiling, and you will never run out of world."</p>
+</div>
+
+<div class="timeline">
+
+<div class="phase p1">
+<div class="phase-content">
+<div class="phase-num">Part I &mdash; Base game</div>
+<div class="phase-name">The Underworld</div>
+<p class="phase-desc">You are born in darkness. A slime in a cavern. A skeleton in a crypt. A hatchling in a volcanic fissure. You devour, you grow, you build your first domain. Other monsters are doing the same. Conquer them or be consumed.</p>
+<p class="phase-systems">Solo creature combat &middot; Power acquisition &middot; Domain seeding &middot; Rival encounters &middot; GenAI narrative identity</p>
+</div>
+<div class="phase-spacer"><div class="phase-dot"></div></div>
+<div class="phase-viz"><div class="phase-art pa-cavern"><span class="star" style="top:15%;left:20%;opacity:0.3"></span><span class="star" style="top:40%;left:70%;opacity:0.2"></span><span class="star" style="top:65%;left:45%;opacity:0.4"></span></div></div>
+</div>
+
+<div class="phase p2">
+<div class="phase-content">
+<div class="phase-num">Part II &mdash; Base game</div>
+<div class="phase-name">The Overworld</div>
+<p class="phase-desc">You breach the surface. One continent stretches before you, populated, defended, unprepared. Build armies from your minions. Command them in turn-based tactical combat. Drop into battle yourself when the opposing commander takes the field.</p>
+<p class="phase-systems">Army composition &middot; Tactical combat &middot; Commander drop-in &middot; Diplomacy &middot; Anti-doomstack warfare</p>
+</div>
+<div class="phase-spacer"><div class="phase-dot"></div></div>
+<div class="phase-viz"><div class="phase-art pa-continent"><span class="star" style="top:10%;left:50%;opacity:0.15"></span></div></div>
+</div>
+
+<div class="phase p3">
+<div class="phase-content">
+<div class="phase-num">Part III &mdash; Expansion</div>
+<div class="phase-name">The Planet</div>
+<p class="phase-desc">This continent was only the beginning. Oceans, ice caps, deserts, and civilizations you haven't imagined yet. Some worlds fall easily. Others have been preparing for something like you for a very long time.</p>
+<p class="phase-systems">Naval &amp; aerial forces &middot; Climate warfare &middot; Continental campaigns &middot; Global logistics</p>
+</div>
+<div class="phase-spacer"><div class="phase-dot"></div></div>
+<div class="phase-viz"><div class="phase-art pa-planet"><span class="star" style="top:12%;left:75%;opacity:0.3"></span><span class="star" style="top:80%;left:20%;opacity:0.2"></span><span class="star" style="top:30%;left:15%;opacity:0.15"></span></div></div>
+</div>
+
+<div class="phase p4">
+<div class="phase-content">
+<div class="phase-num">Part IV &mdash; Expansion</div>
+<div class="phase-name">The Solar System</div>
+<p class="phase-desc">The sky was never a ceiling. It was a door. Launch your first interplanetary campaign. Every world is different: some fractured and ripe for conquest, others unified under a single terrifying intelligence.</p>
+<p class="phase-systems">Interplanetary invasion &middot; Footholds on hostile worlds &middot; Diverse planetary biomes</p>
+</div>
+<div class="phase-spacer"><div class="phase-dot"></div></div>
+<div class="phase-viz"><div class="phase-art pa-solar"><span class="star" style="top:20%;left:60%;opacity:0.4"></span><span class="star" style="top:70%;left:75%;opacity:0.25"></span><span class="star" style="top:45%;left:85%;opacity:0.3"></span><span class="star" style="top:15%;left:45%;opacity:0.15"></span></div></div>
+</div>
+
+<div class="phase p5">
+<div class="phase-content">
+<div class="phase-num">Part V &mdash; Expansion</div>
+<div class="phase-name">The Galaxy</div>
+<p class="phase-desc">Star systems. Billions of them. Your empire spans light-years. Each galaxy expansion is its own campaign: Alpha Centauri, Tau Ceti, the Magellanic Clouds. New physics, new creatures, new rules.</p>
+<p class="phase-systems">Galactic logistics &middot; Star system campaigns &middot; Expansion-specific factions &middot; Cosmic-tier threats</p>
+</div>
+<div class="phase-spacer"><div class="phase-dot"></div></div>
+<div class="phase-viz"><div class="phase-art pa-galaxy"><span class="star" style="top:20%;left:30%;opacity:0.5"></span><span class="star" style="top:35%;left:55%;opacity:0.4"></span><span class="star" style="top:60%;left:40%;opacity:0.35"></span><span class="star" style="top:75%;left:65%;opacity:0.2"></span><span class="star" style="top:15%;left:70%;opacity:0.3"></span><span class="star" style="top:50%;left:25%;opacity:0.25"></span><span class="star" style="top:85%;left:50%;opacity:0.15"></span></div></div>
+</div>
+
+<div class="phase p6">
+<div class="phase-content">
+<div class="phase-num">Part VI &mdash; Expansion</div>
+<div class="phase-name">The Universe</div>
+<p class="phase-desc">Every galaxy conquered. Every star claimed. The fabric of reality begins to feel thin. Something is on the other side. Something familiar.</p>
+<p class="phase-systems">Intergalactic warfare &middot; Universal-scale diplomacy &middot; Reality destabilization events</p>
+</div>
+<div class="phase-spacer"><div class="phase-dot"></div></div>
+<div class="phase-viz"><div class="phase-art pa-universe"><span class="star" style="top:10%;left:15%;opacity:0.5"></span><span class="star" style="top:25%;left:45%;opacity:0.4"></span><span class="star" style="top:50%;left:70%;opacity:0.35"></span><span class="star" style="top:40%;left:25%;opacity:0.3"></span><span class="star" style="top:70%;left:50%;opacity:0.25"></span><span class="star" style="top:15%;left:80%;opacity:0.2"></span><span class="star" style="top:60%;left:35%;opacity:0.3"></span><span class="star" style="top:80%;left:15%;opacity:0.15"></span><span class="star" style="top:35%;left:60%;opacity:0.4"></span><span class="star" style="top:90%;left:75%;opacity:0.2"></span></div></div>
+</div>
+
+<div class="phase p7">
+<div class="phase-content">
+<div class="phase-num">Part VII &mdash; Endgame</div>
+<div class="phase-name">The Dimensions</div>
+<p class="phase-desc">You tear through the membrane of reality. On the other side: another universe. Another version of you. A creature that made every choice you didn't. The final conquest is yourself.</p>
+<p class="phase-systems">Reality-hopping &middot; Alternate-self encounters &middot; Dimensional physics &middot; The mirror fight</p>
+</div>
+<div class="phase-spacer"><div class="phase-dot"></div></div>
+<div class="phase-viz"><div class="phase-art pa-dimension"><span class="star" style="top:20%;left:30%;opacity:0.4"></span><span class="star" style="top:70%;left:65%;opacity:0.3"></span><span class="star" style="top:45%;left:80%;opacity:0.2"></span></div></div>
+</div>
+
+</div>
+
+<div class="vision-footer">
+<div class="vf-line">YOUR EMPIRE CARRIES FORWARD. YOU NEVER START OVER.</div>
+<div class="vf-big">One slime. One cavern. One universe at a time.</div>
+<div class="vf-carry">Every expansion builds on everything you've built. The core loop never changes. The scale never stops growing.</div>
+</div>
+</div>
+</div>
