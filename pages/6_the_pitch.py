@@ -7,7 +7,7 @@ import utils.styles as styles
 # -----------------------------------------------------------------------------
 # 1. PAGE CONFIG
 # -----------------------------------------------------------------------------
-st.set_page_config(page_title="The Pitch", page_icon="🎮", layout="wide")
+st.set_page_config(page_title="The Pitch", page_icon="🎮")
 
 # -----------------------------------------------------------------------------
 # 2. THE VISUAL ENGINE (CSS)
