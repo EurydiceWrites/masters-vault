@@ -63,6 +63,8 @@ def view_soul(row, index_in_sheet):
         st.markdown("<hr style='border: 1px solid #222; margin: 20px 0;'>", unsafe_allow_html=True)
         st.markdown("<div style='font-family:Cinzel; color:#95b4a7; margin-bottom:8px;'>✨ Reforge Visage (Fast Lane)</div>", unsafe_allow_html=True)
         
+        preview_key = f"pending_npc_preview_{index_in_sheet}"
+        
         tweak_prompt = st.text_input("Tweak visual details", placeholder="e.g., 'Make it snowing', 'Give them a scar'", label_visibility="collapsed", key=f"tweak_{index_in_sheet}")
         tweak_tone = st.selectbox("Resonance", ["Noble & Bright", "Grim & Shadow", "Mystic & Strange"], key=f"tweak_tone_{index_in_sheet}")
         
@@ -72,29 +74,51 @@ def view_soul(row, index_in_sheet):
             else:
                 with st.spinner("The Weave shifts..."):
                     try:
-                        # 1. Generate new image using the remix function
                         new_img_bytes = llm_service.remix_npc_image(
                             base_visual=row['Visual_Desc'],
                             char_class=row['Class'],
                             tweak=tweak_prompt,
                             tone=tweak_tone
                         )
-                        
-                        # 1b. Encode the raw bytes to Data URI for Cloudinary
-                        b64_encoded = base64.b64encode(new_img_bytes).decode("utf-8")
-                        data_uri = f"data:image/jpeg;base64,{b64_encoded}"
-                        
-                        # 2. Upload to Cloudinary
-                        new_image_url = storage_service.upload_image_to_cdn(data_uri)
-                        
-                        # 3. Patch the Database 
-                        db_service.update_character_image(index_in_sheet + 2, new_image_url)
-                        
-                        st.session_state["show_success_toast"] = True
+                        # Store preview in session state instead of saving immediately
+                        st.session_state[preview_key] = {
+                            "bytes": new_img_bytes,
+                            "original_url": img_src,
+                        }
                         st.rerun()
-                        
                     except Exception as e:
                         st.error(f"Failed to reforge image: {e}")
+        
+        # --- PREVIEW: Accept or Keep Original ---
+        if preview_key in st.session_state:
+            st.markdown("<div style='font-family:Cinzel; color:#c9a347; margin: 12px 0 6px;'>⚖️ Compare Visages</div>", unsafe_allow_html=True)
+            prev_col1, prev_col2 = st.columns(2)
+            with prev_col1:
+                st.markdown("<div style='text-align:center; color:#888; font-size:0.75rem; font-family:Cinzel; letter-spacing:1px;'>ORIGINAL</div>", unsafe_allow_html=True)
+                st.image(st.session_state[preview_key]["original_url"], use_container_width=True)
+            with prev_col2:
+                st.markdown("<div style='text-align:center; color:#50c878; font-size:0.75rem; font-family:Cinzel; letter-spacing:1px;'>NEW VISAGE</div>", unsafe_allow_html=True)
+                st.image(st.session_state[preview_key]["bytes"], use_container_width=True)
+            
+            btn_col1, btn_col2 = st.columns(2)
+            with btn_col1:
+                if st.button("✅ ACCEPT NEW", type="primary", use_container_width=True, key=f"accept_{index_in_sheet}"):
+                    with st.spinner("Inscribing new visage..."):
+                        try:
+                            img_bytes = st.session_state[preview_key]["bytes"]
+                            b64_encoded = base64.b64encode(img_bytes).decode("utf-8")
+                            data_uri = f"data:image/jpeg;base64,{b64_encoded}"
+                            new_image_url = storage_service.upload_image_to_cdn(data_uri)
+                            db_service.update_character_image(index_in_sheet + 2, new_image_url)
+                            del st.session_state[preview_key]
+                            st.session_state["show_success_toast"] = True
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Failed to save: {e}")
+            with btn_col2:
+                if st.button("↩ KEEP ORIGINAL", use_container_width=True, key=f"keep_{index_in_sheet}"):
+                    del st.session_state[preview_key]
+                    st.rerun()
 
 # -----------------------------------------------------------------------------
 # 6. LAYOUT & GRID

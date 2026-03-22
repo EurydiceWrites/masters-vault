@@ -62,6 +62,8 @@ def view_item(row, index_in_sheet):
         st.markdown("<hr style='border: 1px solid #222; margin: 20px 0;'>", unsafe_allow_html=True)
         st.markdown("<div style='font-family:Cinzel; color:#95b4a7; margin-bottom:8px;'>✨ Reforge Artifact (Fast Lane)</div>", unsafe_allow_html=True)
         
+        preview_key = f"pending_item_preview_{index_in_sheet}"
+        
         tweak_prompt = st.text_input("Tweak visual details", placeholder="e.g., 'Make it glow blue', 'Wrap it in chains'", label_visibility="collapsed", key=f"tweak_{index_in_sheet}")
         
         if st.button("REFORGE IMAGE", type="primary", use_container_width=True, key=f"btn_reforge_{index_in_sheet}"):
@@ -70,28 +72,50 @@ def view_item(row, index_in_sheet):
             else:
                 with st.spinner("The Anvil rings again..."):
                     try:
-                        # 1. Generate new image using the remix function
                         new_img_bytes = llm_service.remix_item_image(
                             base_visual=row.get('Visual_Desc', ''),
                             item_type=row.get('Type', 'Wondrous Item'),
                             tweak=tweak_prompt
                         )
-                        
-                        # 1b. Encode the raw bytes to Data URI for Cloudinary
-                        b64_encoded = base64.b64encode(new_img_bytes).decode("utf-8")
-                        data_uri = f"data:image/jpeg;base64,{b64_encoded}"
-                        
-                        # 2. Upload to Cloudinary
-                        new_image_url = storage_service.upload_image_to_cdn(data_uri, folder="The_Forge")
-                        
-                        # 3. Patch the Database 
-                        db_service.update_item_image(index_in_sheet + 2, new_image_url)
-                        
-                        st.session_state["show_success_toast"] = True
+                        # Store preview in session state instead of saving immediately
+                        st.session_state[preview_key] = {
+                            "bytes": new_img_bytes,
+                            "original_url": img_src,
+                        }
                         st.rerun()
-                        
                     except Exception as e:
                         st.error(f"Failed to reforge artifact: {e}")
+        
+        # --- PREVIEW: Accept or Keep Original ---
+        if preview_key in st.session_state:
+            st.markdown("<div style='font-family:Cinzel; color:#c9a347; margin: 12px 0 6px;'>⚖️ Compare Artifacts</div>", unsafe_allow_html=True)
+            prev_col1, prev_col2 = st.columns(2)
+            with prev_col1:
+                st.markdown("<div style='text-align:center; color:#888; font-size:0.75rem; font-family:Cinzel; letter-spacing:1px;'>ORIGINAL</div>", unsafe_allow_html=True)
+                st.image(st.session_state[preview_key]["original_url"], use_container_width=True)
+            with prev_col2:
+                st.markdown("<div style='text-align:center; color:#50c878; font-size:0.75rem; font-family:Cinzel; letter-spacing:1px;'>NEW ARTIFACT</div>", unsafe_allow_html=True)
+                st.image(st.session_state[preview_key]["bytes"], use_container_width=True)
+            
+            btn_col1, btn_col2 = st.columns(2)
+            with btn_col1:
+                if st.button("✅ ACCEPT NEW", type="primary", use_container_width=True, key=f"accept_{index_in_sheet}"):
+                    with st.spinner("Inscribing new artifact..."):
+                        try:
+                            img_bytes = st.session_state[preview_key]["bytes"]
+                            b64_encoded = base64.b64encode(img_bytes).decode("utf-8")
+                            data_uri = f"data:image/jpeg;base64,{b64_encoded}"
+                            new_image_url = storage_service.upload_image_to_cdn(data_uri, folder="The_Forge")
+                            db_service.update_item_image(index_in_sheet + 2, new_image_url)
+                            del st.session_state[preview_key]
+                            st.session_state["show_success_toast"] = True
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Failed to save: {e}")
+            with btn_col2:
+                if st.button("↩ KEEP ORIGINAL", use_container_width=True, key=f"keep_{index_in_sheet}"):
+                    del st.session_state[preview_key]
+                    st.rerun()
 
 # -----------------------------------------------------------------------------
 # 6. LAYOUT & GRID
