@@ -429,5 +429,59 @@ def load_css():
 
     @keyframes fadein { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+    /* --- LIVE-MODE PLACEHOLDERS (Progressive Rendering) --- */
+    .summoning-state {
+        margin-top: 4rem;
+        padding: 4.5rem 2rem;
+        background: #0e0e0e;
+        border: 1px solid #222;
+        border-top: 4px solid var(--emerald-dim);
+        box-shadow: 0 20px 60px rgba(0,0,0,1);
+        text-align: center;
+        font-family: 'Cinzel', serif;
+        color: var(--emerald-glow);
+        text-transform: uppercase;
+        letter-spacing: 5px;
+        font-size: 1.1rem;
+        animation: pulse-dim 2s infinite ease-in-out;
+    }
+
+    .portrait-forming {
+        width: 100%;
+        aspect-ratio: 3 / 4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(110deg, #0a0a0a 30%, #161616 50%, #0a0a0a 70%);
+        background-size: 200% 100%;
+        animation: shimmer 1.8s infinite linear;
+        font-family: 'Cinzel', serif;
+        color: #555;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        font-size: 0.85rem;
+    }
+
+    .portrait-missing {
+        width: 100%;
+        height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #555;
+        font-family: 'Cormorant Garamond', serif;
+        font-style: italic;
+    }
+
+    @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    @keyframes pulse-dim {
+        0%, 100% { opacity: 0.45; }
+        50% { opacity: 1; }
+    }
+
 </style>
     """, unsafe_allow_html=True)
