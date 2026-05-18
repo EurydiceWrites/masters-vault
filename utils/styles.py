@@ -330,15 +330,16 @@ def load_css():
     .footer-container { 
         display: flex; 
         justify-content: center; 
-        gap: 2rem; 
+        gap: 1.4rem;
+        flex-wrap: wrap;
         margin-top: 8rem; 
         padding-bottom: 2rem;
-        opacity: 0.4;
+        opacity: 1;
     }
 
     .rune-span {
-        font-size: 2rem; 
-        color: var(--emerald-dim); 
+        font-size: 2.8rem;
+        color: var(--emerald-glow);
         user-select: none; 
         cursor: default; 
         transition: all 0.5s ease; 
@@ -346,8 +347,8 @@ def load_css():
     }
 
     @keyframes rune-glow {
-        0%, 100% { color: var(--emerald-dim); text-shadow: none; transform: scale(1); }
-        50% { color: var(--emerald-glow); text-shadow: 0 0 15px var(--emerald-dim); transform: scale(1.1); }
+        0%, 100% { color: var(--emerald-glow); text-shadow: 0 0 10px var(--emerald-glow), 0 0 22px var(--emerald-dim); transform: scale(1); }
+        50% { color: var(--emerald-bright); text-shadow: 0 0 16px var(--emerald-bright), 0 0 38px var(--emerald-glow), 0 0 60px var(--emerald-glow); transform: scale(1.22); }
     }
 
     /* --- SPECIFIC TO THE VAULT/ARCHIVE CARDS --- */

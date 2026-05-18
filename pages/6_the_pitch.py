@@ -51,7 +51,7 @@ with tab2:
     components.html(html_underworld, height=2200, scrolling=True)
 
 # Footer
-runes = ["ᚠ", "ᚢ", "ᚦ", "ᚨ", "ᚱ", "ᚲ", "ᚷ", "ᚹ"]
+runes = ["ᛁ", "ᚾ", "ᛁ", "ᛏ", "ᛁ", "ᚨ", "ᛏ", "ᛁ", "ᛟ", "ᚾ"]
 rune_html = "<div class='footer-container'>"
 for i, rune in enumerate(runes):
     delay = i * 0.3

@@ -72,7 +72,7 @@ with col_c:
     st.markdown("<p style='text-align: center; color: #666; font-family: Cormorant Garamond; font-size: 1rem; margin-top: -15px;'>The Vision</p>", unsafe_allow_html=True)
 
 # Footer
-runes = ["ᚠ", "ᚢ", "ᚦ", "ᚨ", "ᚱ", "ᚲ", "ᚷ", "ᚹ"]
+runes = ["ᚹ", "ᚺ", "ᚨ", "ᛏ", "᛫", "ᚹ", "ᛖ", "ᚱ", "ᛖ", "᛫", "ᚹ", "ᛖ", "᛫", "ᚹ", "ᛖ", "ᚨ", "ᚱ", "ᛁ", "ᚾ", "ᚷ"]
 rune_html = "<div class='footer-container'>"
 for i, rune in enumerate(runes):
     delay = i * 0.3

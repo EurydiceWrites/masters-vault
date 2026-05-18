@@ -228,7 +228,7 @@ if st.session_state.npc_data:
 # -----------------------------------------------------------------------------
 # 8. FOOTER
 # -----------------------------------------------------------------------------
-runes = ["ᚦ", "ᚱ", "ᛁ", "ᛉ", "ᛉ", "ᚨ", "ᚱ"]
+runes = ["ᚦ", "ᛖ", "᛫", "ᚾ", "ᛁ", "ᚷ", "ᚺ", "ᛏ"]
 rune_html = "<div class='footer-container'>"
 for i, rune in enumerate(runes):
     rune_html += f"<span class='rune-span'>{rune}</span>"
