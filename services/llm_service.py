@@ -206,3 +206,87 @@ def remix_item_image(base_visual: str, item_type: str, tweak: str) -> bytes:
     )
 
     return image_response.generated_images[0].image.image_bytes
+
+
+# -----------------------------------------------------------------------------
+# 4. THE SHARED IMAGE ENGINE
+# Concept in -> image out. The text model sharpens the user's concept into a
+# vivid prompt in the house style (never shown to them); the image model renders
+# it with a per-room look. One engine, four rooms.
+# -----------------------------------------------------------------------------
+
+# Per-room visual configuration. New rooms join by adding an entry here.
+ROOM_STYLES = {
+    "creature": {
+        "subject": "creature",
+        "aspect_ratio": "3:4",
+        "base_style": (
+            "Award-winning National Geographic wildlife photography, hyper-realistic, "
+            "8k resolution, shot on 35mm lens, highly detailed, realistic textures, "
+            "grounded, the creature shown in its natural habitat. "
+            "ABSOLUTELY NO CGI, NO 3D RENDER, NO CARTOON, NO VIDEO GAME GRAPHICS."
+        ),
+    },
+}
+
+
+def _tone_vibe(tone: str) -> str:
+    """The mood dial -- Noble / Grim / Mystic -- rendered as image-style language."""
+    if tone == "Grim & Shadow":
+        return ("Horror aesthetic, terrifying, malignant, nightmare fuel, disturbing "
+                "dark fantasy, gritty, low-key lighting, heavy shadows, ominous mood.")
+    if tone == "Noble & Bright":
+        return ("Epic high-fantasy style, vibrant saturated colours, golden-hour "
+                "lighting, radiant, majestic, pristine, ethereal, sharp focus, "
+                "heavenly light.")
+    return ("Weird surreal style, mist-filled atmosphere, strange unnatural colours, "
+            "folklore aesthetic, hauntingly beautiful, eerie cinematic lighting, "
+            "otherworldly and anomalous.")
+
+
+def enhance_prompt(concept: str, kind: str, tone: str) -> str:
+    """The Vault's eye: sharpens a raw concept into a vivid, image-ready visual
+    description in the house style. Returns plain text, never shown to the user --
+    only fed to the image model. Falls back to the raw concept if empty.
+    """
+    subject = ROOM_STYLES[kind]["subject"]
+    instruction = f"""
+    Role: a concept artist's eye for a grounded dark-fantasy world.
+    Task: Take this idea for a {subject} and expand it into ONE vivid, concrete
+    visual description for a photograph -- physical form, textures, colours, pose,
+    and the surrounding environment.
+    Idea: "{concept}"
+    Mood to lean into: {_tone_vibe(tone)}
+    Rules:
+    - Describe only what is SEEN. No names, no story, no lore, no stats.
+    - Grounded and believable, not cartoonish.
+    - Must be PG-13.
+    - 3-4 sentences. Output only the description, with no preamble.
+    """
+    client = get_gemini_client()
+    response = client.models.generate_content(model=TEXT_MODEL, contents=instruction)
+    return (response.text or "").strip() or concept
+
+
+def generate_image(description: str, kind: str, tone: str, fast: bool = True) -> bytes:
+    """Renders an image from a visual description, in the given room's look and
+    the chosen mood. Returns raw image bytes.
+
+    fast=True uses the quick image model (default, for live use at the table).
+    """
+    cfg = ROOM_STYLES[kind]
+    image_prompt = (
+        f"A hyper-realistic photograph of a {cfg['subject']}. "
+        f"Description: {description}. "
+        f"Style: {cfg['base_style']} {_tone_vibe(tone)}"
+    )
+    client = get_gemini_client()
+    image_response = client.models.generate_images(
+        model=IMAGE_MODEL_FAST if fast else IMAGE_MODEL_QUALITY,
+        prompt=image_prompt,
+        config=types.GenerateImagesConfig(
+            number_of_images=1,
+            aspect_ratio=cfg["aspect_ratio"],
+        ),
+    )
+    return image_response.generated_images[0].image.image_bytes

@@ -104,3 +104,35 @@ def update_item_image(sheet_row: int, new_image_url: str):
     worksheet = get_items_worksheet()
     worksheet.update_cell(sheet_row, 6, new_image_url)
     clear_items_cache()
+
+# -----------------------------------------------------------------------------
+# 4. CREATURES (The Menagerie)
+# -----------------------------------------------------------------------------
+@st.cache_resource
+def get_creatures_worksheet():
+    """Returns the Creatures worksheet, creating the tab if it does not exist."""
+    gc = get_gspread_client()
+    sh = gc.open("Masters_Vault_Db")
+    try:
+        return sh.worksheet("Creatures")
+    except gspread.WorksheetNotFound:
+        ws = sh.add_worksheet(title="Creatures", rows=200, cols=8)
+        ws.append_row(["Concept", "Tone", "Image_URL", "Timestamp"])
+        return ws
+
+@st.cache_data(ttl=60)
+def get_all_creatures():
+    """Fetches all creatures from the Creatures tab as a Pandas DataFrame."""
+    worksheet = get_creatures_worksheet()
+    data = worksheet.get_all_records()
+    return pd.DataFrame(data)
+
+def clear_creatures_cache():
+    """Manually invalidates the creatures cache."""
+    get_all_creatures.clear()
+
+def insert_creature(row_data: list):
+    """Inserts a new creature row at the top of the Creatures tab."""
+    worksheet = get_creatures_worksheet()
+    worksheet.insert_row(row_data, 2)
+    clear_creatures_cache()
