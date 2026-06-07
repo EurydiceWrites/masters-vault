@@ -7,7 +7,7 @@ import json
 # MODEL CONFIG — single source of truth. Image generation runs in two gears:
 # QUALITY (high fidelity, slower — for prep) and FAST (quicker — for live use).
 # -----------------------------------------------------------------------------
-TEXT_MODEL = "gemini-3-pro-preview"
+TEXT_MODEL = "gemini-3.1-pro-preview"
 IMAGE_MODEL_QUALITY = "imagen-4.0-ultra-generate-001"
 IMAGE_MODEL_FAST = "imagen-4.0-fast-generate-001"
 
@@ -219,11 +219,26 @@ def remix_item_image(base_visual: str, item_type: str, tweak: str) -> bytes:
 ROOM_STYLES = {
     "creature": {
         "subject": "creature",
+        "focus": "the physical form, textures, colours, pose, and the surrounding environment",
         "aspect_ratio": "3:4",
         "base_style": (
             "Award-winning National Geographic wildlife photography, hyper-realistic, "
             "8k resolution, shot on 35mm lens, highly detailed, realistic textures, "
             "grounded, the creature shown in its natural habitat. "
+            "ABSOLUTELY NO CGI, NO 3D RENDER, NO CARTOON, NO VIDEO GAME GRAPHICS."
+        ),
+    },
+    "scene": {
+        "subject": "vast fantasy landscape",
+        "focus": (
+            "the vista, the terrain or architecture, the sky and weather, the quality "
+            "of light, the sense of scale and distance, and the vantage point it is seen from"
+        ),
+        "aspect_ratio": "16:9",
+        "base_style": (
+            "Epic cinematic landscape photography, a wide establishing shot, "
+            "atmospheric and dramatic, a vast sense of scale and distance, hyper-realistic, "
+            "8k resolution, volumetric light, sweeping weather and skies. "
             "ABSOLUTELY NO CGI, NO 3D RENDER, NO CARTOON, NO VIDEO GAME GRAPHICS."
         ),
     },
@@ -249,12 +264,11 @@ def enhance_prompt(concept: str, kind: str, tone: str) -> str:
     description in the house style. Returns plain text, never shown to the user --
     only fed to the image model. Falls back to the raw concept if empty.
     """
-    subject = ROOM_STYLES[kind]["subject"]
+    cfg = ROOM_STYLES[kind]
     instruction = f"""
     Role: a concept artist's eye for a grounded dark-fantasy world.
-    Task: Take this idea for a {subject} and expand it into ONE vivid, concrete
-    visual description for a photograph -- physical form, textures, colours, pose,
-    and the surrounding environment.
+    Task: Take this idea for a {cfg['subject']} and expand it into ONE vivid,
+    concrete visual description for a photograph -- {cfg['focus']}.
     Idea: "{concept}"
     Mood to lean into: {_tone_vibe(tone)}
     Rules:
