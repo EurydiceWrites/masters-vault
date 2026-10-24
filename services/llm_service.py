@@ -7,14 +7,36 @@ import json
 # MODEL CONFIG — single source of truth. Image generation runs in two gears:
 # QUALITY (high fidelity, slower — for prep) and FAST (quicker — for live use).
 # -----------------------------------------------------------------------------
-TEXT_MODEL = "gemini-3.1-pro-preview"
-IMAGE_MODEL_QUALITY = "imagen-4.0-ultra-generate-001"
-IMAGE_MODEL_FAST = "imagen-4.0-fast-generate-001"
+TEXT_MODEL = "gemini-pro-latest"              # stable alias — always Google's current Pro
+IMAGE_MODEL_QUALITY = "gemini-3-pro-image"    # "Nano Banana Pro" — high fidelity
+IMAGE_MODEL_FAST = "gemini-3.1-flash-image"   # "Nano Banana 2" — quick, for live use
 
 
 def get_gemini_client():
     """Initializes and returns the Gemini client."""
     return genai.Client(api_key=st.secrets["GOOGLE_API_KEY"])
+
+
+def _generate_image_bytes(model: str, prompt: str, aspect_ratio: str) -> bytes:
+    """Runs an image model and returns the raw bytes of the first image it paints.
+
+    Google retired the old generate_images door (Imagen); images now come back
+    through generate_content as inline parts. Every image room goes through here,
+    so the next model change is a one-spot fix.
+    """
+    client = get_gemini_client()
+    response = client.models.generate_content(
+        model=model,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            response_modalities=["IMAGE"],
+            image_config=types.ImageConfig(aspect_ratio=aspect_ratio),
+        ),
+    )
+    for part in response.candidates[0].content.parts:
+        if part.inline_data and part.inline_data.data:
+            return part.inline_data.data
+    raise RuntimeError("The image model returned no image.")
 
 def generate_npc_text(concept: str, tone: str) -> dict:
     """
@@ -84,18 +106,11 @@ def generate_npc_image(visual_desc: str, char_class: str, tone: str, fast: bool 
         f"Style: {full_style}"
     )
 
-    client = get_gemini_client()
-    image_response = client.models.generate_images(
+    return _generate_image_bytes(
         model=IMAGE_MODEL_FAST if fast else IMAGE_MODEL_QUALITY,
         prompt=image_prompt,
-        config=types.GenerateImagesConfig(
-            number_of_images=1,
-            aspect_ratio="3:4",
-        )
+        aspect_ratio="3:4",
     )
-
-    # Return the raw image bytes
-    return image_response.generated_images[0].image.image_bytes
 
 def remix_npc_image(base_visual: str, char_class: str, tweak: str, tone: str) -> bytes:
     """
@@ -112,16 +127,11 @@ def remix_npc_image(base_visual: str, char_class: str, tweak: str, tone: str) ->
         f"Style: {full_style}"
     )
 
-    client = get_gemini_client()
-    image_response = client.models.generate_images(
+    return _generate_image_bytes(
         model=IMAGE_MODEL_QUALITY,
         prompt=image_prompt,
-        config=types.GenerateImagesConfig(
-            number_of_images=1,
-            aspect_ratio="3:4",
-        )
+        aspect_ratio="3:4",
     )
-    return image_response.generated_images[0].image.image_bytes
 
 # -----------------------------------------------------------------------------
 # 3. MAGIC ITEM LOGIC
@@ -168,17 +178,11 @@ def generate_item_image(visual_desc: str, item_type: str) -> bytes:
         f"Style: {base_style}"
     )
 
-    client = get_gemini_client()
-    image_response = client.models.generate_images(
+    return _generate_image_bytes(
         model=IMAGE_MODEL_QUALITY,
         prompt=image_prompt,
-        config=types.GenerateImagesConfig(
-            number_of_images=1,
-            aspect_ratio="1:1",  # Items look great in square aspects
-        )
+        aspect_ratio="1:1",  # Items look great in square aspects
     )
-
-    return image_response.generated_images[0].image.image_bytes
 
 def remix_item_image(base_visual: str, item_type: str, tweak: str) -> bytes:
     """
@@ -195,17 +199,11 @@ def remix_item_image(base_visual: str, item_type: str, tweak: str) -> bytes:
         f"Style: {base_style}"
     )
 
-    client = get_gemini_client()
-    image_response = client.models.generate_images(
+    return _generate_image_bytes(
         model=IMAGE_MODEL_QUALITY,
         prompt=image_prompt,
-        config=types.GenerateImagesConfig(
-            number_of_images=1,
-            aspect_ratio="1:1",
-        )
+        aspect_ratio="1:1",
     )
-
-    return image_response.generated_images[0].image.image_bytes
 
 
 # -----------------------------------------------------------------------------
@@ -294,13 +292,8 @@ def generate_image(description: str, kind: str, tone: str, fast: bool = True) ->
         f"Description: {description}. "
         f"Style: {cfg['base_style']} {_tone_vibe(tone)}"
     )
-    client = get_gemini_client()
-    image_response = client.models.generate_images(
+    return _generate_image_bytes(
         model=IMAGE_MODEL_FAST if fast else IMAGE_MODEL_QUALITY,
         prompt=image_prompt,
-        config=types.GenerateImagesConfig(
-            number_of_images=1,
-            aspect_ratio=cfg["aspect_ratio"],
-        ),
+        aspect_ratio=cfg["aspect_ratio"],
     )
-    return image_response.generated_images[0].image.image_bytes

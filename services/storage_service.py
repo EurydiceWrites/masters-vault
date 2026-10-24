@@ -5,14 +5,31 @@ import cloudinary.uploader
 # Memoize the configuration so we only set it up once per session
 @st.cache_resource
 def setup_cloudinary():
-    """Initializes and returns the Cloudinary configuration securely."""
+    """Initializes and returns the Cloudinary configuration securely.
+
+    Accepts either secrets format:
+      - a [cloudinary] section with cloud_name / api_key / api_secret
+        (how the deployed app stores it), or
+      - a single CLOUDINARY_URL line, cloudinary://api_key:api_secret@cloud_name
+        (how the local secrets.toml stores it).
+    """
     try:
-        cloudinary.config(
-            cloud_name = st.secrets["cloudinary"]["cloud_name"],
-            api_key = st.secrets["cloudinary"]["api_key"],
-            api_secret = st.secrets["cloudinary"]["api_secret"],
-            secure = True
-        )
+        if "cloudinary" in st.secrets:
+            cloudinary.config(
+                cloud_name = st.secrets["cloudinary"]["cloud_name"],
+                api_key = st.secrets["cloudinary"]["api_key"],
+                api_secret = st.secrets["cloudinary"]["api_secret"],
+                secure = True
+            )
+        else:
+            from urllib.parse import urlparse
+            parsed = urlparse(st.secrets["CLOUDINARY_URL"])
+            cloudinary.config(
+                cloud_name = parsed.hostname,
+                api_key = parsed.username,
+                api_secret = parsed.password,
+                secure = True
+            )
         return True
     except Exception as e:
         print(f"Cloudinary Config Error: {e}")
